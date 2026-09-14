@@ -24,6 +24,8 @@ final class BlockRegistry
         'textarea' => TextAreaBlock::class,
         'image'    => ImageBlock::class,
         'gallery'  => GalleryBlock::class,
+         'footer'   => FooterBlock::class,
+
     ];
 
     private function __construct()

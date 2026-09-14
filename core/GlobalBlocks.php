@@ -18,11 +18,17 @@ declare(strict_types=1);
 final class GlobalBlocks
 {
     /** @var array<string, array<string, string>> */
+      /** @var array<string, array<string, string>> */
     public const SLOTS = [
         'header' => [
             'block_type' => 'navbar',
             'hint'       => 'vises på alle sider',
             'position'   => 'before',
+        ],
+        'footer' => [
+            'block_type' => 'footer',
+            'hint'       => 'vises på alle sider',
+            'position'   => 'after',
         ],
     ];
 

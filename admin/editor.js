@@ -237,7 +237,7 @@
         addToggle.setAttribute('aria-expanded', String(open));
     });
 
-    addMenu.addEventListener('click', function (event) {
+        addMenu.addEventListener('click', function (event) {
         const choice = event.target.closest('[data-add-type], [data-add-global]');
 
         if (!choice || choice.disabled) {
@@ -261,13 +261,25 @@
         // Skabelonen indeholder allerede forhaandsvisning og felter med
         // standardvaerdier, tegnet af PHP ud fra blokkens skema.
         const fragment = template.content.cloneNode(true);
+
+        // 'before' = global header, 'after' = global footer, 'page' =
+        // sidens eget indhold imellem de to.
+        const position = isGlobal
+            ? (choice.dataset.globalPosition || 'before')
+            : 'page';
+
+        // Den foerste globale blok med position 'after' — alt sidens
+        // eget indhold skal ligge OVER den.
+        const tail = canvas.querySelector('.ed-block[data-global-position="after"]');
+
         let added;
 
-        if (isGlobal && choice.dataset.globalPosition !== 'after') {
-            // Header-blokke laegger sig oeverst, saa laerredet ligner
-            // den faerdige side.
+        if (position === 'before') {
             canvas.insertBefore(fragment, canvas.firstElementChild);
             added = canvas.firstElementChild;
+        } else if (position === 'page' && tail) {
+            canvas.insertBefore(fragment, tail);
+            added = tail.previousElementSibling;
         } else {
             canvas.appendChild(fragment);
             added = canvas.lastElementChild;

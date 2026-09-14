@@ -88,6 +88,7 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
     // ikke af rækkefølgen på den enkelte side.
     return '<article class="ed-block ed-block--global"'
         . ' data-global-slot="' . e($slot) . '"'
+        . ' data-global-position="' . e($def['position'] ?? 'before') . '"'
         . ' data-block-type="' . e($def['block_type']) . '">'
         . '<span class="ed-block__label">' . e($class::label())
         . ' <span class="ed-block__badge">' . e($def['hint']) . '</span></span>'
