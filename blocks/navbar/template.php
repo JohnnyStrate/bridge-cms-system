@@ -11,7 +11,7 @@
  * kender hverken sitets struktur eller sin egen placering i den.
  */
 ?>
-<nav class="block block--navbar"<?= eAttr(['style' => $cssVars]) ?> aria-label="Hovedmenu">
+<nav class="block block--navbar"<?= eAttr(['style' => $cssVars]) ?> aria-label="Hovedmenu"?>>
     <div class="navbar__inner">
         <?php if ($logo !== ''): ?>
             <img class="navbar__logo" src="<?= e($logo) ?>" alt="<?= e($logoAlt) ?>">
