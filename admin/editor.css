@@ -430,3 +430,44 @@
     font-size: 0.8rem;
     color: var(--admin-danger);
 }
+
+/* //NY KODE FOR BLOKKENE SOM ER BLOBAL*/
+/* --- Globale blokke -------------------------------------------------- */
+
+/* Tydelig, men ikke larmende: brugeren skal kunne se, at en ændring her
+   rammer hele sitet, uden at blokken stjæler billedet. */
+.ed-block--global {
+    border: 1px solid var(--admin-orange);
+    box-shadow: inset 0 0 0 3px rgb(232 161 93 / 0.08);
+}
+
+.ed-block__badge {
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: var(--admin-orange);
+    color: #fff;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+}
+
+.ed-add__choice--global {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.25;
+}
+
+.ed-add__note {
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.85;
+}
+
+.ed-add__choice[disabled] {
+    background: #cfd5db;
+    color: #6b7480;
+    cursor: not-allowed;
+}
+
+/*  NY KODE END */

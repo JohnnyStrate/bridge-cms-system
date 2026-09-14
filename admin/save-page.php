@@ -43,7 +43,8 @@ $pdo = Database::getConnection();
 $saver = new PageSaver(
     $pdo,
     new PageRepository($pdo),
-    new BlockRepository($pdo)
+    new BlockRepository($pdo),
+    new GlobalBlockRepository($pdo)
 );
 
 try {
@@ -62,6 +63,7 @@ try {
         'ids'     => $ids,
         'blocks'  => $result['blocks'],
         'deleted' => $result['deleted'],
+        'globals' => $result['globals'],
     ]);
 
 } catch (InvalidArgumentException $e) {

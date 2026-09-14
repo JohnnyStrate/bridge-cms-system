@@ -34,10 +34,11 @@ final class SiteExporter
     /** @var array<int, string> */
     private array $warnings = [];
 
-    public function __construct(
+        public function __construct(
         private readonly PageRepository $pages,
         private readonly BlockRepository $blocks,
-        private readonly string $exportDir
+        private readonly string $exportDir,
+        private readonly ?GlobalBlocks $globals = null
     ) {
     }
 
@@ -98,6 +99,12 @@ final class SiteExporter
         $pageId = (int) $page['id'];
         $blocks = $this->blocks->findByPage($pageId, onlyVisible: true);
 
+        // Navbaren kommer med på hver eneste eksporteret side. Fordi den
+        // ligger i den almindelige blokliste, tager stylesheets() og
+        // collectImages() automatisk dens CSS og logo med.
+        if ($this->globals !== null) {
+            $blocks = $this->globals->wrap($blocks);
+        }
         // Forsiden ligger i roden; alle andre i deres egen mappe.
         $segments = $siteMap->segments($pageId);
         $depth    = count($segments);

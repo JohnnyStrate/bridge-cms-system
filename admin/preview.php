@@ -4,13 +4,9 @@ declare(strict_types=1);
 /**
  * Forhåndsvisning af ugemt arbejde.
  *
- * Editoren sender sidens nuværende tilstand med, og siden tegnes præcis
- * som den ville se ud på det færdige website. Der skrives intet til
- * databasen.
- *
- * Det er muligt, fordi PageRenderer ikke selv henter data. Den tager en
- * liste af blokke ind — og er ligeglad med, om listen kom fra databasen
- * eller fra en formular, brugeren aldrig har gemt.
+ * Editoren sender sidens nuværende tilstand med — også de globale blokke
+ * — og siden tegnes præcis som den ville se ud på det færdige website.
+ * Der skrives intet til databasen.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -38,21 +34,19 @@ if (isset($state['page']['title'])) {
     $page['title'] = (string) $state['page']['title'];
 }
 
-// Editorens format oversættes til det, rendereren forventer. Værdierne
-// valideres på samme måde som ved gemning, så forhåndsvisningen viser
-// nøjagtigt det, der ville blive gemt — inklusive de rettelser
-// valideringen laver undervejs.
-$blocks = [];
-
-foreach ((array) ($state['blocks'] ?? []) as $incoming) {
-    $type  = (string) ($incoming['type'] ?? '');
+/**
+ * Editorens format oversættes til det, rendereren forventer. Værdierne
+ * valideres på samme måde som ved gemning, så forhåndsvisningen viser
+ * nøjagtigt det, der ville blive gemt.
+ */
+$toBlock = static function (string $type, array $incoming): ?array {
     $class = BlockRegistry::get($type);
 
     if ($class === null) {
-        continue;
+        return null;
     }
 
-    $blocks[] = [
+    return [
         'block_type' => $type,
         'settings'   => FieldValidator::validateAll(
             $class::getSchema(),
@@ -63,7 +57,53 @@ foreach ((array) ($state['blocks'] ?? []) as $incoming) {
             is_array($incoming['styles'] ?? null) ? $incoming['styles'] : []
         ),
     ];
+};
+
+$blocks = [];
+
+foreach ((array) ($state['blocks'] ?? []) as $incoming) {
+    if (!is_array($incoming)) {
+        continue;
+    }
+
+    $block = $toBlock((string) ($incoming['type'] ?? ''), $incoming);
+
+    if ($block !== null) {
+        $blocks[] = $block;
+    }
 }
+
+// De globale blokke vises også ugemt, så brugeren kan se en ændret
+// navbar, før den slår igennem på hele sitet.
+$before = [];
+$after  = [];
+
+foreach ((array) ($state['globals'] ?? []) as $incoming) {
+    if (!is_array($incoming)) {
+        continue;
+    }
+
+    $slot = (string) ($incoming['slot'] ?? '');
+    $type = GlobalBlocks::typeFor($slot);
+
+    if ($type === null) {
+        continue;
+    }
+
+    $block = $toBlock($type, $incoming);
+
+    if ($block === null) {
+        continue;
+    }
+
+    if ((GlobalBlocks::SLOTS[$slot]['position'] ?? 'before') === 'after') {
+        $after[] = $block;
+    } else {
+        $before[] = $block;
+    }
+}
+
+$blocks = array_merge($before, $blocks, $after);
 
 $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 

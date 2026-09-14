@@ -11,6 +11,11 @@ declare(strict_types=1);
  * Formularfelterne bygges her i PHP ud fra blokkenes skemaer — ikke i
  * JavaScript. Skemaet er sandheden om, hvilke felter der findes, og den
  * viden skal kun ligge ét sted.
+ *
+ * GLOBALE BLOKKE
+ * Navbaren ligger i laerredet som alle andre blokke, så editoren stadig
+ * ligner den færdige side. Den er bare markeret med data-global-slot og
+ * gemmes i global_blocks — altså på alle sider på én gang.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -20,6 +25,7 @@ $pageId = filter_input(INPUT_GET, 'page_id', FILTER_VALIDATE_INT) ?: 0;
 $pdo             = Database::getConnection();
 $pageRepository  = new PageRepository($pdo);
 $blockRepository = new BlockRepository($pdo);
+$globalBlocks    = new GlobalBlocks(new GlobalBlockRepository($pdo));
 
 $page = $pageRepository->find($pageId);
 
@@ -49,6 +55,53 @@ $context = RenderContext::editor($basePath, $siteMap);
 // Feltrendereren kender listen over sider, så et side-felt kan tegnes
 // som en dropdown frem for et tekstfelt, man kan stave forkert i.
 $fields = new FieldRenderer($siteMap->choices(), $basePath);
+
+// De globale blokke der allerede findes. Tom liste = brugeren har ikke
+// tilføjet en navbar endnu.
+$savedGlobals = $globalBlocks->saved();
+
+/**
+ * Tegner én global blok som editor-element.
+ *
+ * Samme markup bruges til den gemte blok og til <template>-skabelonen,
+ * så de to aldrig kan skride fra hinanden. $row === null betyder "ny
+ * blok" og giver blokkens standardværdier.
+ */
+$globalArticle = static function (string $slot, array $def, ?array $row)
+    use ($fields, $context): string {
+
+    $class = BlockRegistry::get((string) $def['block_type']);
+
+    if ($class === null) {
+        return '';
+    }
+
+    $settings = $row === null
+        ? $class::defaultSettings()
+        : FieldValidator::validateAll($class::getSchema(), $row['settings']);
+
+    $styles = $row === null
+        ? $class::defaultStyles()
+        : FieldValidator::validateAll($class::getStyleSchema(), $row['styles']);
+
+    // Ingen op/ned-knapper: en global bloks plads bestemmes af dens slot,
+    // ikke af rækkefølgen på den enkelte side.
+    return '<article class="ed-block ed-block--global"'
+        . ' data-global-slot="' . e($slot) . '"'
+        . ' data-block-type="' . e($def['block_type']) . '">'
+        . '<span class="ed-block__label">' . e($class::label())
+        . ' <span class="ed-block__badge">' . e($def['hint']) . '</span></span>'
+        . '<div class="ed-block__actions">'
+        . '<button type="button" class="ed-btn ed-btn--edit" data-action="edit"'
+        . ' aria-expanded="false">&#9998;</button>'
+        . '<button type="button" class="ed-btn ed-btn--delete" data-action="delete">&times;</button>'
+        . '</div>'
+        . '<div class="ed-block__preview">'
+        . $class::render($settings, $styles, $context)
+        . '</div>'
+        . $fields->panel($class, $settings, $styles)
+        . '</article>';
+};
 
 ?>
 <!DOCTYPE html>
@@ -113,6 +166,15 @@ $fields = new FieldRenderer($siteMap->choices(), $basePath);
 </section>
 
 <main class="ed-canvas" id="canvas">
+
+    <?php /* Globale blokke der ligger FØR sidens eget indhold. */ ?>
+    <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
+        <?php if (($def['position'] ?? 'before') !== 'before' || !isset($savedGlobals[$slot])) {
+            continue;
+        } ?>
+        <?= $globalArticle($slot, $def, $savedGlobals[$slot]) ?>
+    <?php endforeach; ?>
+
     <?php foreach ($blocks as $block): ?>
         <?php
             $class = BlockRegistry::get((string) $block['block_type']);
@@ -143,13 +205,45 @@ $fields = new FieldRenderer($siteMap->choices(), $basePath);
             <?= $fields->panel($class, $settings, $styles) ?>
         </article>
     <?php endforeach; ?>
+
+    <?php /* Globale blokke der ligger EFTER sidens eget indhold, fx en footer. */ ?>
+    <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
+        <?php if (($def['position'] ?? 'before') !== 'after' || !isset($savedGlobals[$slot])) {
+            continue;
+        } ?>
+        <?= $globalArticle($slot, $def, $savedGlobals[$slot]) ?>
+    <?php endforeach; ?>
+
 </main>
 
 <section class="ed-add">
     <button type="button" class="ed-add__toggle" id="add-toggle" aria-expanded="false">+</button>
 
     <div class="ed-add__menu" id="add-menu" hidden>
+
+        <?php /*
+            Globale blokke står først og er markeret. Er blokken allerede
+            oprettet, er knappen slået fra — så brugeren kan se, at den
+            findes, frem for at tro at den mangler.
+        */ ?>
+        <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
+            <?php $class = BlockRegistry::get((string) $def['block_type']); ?>
+            <?php if ($class === null) {
+                continue;
+            } ?>
+            <button type="button" class="ed-add__choice ed-add__choice--global"
+                    data-add-global="<?= e($slot) ?>"
+                    data-global-position="<?= e($def['position'] ?? 'before') ?>"
+                    <?= isset($savedGlobals[$slot]) ? 'disabled' : '' ?>>
+                <?= e($class::label()) ?>
+                <span class="ed-add__note"><?= e($def['hint']) ?></span>
+            </button>
+        <?php endforeach; ?>
+
         <?php foreach (BlockRegistry::all() as $type => $label): ?>
+            <?php if (GlobalBlocks::isManaged($type)) {
+                continue;
+            } ?>
             <button type="button" class="ed-add__choice" data-add-type="<?= e($type) ?>">
                 <?= e($label) ?>
             </button>
@@ -176,6 +270,9 @@ $fields = new FieldRenderer($siteMap->choices(), $basePath);
  */
 ?>
 <?php foreach (BlockRegistry::all() as $type => $label): ?>
+    <?php if (GlobalBlocks::isManaged($type)) {
+        continue;
+    } ?>
     <?php
         $class    = BlockRegistry::get($type);
         $defaults = $class::defaultSettings();
@@ -197,6 +294,11 @@ $fields = new FieldRenderer($siteMap->choices(), $basePath);
             <?= $fields->panel($class, $defaults, $dStyles) ?>
         </article>
     </template>
+<?php endforeach; ?>
+
+<?php /* Skabeloner til de globale blokke. */ ?>
+<?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
+    <template data-global-template-for="<?= e($slot) ?>"><?= $globalArticle($slot, $def, null) ?></template>
 <?php endforeach; ?>
 
 <script src="editor.js"></script>

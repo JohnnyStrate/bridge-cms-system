@@ -3,6 +3,11 @@
    Holder sidens tilstand i browseren og sender den samlet, naar brugeren
    trykker Gem. Ingen sideindlaesning undervejs.
 
+   GLOBALE BLOKKE
+   En blok med data-global-slot hoerer ikke til siden, men til hele
+   sitet. Den samles ind for sig og gemmes i global_blocks, saa en
+   aendring slaar igennem paa alle sider paa en gang.
+
    Al validering sker paa serveren. Det her lag handler om brugerflade,
    ikke om sikkerhed — det kan aendres af enhver med en browserkonsol.
    ===================================================================== */
@@ -84,6 +89,11 @@
         return data;
     }
 
+    // Sidens egne blokke — de globale er ikke med.
+    function pageBlockElements() {
+        return Array.from(canvas.querySelectorAll('.ed-block:not([data-global-slot])'));
+    }
+
     function collectState() {
         const page = {};
 
@@ -94,20 +104,50 @@
         // Raekkefoelgen i DOM'en ER raekkefoelgen. Serveren udleder
         // sort_order af listens indeks, saa der findes ikke to versioner
         // af sandheden.
-        const blocks = Array.from(canvas.querySelectorAll('.ed-block')).map(
-            function (block) {
-                const fields = collectFields(block);
+        const blocks = pageBlockElements().map(function (block) {
+            const fields = collectFields(block);
 
-                return {
-                    id: block.dataset.blockId || null,
-                    type: block.dataset.blockType,
-                    settings: fields.settings,
-                    styles: fields.styles
-                };
-            }
-        );
+            return {
+                id: block.dataset.blockId || null,
+                type: block.dataset.blockType,
+                settings: fields.settings,
+                styles: fields.styles
+            };
+        });
 
-        return { page: page, blocks: blocks };
+        // Globale blokke sendes i deres eget felt. Serveren bruger kun
+        // slot'en — bloktypen bestemmes paa serveren, ikke her.
+        const globals = Array.from(
+            canvas.querySelectorAll('.ed-block[data-global-slot]')
+        ).map(function (block) {
+            const fields = collectFields(block);
+
+            return {
+                slot: block.dataset.globalSlot,
+                settings: fields.settings,
+                styles: fields.styles
+            };
+        });
+
+        return { page: page, blocks: blocks, globals: globals };
+    }
+
+    /* --- Tilfoej-menuen --------------------------------------------- */
+
+    const addToggle = document.getElementById('add-toggle');
+    const addMenu   = document.getElementById('add-menu');
+
+    // En global blok kan kun tilfoejes én gang. Knappen slaas fra, naar
+    // blokken ligger paa laerredet, saa brugeren ikke kan lave to.
+    function syncGlobalChoices() {
+        addMenu.querySelectorAll('[data-add-global]').forEach(function (choice) {
+            const exists = canvas.querySelector(
+                '.ed-block[data-global-slot="' + choice.dataset.addGlobal + '"]'
+            );
+
+            choice.disabled = Boolean(exists);
+            choice.title = exists ? 'Ligger allerede paa alle sider' : '';
+        });
     }
 
     /* --- Handlinger paa blokke -------------------------------------- */
@@ -118,7 +158,8 @@
             return;
         }
 
-        const block = button.closest('.ed-block');
+        const block    = button.closest('.ed-block');
+        const isGlobal = Boolean(block.dataset.globalSlot);
 
         switch (button.dataset.action) {
             case 'edit': {
@@ -146,19 +187,30 @@
                 markDirty();
                 break;
 
-            case 'delete':
-                if (confirm('Slet denne sektion?')) {
+            case 'delete': {
+                // En global blok forsvinder fra ALLE sider. Det skal
+                // staa i spoergsmaalet, ikke opdages bagefter.
+                const question = isGlobal
+                    ? 'Fjern denne sektion fra ALLE sider paa sitet?'
+                    : 'Slet denne sektion?';
+
+                if (confirm(question)) {
                     // Blokken fjernes kun i browseren. Den forsvinder
                     // foerst i databasen, naar der gemmes — og indtil da
                     // kan brugeren fortryde ved at forlade siden.
                     block.remove();
+                    syncGlobalChoices();
                     markDirty();
                 }
                 break;
+            }
 
             case 'up': {
                 const previous = block.previousElementSibling;
-                if (previous) {
+
+                // Globale blokke er laast til toppen; en side-blok kan
+                // ikke skubbes op over dem.
+                if (previous && !previous.dataset.globalSlot) {
                     canvas.insertBefore(block, previous);
                     markDirty();
                 }
@@ -167,7 +219,8 @@
 
             case 'down': {
                 const next = block.nextElementSibling;
-                if (next) {
+
+                if (next && !next.dataset.globalSlot) {
                     canvas.insertBefore(next, block);
                     markDirty();
                 }
@@ -178,9 +231,6 @@
 
     /* --- Tilfoej blok ----------------------------------------------- */
 
-    const addToggle = document.getElementById('add-toggle');
-    const addMenu   = document.getElementById('add-menu');
-
     addToggle.addEventListener('click', function () {
         const open = addMenu.hasAttribute('hidden');
         addMenu.toggleAttribute('hidden', !open);
@@ -188,14 +238,21 @@
     });
 
     addMenu.addEventListener('click', function (event) {
-        const choice = event.target.closest('[data-add-type]');
-        if (!choice) {
+        const choice = event.target.closest('[data-add-type], [data-add-global]');
+
+        if (!choice || choice.disabled) {
             return;
         }
 
-        const template = document.querySelector(
-            '[data-template-for="' + choice.dataset.addType + '"]'
-        );
+        const isGlobal = Boolean(choice.dataset.addGlobal);
+
+        const template = isGlobal
+            ? document.querySelector(
+                '[data-global-template-for="' + choice.dataset.addGlobal + '"]'
+            )
+            : document.querySelector(
+                '[data-template-for="' + choice.dataset.addType + '"]'
+            );
 
         if (!template) {
             return;
@@ -203,14 +260,28 @@
 
         // Skabelonen indeholder allerede forhaandsvisning og felter med
         // standardvaerdier, tegnet af PHP ud fra blokkens skema.
-        canvas.appendChild(template.content.cloneNode(true));
+        const fragment = template.content.cloneNode(true);
+        let added;
+
+        if (isGlobal && choice.dataset.globalPosition !== 'after') {
+            // Header-blokke laegger sig oeverst, saa laerredet ligner
+            // den faerdige side.
+            canvas.insertBefore(fragment, canvas.firstElementChild);
+            added = canvas.firstElementChild;
+        } else {
+            canvas.appendChild(fragment);
+            added = canvas.lastElementChild;
+        }
 
         addMenu.setAttribute('hidden', '');
         addToggle.setAttribute('aria-expanded', 'false');
+        syncGlobalChoices();
         markDirty();
 
-        canvas.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        added.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+
+    syncGlobalChoices();
 
     /* --- Gem --------------------------------------------------------- */
 
@@ -231,12 +302,12 @@
                 throw new Error(result.error || 'Ukendt fejl');
             }
 
-            markClean('Gemt');
+            markClean(result.globals ? 'Gemt — navbaren er opdateret paa alle sider' : 'Gemt');
 
             // Nye blokke havde tomt id. Serveren sender de tildelte id'er
             // tilbage, saa naeste gemning opdaterer dem i stedet for at
-            // oprette dem forfra.
-            const blocks = canvas.querySelectorAll('.ed-block');
+            // oprette dem forfra. Globale blokke er ikke med i listen.
+            const blocks = pageBlockElements();
             (result.ids || []).forEach(function (id, index) {
                 if (blocks[index]) {
                     blocks[index].dataset.blockId = id;

@@ -8,6 +8,11 @@ declare(strict_types=1);
  * brugeren trykker Gem. Denne klasse tager imod og skriver den til
  * databasen — ændrede blokke, nye blokke og slettede blokke på én gang.
  *
+ * GLOBALE BLOKKE
+ * Editoren sender også de globale blokke med i samme kald. De hører ikke
+ * til siden, men til sitet, og gemmes derfor i global_blocks. Samme
+ * transaktion: en navbar må ikke blive gemt, hvis resten af siden fejler.
+ *
  * ALT ELLER INTET
  * Det hele sker i én transaktion. Uden den kunne fem ud af otte blokke
  * blive gemt, hvorefter brugeren står med en side, der hverken er den
@@ -24,13 +29,14 @@ final class PageSaver
     public function __construct(
         private readonly PDO $pdo,
         private readonly PageRepository $pages,
-        private readonly BlockRepository $blocks
+        private readonly BlockRepository $blocks,
+        private readonly ?GlobalBlockRepository $globals = null
     ) {
     }
 
     /**
      * @param array<string, mixed> $payload Afkodet JSON fra editoren.
-     * @return array{blocks: int, deleted: int}
+     * @return array{blocks: int, deleted: int, globals: int}
      *
      * @throws InvalidArgumentException ved ugyldigt input fra brugeren.
      */
@@ -46,6 +52,7 @@ final class PageSaver
         $incoming     = is_array($payload['blocks'] ?? null) ? $payload['blocks'] : [];
         $existingIds  = $this->blocks->idsForPage($pageId);
         $keptIds      = [];
+        $savedGlobals = 0;
 
         $this->pdo->beginTransaction();
 
@@ -69,14 +76,83 @@ final class PageSaver
             $removed = array_values(array_diff($existingIds, $keptIds));
             $this->blocks->deleteMany($pageId, $removed);
 
+            // Mangler nøglen helt, er det en ældre klient. Så rører vi
+            // ikke de globale blokke — frem for at slette dem alle sammen.
+            if ($this->globals !== null && array_key_exists('globals', $payload)) {
+                $savedGlobals = $this->saveGlobals(
+                    is_array($payload['globals']) ? $payload['globals'] : []
+                );
+            }
+
             $this->pdo->commit();
 
-            return ['blocks' => count($keptIds), 'deleted' => count($removed)];
+            return [
+                'blocks'  => count($keptIds),
+                'deleted' => count($removed),
+                'globals' => $savedGlobals,
+            ];
 
         } catch (Throwable $e) {
             $this->pdo->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * Gemmer sitets globale blokke.
+     *
+     * Browseren sender kun en slot og nogle værdier. HVILKEN bloktype
+     * slot'en indeholder, slås op i GlobalBlocks — ellers kunne et
+     * manipuleret kald gøre en vilkårlig blok global.
+     *
+     * En slot, der ikke er med i det browseren sendte, er en blok
+     * brugeren har fjernet. Samme logik som for sidens egne blokke.
+     *
+     * @param array<int, mixed> $incoming
+     */
+    private function saveGlobals(array $incoming): int
+    {
+        $kept = [];
+
+        foreach ($incoming as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $slot = (string) ($item['slot'] ?? '');
+            $type = GlobalBlocks::typeFor($slot);
+
+            if ($type === null) {
+                continue;
+            }
+
+            $class = BlockRegistry::get($type);
+
+            if ($class === null) {
+                continue;
+            }
+
+            $settings = FieldValidator::validateAll(
+                $class::getSchema(),
+                is_array($item['settings'] ?? null) ? $item['settings'] : []
+            );
+
+            $styles = FieldValidator::validateAll(
+                $class::getStyleSchema(),
+                is_array($item['styles'] ?? null) ? $item['styles'] : []
+            );
+
+            $this->globals->save($slot, $type, $settings, $styles);
+            $kept[] = $slot;
+        }
+
+        foreach (array_keys(GlobalBlocks::SLOTS) as $slot) {
+            if (!in_array($slot, $kept, true)) {
+                $this->globals->delete($slot);
+            }
+        }
+
+        return count($kept);
     }
 
     /**
@@ -180,6 +256,13 @@ final class PageSaver
         // Ukendt bloktype afvises. Det er allowlisten, der forhindrer,
         // at browseren kan opfinde en bloktype.
         if ($class === null) {
+            return null;
+        }
+
+        // En global bloktype hører ikke til på en enkelt side. Kom den
+        // alligevel med i blocks-listen, er det en fejl i klienten —
+        // ikke noget vi skriver ned.
+        if (GlobalBlocks::isManaged($type)) {
             return null;
         }
 

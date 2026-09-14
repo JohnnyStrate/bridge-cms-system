@@ -25,10 +25,11 @@ $error  = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $exporter = new SiteExporter(
+               $exporter = new SiteExporter(
             $pageRepository,
             new BlockRepository($pdo),
-            APP_ROOT . '/export'
+            APP_ROOT . '/export',
+            new GlobalBlocks(new GlobalBlockRepository($pdo))
         );
 
         $result = $exporter->export();
