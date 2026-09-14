@@ -470,4 +470,47 @@
     cursor: not-allowed;
 }
 
+/* //NAVBAREN-BLOCK */
+/* Fem eller flere menupunkter: linkene bliver på én linje og kan scrolles
+   vandret i stedet for at brække navbaren op i flere rækker.
+   :has() tæller punkterne — findes der et femte <li>, slår reglen til. */
+.navbar__links:has(li:nth-child(5)) {
+    flex: 1 1 0;
+    flex-wrap: nowrap;
+    /* Uden min-width nægter et flex-element at blive smallere end sit
+       indhold, og så scroller det aldrig — det skubber i stedet. */
+    min-width: 0;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: currentColor transparent;
+    padding-bottom: 0.2rem;
+
+    /* Indholdet fader ud i højre kant, så det er synligt, at der er mere. */
+    mask-image: linear-gradient(to right, #000 85%, transparent 100%);
+}
+
+.navbar__links:has(li:nth-child(5)) li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+.navbar__links::-webkit-scrollbar {
+    height: 5px;
+}
+
+.navbar__links::-webkit-scrollbar-thumb {
+    background: currentColor;
+    border-radius: 999px;
+    opacity: 0.4;
+}
+/* Navbarens links må gerne scrolles i forhåndsvisningen — men selve
+   linkene forbliver døde, så et klik ikke navigerer væk fra editoren. */
+.ed-block__preview .navbar__links {
+    pointer-events: auto;
+}
+
+.ed-block__preview .navbar__links a {
+    pointer-events: none;
+}
 /*  NY KODE END */

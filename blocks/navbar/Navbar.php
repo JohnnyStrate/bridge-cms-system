@@ -44,10 +44,11 @@ final class NavbarBlock extends AbstractBlock
                 'label'    => 'Menupunkter',
                 'max_rows' => 30,
                 'fields'   => [
-                    'label' => [
-                        'type'    => 'text',
-                        'label'   => 'Tekst',
-                        'default' => '',
+                                        'label' => [
+                        'type'        => 'text',
+                        'label'       => 'Tekst',
+                        'placeholder' => 'Fx Kontakt',
+                        'default'     => '',
                     ],
                     'page' => [
                         'type'    => 'page',
@@ -55,13 +56,15 @@ final class NavbarBlock extends AbstractBlock
                         'default' => 0,
                     ],
                     'url' => [
-                        'type'    => 'url',
-                        'label'   => 'Ekstern adresse',
-                        'default' => '',
+                        'type'        => 'url',
+                        'label'       => 'Ekstern adresse',
+                        'placeholder' => 'Indsæt link',
+                        'default'     => '',
                     ],
                 ],
                 'default' => [
-                    ['label' => 'Forside', 'page' => 0, 'url' => '#'],
+                    ['label' => 'Forside', 'page' => 0, 'url' => '#','placeholder' => 'Indsæt link',
+ ],
                     ['label' => 'Kontakt', 'page' => 0, 'url' => '#'],
                 ],
             ],

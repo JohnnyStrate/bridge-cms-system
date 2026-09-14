@@ -87,10 +87,20 @@ final class FieldRenderer
     /**
      * @param array<string, mixed> $field
      */
+      /**
+     * @param array<string, mixed> $field
+     */
     private function input(string $attributes, array $field, mixed $value): string
     {
+        // Placeholder er valgfri i skemaet og hører kun hjemme på felter,
+        // brugeren selv skriver i — ikke på select, color eller number,
+        // hvor der altid står en værdi i forvejen.
+        $placeholder = isset($field['placeholder'])
+            ? ' placeholder="' . e((string) $field['placeholder']) . '"'
+            : '';
+
         return match ($field['type'] ?? 'text') {
-            'textarea' => '<textarea ' . $attributes . ' rows="4">'
+            'textarea' => '<textarea ' . $attributes . $placeholder . ' rows="4">'
                 . e((string) $value) . '</textarea>',
 
             'color' => '<input type="color" ' . $attributes
@@ -110,7 +120,7 @@ final class FieldRenderer
 
             'image' => $this->imagePicker($attributes, (string) $value),
 
-            default => '<input type="text" ' . $attributes
+            default => '<input type="text" ' . $attributes . $placeholder
                 . ' value="' . e((string) $value) . '">',
         };
     }

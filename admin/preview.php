@@ -109,8 +109,43 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 
 header('Content-Type: text/html; charset=utf-8');
 
-echo PageRenderer::renderDocument(
+$html = PageRenderer::renderDocument(
     $page,
     $blocks,
     RenderContext::editor($basePath, SiteMap::fromPages($pageRepository->findAll()))
 );
+
+/*
+ * Editorens egen bjælke oven på forhåndsvisningen.
+ *
+ * Den ligger IKKE i en blok og eksporteres derfor aldrig — den findes kun
+ * her i preview.php. Stilen står inline, fordi det færdige dokument kun
+ * henter base.css og blokkenes CSS, ikke admin.css.
+ *
+ * Forhåndsvisningen åbnes i en ny fane. Er fanen åbnet af editoren
+ * (window.opener), lukker knappen den, så brugeren lander i den fane, der
+ * stadig har det ugemte arbejde. Ellers navigerer linket som normalt.
+ */
+$bar = '<style>'
+    . '.preview-bar{position:fixed;inset-inline:0;bottom:0;z-index:999;'
+    . 'display:flex;align-items:center;justify-content:space-between;gap:1rem;'
+    . 'padding:.6rem 1.25rem;background:#1f2933;color:#fff;'
+    . 'font:14px/1.4 system-ui,sans-serif}'
+    . '.preview-bar__label{opacity:.8}'
+    . '.preview-bar__btn{display:inline-block;padding:.45rem 1.1rem;'
+    . 'border-radius:6px;background:#e8a15d;color:#fff;text-decoration:none;'
+    . 'font-weight:600}'
+    . '.preview-bar__btn:hover{filter:brightness(1.1)}'
+    . 'body{padding-bottom:3.5rem}'
+    . '</style>'
+    . '<div class="preview-bar">'
+    . '<span class="preview-bar__label">Forhåndsvisning — dine ændringer er ikke gemt endnu</span>'
+    . '<a class="preview-bar__btn" href="editor.php?page_id=' . (int) $page['id'] . '"'
+    . ' onclick="if (window.opener) { window.close(); return false; }">'
+    . '&larr; Tilbage til editoren</a>'
+    . '</div>';
+
+header('Content-Type: text/html; charset=utf-8');
+
+// Indsættes før </body>, så dokumentet forbliver gyldigt.
+echo str_replace('</body>', $bar . '</body>', $html);
