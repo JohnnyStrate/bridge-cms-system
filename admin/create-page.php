@@ -29,7 +29,14 @@ $error    = $_GET['fejl'] ?? null;
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <!--
+        Tallet efter "?" tvinger browseren til at hente en frisk kopi af
+        admin.css, når filen ændres. Uden det kan en browser blive ved
+        med at vise en gemt (cachet) udgave, selvom filen på serveren er
+        opdateret — det er dét, der gav den ustylede forhåndsvisning.
+        Sæt tallet én op, hver gang admin.css ændres.
+    -->
+    <link rel="stylesheet" href="admin.css?v=2">
 </head>
 <body class="admin">
 
@@ -115,7 +122,28 @@ $error    = $_GET['fejl'] ?? null;
                             </span>
                         <?php endif; ?>
 
-                        <span class="choice__title"><?= e($template['name']) ?></span>
+                        <span class="choice__title-row">
+                            <span class="choice__title"><?= e($template['name']) ?></span>
+                            <!--
+                                Knappen er en <button> inde i <label>. Uden
+                                preventDefault() i JavaScript ville browseren
+                                sende klikket videre til radioknappen bagved,
+                                fordi det er sådan et klik i en <label>
+                                normalt opfører sig.
+                            -->
+                            <button type="button" class="choice__preview"
+                                    data-preview-template="<?= (int) $template['id'] ?>"
+                                    data-preview-name="<?= e($template['name']) ?>"
+                                    aria-label="Forhåndsvis <?= e($template['name']) ?>"
+                                    title="Forhåndsvis">
+                                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+                                     fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </span>
                         <span class="choice__text">
                             <?= e((string) ($template['description'] ?? '')) ?>
                         </span>
@@ -137,5 +165,22 @@ $error    = $_GET['fejl'] ?? null;
     </form>
 </main>
 
+<!--
+    Boksen med forhåndsvisningen. <dialog> giver dæmpet baggrund,
+    fokusfælde og luk-med-Escape uden ekstra kode. Iframen får først en
+    adresse, når brugeren klikker på et øje.
+-->
+<dialog class="preview-dialog" id="template-preview"
+        aria-labelledby="template-preview-title">
+    <header class="preview-dialog__header">
+        <h2 class="preview-dialog__title" id="template-preview-title">Forhåndsvisning</h2>
+        <button type="button" class="preview-dialog__close" data-preview-close
+                aria-label="Luk forhåndsvisning">&times;</button>
+    </header>
+    <iframe class="preview-dialog__frame" title="Forhåndsvisning af skabelon"
+            src="about:blank"></iframe>
+</dialog>
+
+<script src="create-page.js"></script>
 </body>
 </html>

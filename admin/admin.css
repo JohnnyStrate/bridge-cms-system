@@ -479,3 +479,103 @@
     border-radius: var(--radius);
     background: #fff;
 }
+/* --- Forhåndsvisning af skabeloner --------------------------------- */
+
+/* Titel og øje-knap side om side. justify-content: space-between
+   skubber knappen helt ud til højre, uanset hvor lang titlen er. */
+.choice__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.choice__preview {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--admin-blue);
+    cursor: pointer;
+}
+
+.choice__preview:hover {
+    background: var(--admin-blue);
+    color: #fff;
+}
+
+.choice__preview:focus-visible {
+    outline: 3px solid var(--admin-blue);
+    outline-offset: 2px;
+}
+
+/* Boksen. padding: 0 er vigtig: så dækker header og iframe hele
+   boksen, og et klik på selve <dialog> kan kun være baggrunden.
+
+   aspect-ratio: 210/297 er et A4-arks forhold (bredde/højde i mm), så
+   boksen ligner et stående papir frem for et vilkårligt rektangel.
+   Højden styrer formen: den fylder det meste af skærmen (94vh, dog
+   maks. 1100px på store skærme), og bredden følger automatisk af
+   forholdet. max-width er et sikkerhedsnet på smalle skærme, hvor
+   papir-formen ellers ville blive bredere end skærmen. */
+.preview-dialog {
+    height: min(94vh, 1100px);
+    aspect-ratio: 210 / 297;
+    width: auto;
+    max-width: 92vw;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgb(0 0 0 / 0.3);
+}
+
+.preview-dialog[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-dialog::backdrop {
+    background: rgb(31 41 51 / 0.6);
+}
+
+.preview-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    background: var(--admin-blue);
+    color: #fff;
+}
+
+.preview-dialog__title {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.preview-dialog__close {
+    padding: 0 0.4rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.preview-dialog__close:hover {
+    opacity: 0.8;
+}
+
+.preview-dialog__frame {
+    flex: 1;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}
