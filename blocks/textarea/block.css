@@ -13,10 +13,13 @@
     padding: var(--space-lg) var(--space-md);
     background: var(--background-color);
     color: var(--text-color);
+    min-height: var(--box-height, auto);
 }
 
+/* Bredden styrer tekstspalten. Uden valg bruges --measure, som er en
+   behagelig linjelængde at læse. */
 .textarea__inner {
-    max-width: var(--measure);
+    max-width: var(--box-width, var(--measure));
     margin-inline: auto;
     text-align: var(--text-align);
     font-family: var(--font-family), var(--font-body);

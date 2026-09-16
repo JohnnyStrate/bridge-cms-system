@@ -14,7 +14,10 @@
 
     display: grid;
     place-items: center;
-    min-height: 380px;
+
+    /* Brugerens valgte højde, ellers standardhøjden. Det er min-height
+       og ikke height, så en lang titel aldrig bliver skåret af. */
+    min-height: var(--box-height, 380px);
     padding: var(--space-lg) var(--space-md);
     overflow: hidden;
     isolation: isolate;
@@ -37,9 +40,12 @@
     background: rgb(0 0 0 / 0.35);
 }
 
+/* Uden valgt bredde tilpasser boksen sig titlen, som før. Med valgt
+   bredde får den præcis den bredde — dog aldrig bredere end skærmen. */
 .hero__panel {
     text-align: center;
-    max-width: var(--measure);
+    width: var(--box-width, auto);
+    max-width: min(100%, var(--box-width, var(--measure)));
 }
 
 .hero__title {
@@ -61,6 +67,12 @@
     margin: 2px 0 0;
 }
 
+.hero__title,
+.hero__address,
+.hero__phone {
+    border-radius: var(--box-radius, 0);
+}
+
 .hero__address,
 .hero__phone {
     padding: var(--space-sm) var(--space-md);
@@ -78,8 +90,10 @@
 }
 
 @media (max-width: 40rem) {
+    /* På små skærme bliver en høj hero skåret ned til 260px, så den
+       ikke fylder hele telefonen. En lavere valgt højde respekteres. */
     .block--hero {
-        min-height: 260px;
+        min-height: min(var(--box-height, 260px), 260px);
     }
 
     /* Brugerens skriftstørrelse skaleres ned på små skærme i stedet for

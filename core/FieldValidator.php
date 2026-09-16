@@ -71,6 +71,7 @@ final class FieldValidator
             'image'    => self::imagePath($value, $default),
             'color'    => self::color($value, $default),
             'number'   => self::number($value, $default, $field),
+            'size'     => self::size($value, $default, $field),
             'select'   => self::select($value, $default, $field['options'] ?? []),
             'page'     => self::pageReference($value),
             'repeater' => self::repeater($value, $field),
@@ -192,6 +193,26 @@ final class FieldValidator
     /**
      * @param array<string, mixed> $field
      */
+    /**
+     * En størrelse i pixel fra en skyder.
+     *
+     * Som number, men med én undtagelse: har feltet 'auto', betyder 0
+     * "Auto" og slipper igennem, selvom det er under minimum. Alt andet
+     * klemmes ind i intervallet.
+     */
+    private static function size(mixed $value, mixed $default, array $field): int
+    {
+        if (!is_numeric($value)) {
+            return (int) $default;
+        }
+
+        if (!empty($field['auto']) && (int) $value <= 0) {
+            return 0;
+        }
+
+        return self::number($value, $default, $field);
+    }
+
     private static function number(mixed $value, mixed $default, array $field): int
     {
         if (!is_numeric($value)) {

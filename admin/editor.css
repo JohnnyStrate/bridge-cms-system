@@ -514,3 +514,143 @@
     pointer-events: none;
 }
 /*  NY KODE END */
+/* --- Bokse og størrelser --------------------------------------------- */
+
+/* En gruppe pr. boks, fx "Blå boks". Grupperne står side om side og
+   bryder ned under hinanden, når der ikke er plads. */
+.ed-subgroup {
+    flex: 1 1 22rem;
+    margin: 0;
+    padding: 0.5rem 0.9rem 0.8rem;
+    border: 1px solid #e2e6ea;
+    border-radius: var(--radius);
+    background: #f8f9fb;
+}
+
+.ed-subgroup legend {
+    padding: 0 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+
+/* Én række: navn · Auto · skyder · tal. Grid-kolonnerne gør, at
+   skyderne i samme gruppe står præcis under hinanden. */
+.ed-panel .ed-size {
+    display: grid;
+    grid-template-columns: 4.5rem 4rem 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0;
+}
+
+.ed-size + .ed-size {
+    border-top: 1px solid #eceff2;
+}
+
+.ed-size__label {
+    font-size: 0.9rem;
+}
+
+.ed-size__auto {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--admin-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Felter uden Auto (fx hjørner) får en tom kolonne, så skyderen står
+   på linje med de andre. */
+.ed-size:not(:has(.ed-size__auto)) .ed-size__range {
+    grid-column: 3;
+}
+
+/* .ed-field input giver alle felter ramme og polstring. Det skal
+   hverken afkrydsningsfeltet eller skyderen have. */
+.ed-panel .ed-size__auto input {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--admin-orange);
+    cursor: pointer;
+}
+
+/* Skyderen tegnes selv, så banen er lys grå i alle browsere i stedet
+   for Chromes næsten sorte standard. */
+.ed-panel .ed-size .ed-size__range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    min-width: 6rem;
+    height: 1.2rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.ed-size__range::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: #d5dae0;
+}
+
+.ed-size__range::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: #d5dae0;
+}
+
+.ed-size__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    margin-top: -6px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--admin-orange);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+
+.ed-size__range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--admin-orange);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.15);
+}
+
+.ed-size__range:focus-visible {
+    outline: 2px solid var(--admin-blue);
+    outline-offset: 2px;
+}
+
+.ed-size__value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--admin-muted);
+}
+
+.ed-panel .ed-size .ed-size__number {
+    width: 4.8rem;
+    padding: 0.3rem 0.4rem;
+    text-align: right;
+}
+
+/* Auto: betjeningen er der stadig, men tydeligt sat ud af spil. */
+.ed-size.is-auto .ed-size__range,
+.ed-size.is-auto .ed-size__value {
+    opacity: 0.4;
+}
+
+.ed-size.is-auto .ed-size__range {
+    cursor: default;
+}

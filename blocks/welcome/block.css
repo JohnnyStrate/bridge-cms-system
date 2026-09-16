@@ -11,9 +11,20 @@
     padding: var(--space-lg) var(--space-md);
 }
 
+/* --box-width og --box-height sættes kun, når brugeren har valgt en
+   størrelse. Ellers bruges værdien efter kommaet, som er det normale
+   udseende. */
 .welcome__inner {
-    max-width: 60rem;
+    max-width: var(--box-width, 60rem);
+    min-height: var(--box-height, auto);
+    border-radius: var(--box-radius, 0);
     margin-inline: auto;
+
+    /* Gøres boksen højere end indholdet, står indholdet i midten i
+       stedet for at klumpe sig sammen øverst. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: var(--space-lg);
     background: var(--background-color);
     color: var(--text-color);
@@ -53,6 +64,15 @@
 
     /* Den lyse kant i venstre side fra designet. */
     border-left: 4px solid rgb(255 255 255 / 0.6);
+
+    /* Det lyse korts egne størrelser. Uden valgt bredde fylder kortet
+       den blå boks ud, som før. Med valgt bredde bliver det smallere og
+       står i midten — men kan aldrig blive bredere end den blå boks. */
+    width: 100%;
+    max-width: var(--card-width, none);
+    align-self: center;
+    min-height: var(--card-height, auto);
+    border-radius: var(--card-radius, 0);
 }
 
 .welcome__list-title {

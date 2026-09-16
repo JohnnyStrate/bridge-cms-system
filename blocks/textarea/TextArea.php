@@ -77,6 +77,8 @@ final class TextAreaBlock extends AbstractBlock
                 'default' => 'left',
                 'options' => ['left', 'center', 'right'],
             ],
+            // Ingen synlig kant, så ingen afrunding. Bredden er tekstspalten.
+            ...static::boxStyleFields('box', 'Tekstfelt', ['width', 'height']),
         ];
     }
 

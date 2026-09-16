@@ -52,8 +52,30 @@ final class FieldRenderer
         if ($styleSchema !== []) {
             $html .= '<fieldset class="ed-group"><legend>Udseende</legend>';
 
+            // Felter med en 'group' (fx "Blå boks") samles i deres egen
+            // lille ramme med gruppens navn som overskrift. Så står navnet
+            // der én gang i stedet for foran hvert eneste felt. Felter
+            // uden gruppe vises først, som de altid har gjort.
+            $groups = [];
+
             foreach ($styleSchema as $name => $field) {
-                $html .= $this->field('styles', $name, $field, $styles[$name] ?? '');
+                $group = (string) ($field['group'] ?? '');
+
+                if ($group === '') {
+                    $html .= $this->field('styles', $name, $field, $styles[$name] ?? '');
+                } else {
+                    $groups[$group][$name] = $field;
+                }
+            }
+
+            foreach ($groups as $group => $fields) {
+                $html .= '<fieldset class="ed-subgroup"><legend>' . e($group) . '</legend>';
+
+                foreach ($fields as $name => $field) {
+                    $html .= $this->field('styles', $name, $field, $styles[$name] ?? '');
+                }
+
+                $html .= '</fieldset>';
             }
 
             $html .= '</fieldset>';
@@ -78,6 +100,10 @@ final class FieldRenderer
             . ' data-scope="' . e($scope) . '"'
             . ' data-field="' . e($name) . '"';
 
+        if (($field['type'] ?? '') === 'size') {
+            return $this->size($id, $scope, $name, $label, $field, (int) $value);
+        }
+
         return '<p class="ed-field">'
             . '<label for="' . e($id) . '">' . e($label) . '</label>'
             . $this->input($attributes, $field, $value)
@@ -85,9 +111,64 @@ final class FieldRenderer
     }
 
     /**
+     * En størrelse: skyder + tal-felt + evt. en "Auto"-knap.
+     *
+     *   Bredde  [x] Auto  ───●─────  [800] px
+     *
+     * Den værdi, der gemmes, ligger i et skjult felt med data-field —
+     * præcis som alle andre felter, så editor.js' indsamling og serveren
+     * ikke skal kende til skyderen. Skyder, tal-felt og Auto er kun
+     * betjening; editor.js holder dem og det skjulte felt i sync.
+     *
+     * Auto gemmes som 0. Mens Auto er slået til, er skyder og tal-felt
+     * slået fra og viser 'start', så der står et fornuftigt tal klar, når
+     * man slår Auto fra.
+     *
      * @param array<string, mixed> $field
      */
-      /**
+    private function size(string $id, string $scope, string $name, string $label, array $field, int $value): string
+    {
+        $min     = (int) ($field['min'] ?? 0);
+        $max     = (int) ($field['max'] ?? 9999);
+        $step    = max(1, (int) ($field['step'] ?? 1));
+        $canAuto = !empty($field['auto']);
+        $isAuto  = $canAuto && $value <= 0;
+        $unit    = (string) ($field['unit'] ?? '');
+
+        // Det tal, betjeningen viser. Under Auto: startværdien.
+        $shown = $isAuto ? (int) ($field['start'] ?? $min) : $value;
+        $shown = max($min, min($max, $shown));
+
+        $disabled = $isAuto ? ' disabled' : '';
+        $bounds   = ' min="' . $min . '" max="' . $max . '" step="' . $step . '"';
+
+        $auto = $canAuto
+            ? '<label class="ed-size__auto">'
+                . '<input type="checkbox" data-size-auto' . ($isAuto ? ' checked' : '') . '> Auto'
+                . '</label>'
+            : '';
+
+        return '<div class="ed-field ed-size' . ($isAuto ? ' is-auto' : '') . '" data-size>'
+            . '<label class="ed-size__label" for="' . e($id) . '">' . e($label) . '</label>'
+            . $auto
+            . '<input type="range" class="ed-size__range" id="' . e($id) . '"'
+                . ' data-size-range' . $bounds
+                . ' value="' . $shown . '"' . $disabled . '>'
+            . '<span class="ed-size__value">'
+                // Tal-feltet tager hele tal, også mellem skyderens trin,
+                // så man kan skrive præcis 455, selvom skyderen hopper i 10.
+                . '<input type="number" class="ed-size__number" data-size-number'
+                . ' min="' . $min . '" max="' . $max . '" step="1"'
+                . ' value="' . $shown . '"' . $disabled
+                . ' aria-label="' . e($label . ($unit !== '' ? ' i ' . $unit : '')) . '">'
+                . ($unit !== '' ? '<span class="ed-size__unit">' . e($unit) . '</span>' : '')
+            . '</span>'
+            . '<input type="hidden" data-scope="' . e($scope) . '" data-field="' . e($name) . '"'
+                . ' value="' . ($isAuto ? 0 : $shown) . '">'
+            . '</div>';
+    }
+
+    /**
      * @param array<string, mixed> $field
      */
     private function input(string $attributes, array $field, mixed $value): string

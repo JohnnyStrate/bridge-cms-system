@@ -94,6 +94,10 @@ final class WelcomeBlock extends AbstractBlock
                 'label'   => 'Tekstfarve',
                 'default' => '#ffffff',
             ],
+            // To bokse med hver sine størrelser: den blå yderboks og det
+            // lyse kort med listen indeni.
+            ...static::boxStyleFields('box', 'Blå boks', ['width', 'height', 'radius']),
+            ...static::boxStyleFields('card', 'Lys boks', ['width', 'height', 'radius']),
         ];
     }
 

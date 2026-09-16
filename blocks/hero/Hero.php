@@ -70,6 +70,8 @@ final class HeroBlock extends AbstractBlock
                 'label'   => 'Boksfarve',
                 'default' => '#1e3a8a',
             ],
+            // Bredde = den blå boks, højde = hele heroens højde.
+            ...static::boxStyleFields('box', 'Blå boks', ['width', 'height', 'radius']),
         ];
     }
 

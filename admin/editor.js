@@ -452,3 +452,102 @@
         form.remove();
     });
 }());
+
+/* =====================================================================
+   Stoerrelsesfelter (skyder + tal + Auto).
+
+   FieldRenderer tegner hvert felt som:
+     [x] Auto   ───●───   [800] px   + et skjult felt med data-field
+
+   Kun det skjulte felt bliver gemt. Denne del holder skyderen,
+   tal-feltet og Auto-knappen i sync med det. Auto gemmes som 0.
+
+   Lytterne sidder paa dokumentet, saa felter i blokke, der tilfoejes
+   efter sideindlaesning, ogsaa virker.
+   ===================================================================== */
+
+(function () {
+    'use strict';
+
+    function parts(element) {
+        const box = element.closest('[data-size]');
+
+        return {
+            box: box,
+            auto: box.querySelector('[data-size-auto]'),
+            range: box.querySelector('[data-size-range]'),
+            number: box.querySelector('[data-size-number]'),
+            stored: box.querySelector('input[type="hidden"][data-field]')
+        };
+    }
+
+    // Holder et tal inden for feltets graenser, saa en indtastning som
+    // 12345 eller "abc" ikke kan ende i det gemte felt. Der rundes kun
+    // til hele tal — ikke til skyderens trin — saa 455 forbliver 455.
+    function clamp(input, value) {
+        const min = Number(input.min);
+        const max = Number(input.max);
+        let number = Math.round(Number(value));
+
+        if (!Number.isFinite(number)) {
+            number = min;
+        }
+
+        return Math.min(max, Math.max(min, number));
+    }
+
+    // Skyderen traekkes: tal-feltet og den gemte vaerdi foelger med.
+    document.addEventListener('input', function (event) {
+        if (!event.target.matches('[data-size-range]')) {
+            return;
+        }
+
+        const p = parts(event.target);
+        p.number.value = event.target.value;
+        p.stored.value = event.target.value;
+    });
+
+    // Der skrives i tal-feltet. Skyderen flytter sig, mens man skriver,
+    // men selve tallet rettes foerst til, naar man forlader feltet —
+    // ellers ville "8" blive rettet til minimum, foer man naar at skrive
+    // "800".
+    document.addEventListener('input', function (event) {
+        if (!event.target.matches('[data-size-number]')) {
+            return;
+        }
+
+        const p = parts(event.target);
+        const value = clamp(p.range, event.target.value);
+        p.range.value = value;
+        p.stored.value = value;
+    });
+
+    document.addEventListener('change', function (event) {
+        if (!event.target.matches('[data-size-number]')) {
+            return;
+        }
+
+        const p = parts(event.target);
+        const value = clamp(p.range, event.target.value);
+        event.target.value = value;
+        p.range.value = value;
+        p.stored.value = value;
+    });
+
+    // Auto slaas til eller fra.
+    document.addEventListener('change', function (event) {
+        if (!event.target.matches('[data-size-auto]')) {
+            return;
+        }
+
+        const p = parts(event.target);
+        const isAuto = event.target.checked;
+
+        p.range.disabled = isAuto;
+        p.number.disabled = isAuto;
+        p.box.classList.toggle('is-auto', isAuto);
+
+        // Slaas Auto fra, gemmes det tal, skyderen allerede staar paa.
+        p.stored.value = isAuto ? '0' : p.range.value;
+    });
+}());

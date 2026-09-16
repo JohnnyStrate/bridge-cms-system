@@ -94,6 +94,84 @@ abstract class AbstractBlock implements BlockInterface
      *
      * @param array<string, mixed> $styles Validerede stylingværdier.
      */
+    /**
+     * Fælles størrelsesfelter til en boks i en blok: bredde, højde og
+     * afrundede hjørner.
+     *
+     * En blok kan have flere bokse. Hver boks får sit eget præfiks og
+     * dermed sine egne felter og CSS-variabler:
+     *
+     *   ...static::boxStyleFields('box',  'Blå boks', ['width', 'height', 'radius']),
+     *   ...static::boxStyleFields('card', 'Lys boks', ['width', 'radius']),
+     *
+     * giver felterne box_width, card_width osv. og CSS-variablerne
+     * --box-width, --card-width osv. Blokkens egen block.css bestemmer,
+     * hvilket element hver variabel bruges på.
+     *
+     * I editoren samles felterne under boksens navn (se 'group'), og
+     * hvert felt vises som en skyder. Kun de nøgler, der gives med i
+     * $parts, bliver til felter — en boks uden synlig kant kan derfor
+     * udelade 'radius'.
+     *
+     * Bredde og højde starter på "Auto" (gemt som 0). Så skrives
+     * variablen slet ikke, og CSS'en falder tilbage til sit normale
+     * udseende. Derfor ser eksisterende sider ud som før, indtil nogen
+     * vælger en størrelse.
+     *
+     * @param string             $prefix Bruges i feltnavn og CSS-variabel, fx 'card'.
+     * @param string             $group  Boksens navn, som brugeren ser det i editoren.
+     * @param array<int, string> $parts  Hvilke felter: 'width', 'height', 'radius'.
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function boxStyleFields(string $prefix, string $group, array $parts): array
+    {
+        $fields = [
+            // 'start' er den værdi, skyderen står på, når man slår Auto
+            // fra. Den gemmes ikke, før brugeren faktisk slår Auto fra.
+            'width' => [
+                'label' => 'Bredde',
+                'auto'  => true,
+                'min'   => 100,
+                'max'   => 2000,
+                'step'  => 10,
+                'start' => 800,
+            ],
+            'height' => [
+                'label' => 'Højde',
+                'auto'  => true,
+                'min'   => 50,
+                'max'   => 1500,
+                'step'  => 10,
+                'start' => 400,
+            ],
+            'radius' => [
+                'label' => 'Hjørner',
+                'auto'  => false,
+                'min'   => 0,
+                'max'   => 100,
+                'step'  => 1,
+                'start' => 0,
+            ],
+        ];
+
+        $result = [];
+
+        foreach ($parts as $part) {
+            if (!isset($fields[$part])) {
+                continue;
+            }
+
+            $result[$prefix . '_' . $part] = $fields[$part] + [
+                'type'    => 'size',
+                'group'   => $group,
+                'unit'    => 'px',
+                'default' => 0,
+            ];
+        }
+
+        return $result;
+    }
+
     protected static function cssVariables(array $styles): string
     {
         $schema      = static::getStyleSchema();
@@ -102,6 +180,12 @@ abstract class AbstractBlock implements BlockInterface
         foreach ($styles as $name => $value) {
             // Kun felter, skemaet kender. Ukendte nøgler ignoreres.
             if (!isset($schema[$name]) || $value === '' || $value === null) {
+                continue;
+            }
+
+            // "Auto" gemmes som 0. Variablen udelades, så CSS'ens egen
+            // standard bruges i stedet for en boks på 0 pixel.
+            if (!empty($schema[$name]['auto']) && (int) $value === 0) {
                 continue;
             }
 

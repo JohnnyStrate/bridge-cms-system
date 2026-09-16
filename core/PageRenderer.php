@@ -99,8 +99,18 @@ final class PageRenderer
 
         $head = '';
         foreach ($stylesheets as $path) {
+            $href = $context->asset($path);
+
+            // I admin (editor og forhåndsvisning) får CSS'en filens
+            // ændringstidspunkt på, så browseren henter en ny kopi, når
+            // filen er ændret. Eksporten får det ikke: dér er filerne
+            // statiske og skal bare hedde det, de hedder.
+            if ($context->isEditor()) {
+                $href .= self::cacheBuster($path);
+            }
+
             $head .= '    <link rel="stylesheet" href="'
-                . e($context->asset($path)) . '">' . PHP_EOL;
+                . e($href) . '">' . PHP_EOL;
         }
 
         return '<!DOCTYPE html>' . PHP_EOL
@@ -134,6 +144,22 @@ final class PageRenderer
      * @param array<int, array<string, mixed>> $blocks
      * @return array<int, string> Stier relative til projektroden.
      */
+    /**
+     * "?v=<tidspunkt>" til en CSS-fil, baseret på hvornår filen sidst
+     * blev ændret.
+     *
+     * Uden det kan browseren blive ved med at bruge en gemt kopi af en
+     * blok-CSS, efter filen er opdateret, og ændringen ser ud til ikke at
+     * virke. Tallet skifter kun, når filen ændres, så browseren stadig
+     * kan genbruge sin kopi resten af tiden.
+     */
+    public static function cacheBuster(string $path): string
+    {
+        $file = APP_ROOT . '/' . ltrim($path, '/');
+
+        return is_file($file) ? '?v=' . filemtime($file) : '';
+    }
+
     public static function stylesheets(array $blocks): array
     {
         // Fælles grundlag først, så blokkenes egen CSS kan overskrive det.

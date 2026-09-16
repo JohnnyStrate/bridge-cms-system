@@ -114,8 +114,8 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
-    <link rel="stylesheet" href="editor.css">
+    <link rel="stylesheet" href="admin.css<?= PageRenderer::cacheBuster('admin/admin.css') ?>">
+    <link rel="stylesheet" href="editor.css<?= PageRenderer::cacheBuster('admin/editor.css') ?>">
 
     <?php /*
         CSS for ALLE bloktyper — ikke kun dem, der ligger på siden nu.
@@ -123,7 +123,7 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
         og dens styling skal være på plads i det øjeblik den dukker op.
     */ ?>
     <?php foreach (PageRenderer::allStylesheets() as $sheet): ?>
-        <link rel="stylesheet" href="<?= e($basePath . '/' . $sheet) ?>">
+        <link rel="stylesheet" href="<?= e($basePath . '/' . $sheet . PageRenderer::cacheBuster($sheet)) ?>">
     <?php endforeach; ?>
 </head>
 <body class="editor" data-page-id="<?= (int) $page['id'] ?>"
@@ -302,6 +302,6 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
     <template data-global-template-for="<?= e($slot) ?>"><?= $globalArticle($slot, $def, null) ?></template>
 <?php endforeach; ?>
 
-<script src="editor.js"></script>
+<script src="editor.js<?= PageRenderer::cacheBuster('admin/editor.js') ?>"></script>
 </body>
 </html>
