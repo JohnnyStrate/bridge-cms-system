@@ -37,8 +37,8 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
 
 // Strukturen skal med, for at links mellem sider kan slås op.
 $siteMap = SiteMap::fromPages($pages->findAll());
-$context = RenderContext::editor($basePath, $siteMap);
-
+$galleryMap = GalleryMap::fromGalleries((new GalleryRepository($pdo))->all());
+$context    = RenderContext::editor($basePath, $siteMap, $galleryMap);
 header('Content-Type: text/html; charset=utf-8');
 
 echo PageRenderer::renderDocument($page, $pageBlocks, $context);

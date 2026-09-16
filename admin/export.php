@@ -25,13 +25,19 @@ $error  = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-               $exporter = new SiteExporter(
+        //        $exporter = new SiteExporter(
+        //     $pageRepository,
+        //     new BlockRepository($pdo),
+        //     APP_ROOT . '/export',
+        //     new GlobalBlocks(new GlobalBlockRepository($pdo))
+        // );
+        $exporter = new SiteExporter(
             $pageRepository,
             new BlockRepository($pdo),
             APP_ROOT . '/export',
-            new GlobalBlocks(new GlobalBlockRepository($pdo))
+            new GlobalBlocks(new GlobalBlockRepository($pdo)),
+            GalleryMap::fromGalleries((new GalleryRepository($pdo))->all())
         );
-
         $result = $exporter->export();
 
         // Listen genindlæses, så tidsstemplerne i tabellen er de nye.

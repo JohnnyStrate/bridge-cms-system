@@ -18,9 +18,16 @@ final class FieldRenderer
      * @param string             $basePath    Projektets sti under htdocs,
      *                                        så miniaturebilleder kan vises.
      */
+       /**
+     * @param array<int, string> $pageChoices    Side-id => titel.
+     * @param string             $basePath       Projektets sti under htdocs,
+     *                                           så miniaturebilleder kan vises.
+     * @param array<int, string> $galleryChoices Galleri-id => navn.
+     */
     public function __construct(
         private readonly array $pageChoices = [],
-        private readonly string $basePath = ''
+        private readonly string $basePath = '',
+        private readonly array $galleryChoices = []
     ) {
     }
 
@@ -117,7 +124,7 @@ final class FieldRenderer
             // Så kan brugeren ikke stave forkert, og linket overlever, at
             // målsiden får en ny slug.
             'page' => $this->pageSelect($attributes, (int) $value),
-
+            'gallery' => $this->gallerySelect($attributes, (int) $value),
             'image' => $this->imagePicker($attributes, (string) $value),
 
             default => '<input type="text" ' . $attributes . $placeholder
@@ -153,6 +160,27 @@ final class FieldRenderer
         }
 
         return $html . '</select>';
+    }    /**
+     * Et galleri vælges fra listen over dem, brugeren har oprettet.
+     *
+     * Linket åbner galleriadministrationen i en ny fane, så et manglende
+     * galleri kan oprettes uden at forlade en igangværende redigering.
+     * Listen opdateres, næste gang editoren indlæses.
+     */
+    private function gallerySelect(string $attributes, int $selected): string
+    {
+        $html = '<span class="ed-gallery"><select ' . $attributes . '>'
+            . '<option value="0">— vælg galleri —</option>';
+
+        foreach ($this->galleryChoices as $id => $name) {
+            $html .= '<option value="' . (int) $id . '"'
+                . ($selected === (int) $id ? ' selected' : '')
+                . '>' . e($name) . '</option>';
+        }
+
+        return $html . '</select>'
+            . '<a class="ed-gallery__link" href="galleries.php" target="_blank"'
+            . ' rel="noopener">Opret / redigér gallerier</a></span>';
     }
 
     /**

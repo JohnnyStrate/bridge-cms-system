@@ -479,3 +479,43 @@
     border-radius: var(--radius);
     background: #fff;
 }
+
+/* Galleriet::
+/* --- Gallerier ------------------------------------------------------- */
+
+.gallery-new {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: .6rem;
+    margin-bottom: 1.5rem;
+}
+
+.gallery-new label {
+    width: 100%;
+    font-weight: 600;
+}
+
+.gallery-new input {
+    flex: 1 1 18rem;
+    padding: .5rem .7rem;
+    border: 1px solid #cfd5db;
+    border-radius: 6px;
+}
+
+.gallery-empty {
+    color: #6b7480;
+}
+
+.page-row__meta {
+    margin-inline: auto .75rem;
+    color: #6b7480;
+    font-size: .85rem;
+}
+
+.page-row__action--danger {
+    border: 0;
+    background: none;
+    color: #b42318;
+    cursor: pointer;
+}

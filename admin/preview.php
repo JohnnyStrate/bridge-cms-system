@@ -115,6 +115,11 @@ $html = PageRenderer::renderDocument(
     RenderContext::editor($basePath, SiteMap::fromPages($pageRepository->findAll()))
 );
 
+    RenderContext::editor(
+        $basePath,
+        SiteMap::fromPages($pageRepository->findAll()),
+        GalleryMap::fromGalleries((new GalleryRepository($pdo))->all())
+    )
 /*
  * Editorens egen bjælke oven på forhåndsvisningen.
  *

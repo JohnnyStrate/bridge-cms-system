@@ -24,7 +24,7 @@ final class GalleryBlock extends AbstractBlock
         return 'Galleri';
     }
 
-    public static function getSchema(): array
+     public static function getSchema(): array
     {
         return [
             'title' => [
@@ -32,28 +32,13 @@ final class GalleryBlock extends AbstractBlock
                 'label'   => 'Overskrift',
                 'default' => '',
             ],
-            'images' => [
-                'type'     => 'repeater',
-                'label'    => 'Billeder',
-                'max_rows' => 40,
-                'fields'   => [
-                    'src' => [
-                        'type'    => 'image',
-                        'label'   => 'Billedfil',
-                        'default' => '',
-                    ],
-                    'alt' => [
-                        'type'    => 'text',
-                        'label'   => 'Beskrivelse',
-                        'default' => '',
-                    ],
-                    'caption' => [
-                        'type'    => 'text',
-                        'label'   => 'Billedtekst',
-                        'default' => '',
-                    ],
-                ],
-                'default' => [],
+            // Blokken gemmer kun en HENVISNING. Billederne bor i tabellen
+            // `galleries`, så det samme galleri kan bruges på flere sider
+            // og kun vedligeholdes ét sted.
+            'gallery_id' => [
+                'type'    => 'gallery',
+                'label'   => 'Galleri',
+                'default' => 0,
             ],
         ];
     }
@@ -92,14 +77,17 @@ final class GalleryBlock extends AbstractBlock
         ];
     }
 
-    public static function render(
+   public static function render(
         array $settings,
         array $styles,
         RenderContext $context
     ): string {
         $images = [];
 
-        foreach ((array) ($settings['images'] ?? []) as $image) {
+        // Opslaget sker i RenderContext, ikke i databasen. Blokken ved
+        // hverken, hvor gallerierne kommer fra, eller om vi renderer til
+        // editoren eller til en eksporteret fil.
+        foreach ($context->galleryImages((int) ($settings['gallery_id'] ?? 0)) as $image) {
             if (!is_array($image)) {
                 continue;
             }
@@ -118,6 +106,13 @@ final class GalleryBlock extends AbstractBlock
                 'caption' => (string) ($image['caption'] ?? ''),
             ];
         }
+
+        return static::renderTemplate([
+            'title'   => (string) ($settings['title'] ?? ''),
+            'images'  => $images,
+            'cssVars' => static::cssVariables($styles),
+        ]);
+    }
 
         return static::renderTemplate([
             'title'   => (string) ($settings['title'] ?? ''),
