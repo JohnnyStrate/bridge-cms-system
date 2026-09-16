@@ -114,10 +114,10 @@ final class GalleryBlock extends AbstractBlock
         ]);
     }
 
-        return static::renderTemplate([
-            'title'   => (string) ($settings['title'] ?? ''),
-            'images'  => $images,
-            'cssVars' => static::cssVariables($styles),
-        ]);
-    }
+    //     return static::renderTemplate([
+    //         'title'   => (string) ($settings['title'] ?? ''),
+    //         'images'  => $images,
+    //         'cssVars' => static::cssVariables($styles),
+    //     ]);
+    // }
 }
