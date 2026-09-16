@@ -60,9 +60,12 @@ final class FieldValidator
      * @param array<string, mixed> $field Feltdefinitionen fra skemaet.
      */
     public static function validateField(array $field, mixed $value): mixed
+                
     {
         $type    = $field['type'] ?? 'text';
         $default = $field['default'] ?? '';
+            // Samme regel som en sidehenvisning: et positivt id eller 0.
+            // At galleriet stadig findes, afgøres først ved rendering.
 
         return match ($type) {
             'text'     => self::text($value, $default, $field['max'] ?? 255),
@@ -75,6 +78,7 @@ final class FieldValidator
             'select'   => self::select($value, $default, $field['options'] ?? []),
             'page'     => self::pageReference($value),
             'repeater' => self::repeater($value, $field),
+            'gallery'  => self::pageReference($value),
             default    => $default,
         };
     }

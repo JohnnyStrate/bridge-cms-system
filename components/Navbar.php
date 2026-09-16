@@ -4,7 +4,7 @@
     <ul class="links">
         <a href="index.php" class="link" > <li class="active">Dine Sider</li></a>
         <a href="#" onClick="toggleSlide()" class="link"> <li>Opret side</li></a>
-        <a href="Gallery.php" class="link" ><li>Galleri</li></a>
+        <a href="admin/galleries.php" class="link" ><li>Galleri</li></a>
         <a href="" class="link" ><li>Settings</li></a>
 
     </ul>

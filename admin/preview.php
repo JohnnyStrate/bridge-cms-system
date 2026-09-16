@@ -107,24 +107,26 @@ $blocks = array_merge($before, $blocks, $after);
 
 $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 
-header('Content-Type: text/html; charset=utf-8');
+// Gallerierne hentes friske fra databasen. Blokken gemmer kun et id, og
+// forhåndsvisningen skal vise galleriets nuværende indhold.
+$galleryMap = GalleryMap::fromGalleries((new GalleryRepository($pdo))->all());
 
 $html = PageRenderer::renderDocument(
     $page,
     $blocks,
-    RenderContext::editor($basePath, SiteMap::fromPages($pageRepository->findAll()))
+    RenderContext::editor($basePath, SiteMap::fromPages($pageRepository->findAll()), $galleryMap)
 );
 
 /*
  * Editorens egen bjælke oven på forhåndsvisningen.
  *
  * Den ligger IKKE i en blok og eksporteres derfor aldrig — den findes kun
- * her i preview.php. Stilen står inline, fordi det færdige dokument kun
- * henter base.css og blokkenes CSS, ikke admin.css.
+ * her. Stilen står inline, fordi det færdige dokument kun henter base.css
+ * og blokkenes CSS, ikke admin.css.
  *
- * Forhåndsvisningen åbnes i en ny fane. Er fanen åbnet af editoren
- * (window.opener), lukker knappen den, så brugeren lander i den fane, der
- * stadig har det ugemte arbejde. Ellers navigerer linket som normalt.
+ * window.close() forsøges først, så brugeren lander i den fane, der stadig
+ * har det ugemte arbejde. Nægter browseren at lukke fanen, følger linket
+ * bare sin href — derfor ingen "return false".
  */
 $bar = '<style>'
     . '.preview-bar{position:fixed;inset-inline:0;bottom:0;z-index:999;'
@@ -141,8 +143,7 @@ $bar = '<style>'
     . '<div class="preview-bar">'
     . '<span class="preview-bar__label">Forhåndsvisning — dine ændringer er ikke gemt endnu</span>'
     . '<a class="preview-bar__btn" href="editor.php?page_id=' . (int) $page['id'] . '"'
-    . ' onclick="if (window.opener) { window.close(); return false; }">'
-    . '&larr; Tilbage til editoren</a>'
+    . ' onclick="window.close();">&larr; Tilbage til editoren</a>'
     . '</div>';
 
 header('Content-Type: text/html; charset=utf-8');

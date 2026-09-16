@@ -34,11 +34,12 @@ final class SiteExporter
     /** @var array<int, string> */
     private array $warnings = [];
 
-        public function __construct(
+            public function __construct(
         private readonly PageRepository $pages,
         private readonly BlockRepository $blocks,
         private readonly string $exportDir,
-        private readonly ?GlobalBlocks $globals = null
+        private readonly ?GlobalBlocks $globals = null,
+        private readonly ?GalleryMap $galleries = null
     ) {
     }
 
@@ -111,7 +112,8 @@ final class SiteExporter
 
         // Strukturen sendes med, så links mellem sider bliver til relative
         // stier ud fra netop denne sides placering i mappetræet.
-        $context = RenderContext::export($depth, $siteMap);
+        // $context = RenderContext::export($depth, $siteMap); //gammel, nu er galleries tilføjes
+                $context = RenderContext::export($depth, $siteMap, $this->galleries);
         $html    = PageRenderer::renderDocument($page, $blocks, $context);
 
         // Stylesheets og billeder noteres, mens vi er her, så vi bagefter
@@ -159,6 +161,16 @@ final class SiteExporter
 
             if ($type === 'image' && !empty($settings[$name])) {
                 $this->noteAsset((string) $settings[$name]);
+                continue;
+            }
+                        // Et galleri har ingen billeder i sine settings — kun et id.
+            // Uden det her opslag ville billederne mangle i eksporten.
+            if ($type === 'gallery' && $this->galleries !== null) {
+                foreach ($this->galleries->images((int) ($settings[$name] ?? 0)) as $row) {
+                    if (is_array($row) && !empty($row['src'])) {
+                        $this->noteAsset((string) $row['src']);
+                    }
+                }
                 continue;
             }
 

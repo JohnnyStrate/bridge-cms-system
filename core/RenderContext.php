@@ -16,11 +16,12 @@ final class RenderContext
     public const MODE_EDITOR = 'editor';
     public const MODE_EXPORT = 'export';
 
-    private function __construct(
+       private function __construct(
         public readonly string $mode,
         private readonly string $basePath,
         private readonly int $depth,
-        private readonly ?SiteMap $siteMap
+        private readonly ?SiteMap $siteMap,
+        private readonly ?GalleryMap $galleries = null
     ) {
     }
 
@@ -29,22 +30,22 @@ final class RenderContext
      *
      * @param string $basePath Fx '/cms-system-beckIt'
      */
-    public static function editor(string $basePath = '', ?SiteMap $siteMap = null): self
-    {
-        return new self(self::MODE_EDITOR, rtrim($basePath, '/'), 0, $siteMap);
+        public static function editor(
+        string $basePath = '',
+        ?SiteMap $siteMap = null,
+        ?GalleryMap $galleries = null
+    ): self {
+        return new self(self::MODE_EDITOR, rtrim($basePath, '/'), 0, $siteMap, $galleries);
     }
 
-    /**
-     * Til eksport af statiske filer.
-     *
-     * @param int $depth Hvor mange mapper nede siden ligger.
-     *                   Forside = 0, om-os/bestyrelse = 2.
-     */
-    public static function export(int $depth = 0, ?SiteMap $siteMap = null): self
-    {
+    public static function export(
+        int $depth = 0,
+        ?SiteMap $siteMap = null,
+        ?GalleryMap $galleries = null
+    ): self {
         $basePath = $depth > 0 ? rtrim(str_repeat('../', $depth), '/') : '.';
 
-        return new self(self::MODE_EXPORT, $basePath, $depth, $siteMap);
+        return new self(self::MODE_EXPORT, $basePath, $depth, $siteMap, $galleries);
     }
 
     public function isEditor(): bool
@@ -104,4 +105,21 @@ final class RenderContext
 
         return $up . $path . '/';
     }
+        /**
+     * Billederne i et galleri.
+     *
+     * Tom liste, hvis galleriet er slettet, eller hvis intet er valgt —
+     * blokken tegner så sin tomme tilstand i stedet for at fejle.
+     *
+     * @return array<int, array<string, string>>
+     */
+    public function galleryImages(int $galleryId): array
+    {
+        if ($galleryId <= 0 || $this->galleries === null) {
+            return [];
+        }
+
+        return $this->galleries->images($galleryId);
+    }
 }
+
