@@ -4,9 +4,9 @@ declare(strict_types=1);
 /**
  * "Dine sider" — oversigten over alle sider.
  *
- * Træk-og-slip til at ændre rækkefølgen kommer i fase 6 sammen med
- * resten af gemme-flowet. Markup'en er allerede forberedt til det:
- * hver række har et data-page-id og et greb.
+ * Hver hovedside og dens undersider ligger i én .page-group. Det er
+ * gruppen, der trækkes rundt i listen, så undersider altid flytter med
+ * deres hovedside. Rækkefølgen gemmes af admin.js via reorder-pages.php.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -16,6 +16,24 @@ $pdo = Database::getConnection();
 // Sider vises i træets rækkefølge med undersider under deres forælder,
 // frem for som en flad liste hvor sammenhængen ikke kan ses.
 $pages = PageTree::flatten((new PageRepository($pdo))->findAll());
+
+// Listen deles op i grupper: én hovedside plus alle dens undersider
+// (også undersider af undersider). Hver gruppe bliver ét element i
+// listen, så træk-og-slip flytter hele familien på én gang og ikke
+// kun den række, man tog fat i.
+//
+// flatten() returnerer allerede siderne i træets rækkefølge, så en ny
+// gruppe starter præcis der, hvor dybden er 0.
+$groups = [];
+foreach ($pages as $page) {
+    if ((int) $page['depth'] === 0 || $groups === []) {
+        $groups[] = [];
+    }
+    $groups[array_key_last($groups)][] = $page;
+}
+
+// Nummeret i højre side tæller alle rækker, på tværs af grupperne.
+$rowNumber = 0;
 
 $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 ?>
@@ -28,7 +46,7 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body class="admin">
 
@@ -52,16 +70,24 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
     <?php endif; ?>
 
     <ul class="page-list" id="page-list">
-        <?php foreach ($pages as $index => $page): ?>
-            <li class="page-row" data-page-id="<?= (int) $page['id'] ?>"
+        <?php foreach ($groups as $group): ?>
+            <?php $root = $group[0]; ?>
+            <!--
+                Én gruppe = én hovedside med dens undersider. Det er
+                gruppen, der trækkes rundt, så undersiderne altid følger
+                med deres hovedside.
+            -->
+            <li class="page-group<?= count($group) > 1 ? ' has-children' : '' ?>"
+                data-group-id="<?= (int) $root['id'] ?>">
+            <?php foreach ($group as $page): ?>
+            <?php $rowNumber++; ?>
+            <div class="page-row" data-page-id="<?= (int) $page['id'] ?>"
                 data-depth="<?= (int) $page['depth'] ?>"
                 style="--depth: <?= (int) $page['depth'] ?>">
                 <?php /*
-                    Grebet vises kun for rod-sider. Sorteringen gemmer én
-                    samlet rækkefølge, og at trække en underside op mellem
-                    rod-siderne ville ændre dens plads uden at flytte den
-                    ud af sin forælder — altså et resultat, der ikke svarer
-                    til, hvad man lige gjorde.
+                    Grebet vises kun for hovedsider. Undersider flytter
+                    sig sammen med deres hovedside, så de har et låst
+                    greb, der blot viser tilhørsforholdet.
                 */ ?>
                 <span class="page-row__handle<?= $page['depth'] > 0 ? ' is-locked' : '' ?>"
                       aria-hidden="true"><?= $page['depth'] > 0 ? '└' : '⠿' ?></span>
@@ -94,7 +120,9 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
                             title="Slet">&#128465;</button>
                 </form>
 
-                <span class="page-row__order"><?= $index + 1 ?></span>
+                <span class="page-row__order"><?= $rowNumber ?></span>
+            </div>
+            <?php endforeach; ?>
             </li>
         <?php endforeach; ?>
     </ul>
@@ -108,6 +136,6 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
     <a class="create-link" href="create-page.php">opret side <span aria-hidden="true">+</span></a>
 </main>
 
-<script src="admin.js"></script>
+<script src="admin.js?v=3"></script>
 </body>
 </html>

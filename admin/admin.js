@@ -1,8 +1,12 @@
 /* =====================================================================
    Traek-og-slip i sidelisten.
 
+   Det er en hel gruppe (.page-group), der flyttes: en hovedside med
+   alle dens undersider. Saa foelger undersiderne altid med deres
+   hovedside og kan ikke ende et forkert sted i listen.
+
    Raekkefoelgen gemmes med det samme. Der er ingen gem-knap her, fordi
-   handlingen er enkelt afgraenset — man traekker én raekke ét sted hen.
+   handlingen er enkelt afgraenset — man traekker én gruppe ét sted hen.
    ===================================================================== */
 
 (function () {
@@ -19,20 +23,30 @@
 
     /* --- Start og slut ---------------------------------------------- */
 
-    // Kun grebet starter et traek. Var hele raekken traekbar, ville man
+    // Kun grebet starter et traek. Var hele gruppen traekbar, ville man
     // ikke kunne markere titlen med musen.
     list.addEventListener('mousedown', function (event) {
         const handle = event.target.closest('.page-row__handle');
 
-        // Laaste greb hoerer til undersider. De sorteres sammen med deres
-        // foraelder og kan ikke traekkes frit rundt i listen.
+        // Laaste greb hoerer til undersider. De flytter sig kun sammen
+        // med deres hovedside, saa de kan ikke starte et traek selv.
         if (handle && !handle.classList.contains('is-locked')) {
-            handle.closest('.page-row').draggable = true;
+            handle.closest('.page-group').draggable = true;
+        }
+    });
+
+    // Slipper man musen uden at traekke, skal gruppen ikke blive ved
+    // med at vaere traekbar — saa kunne man ikke markere tekst i den.
+    list.addEventListener('mouseup', function (event) {
+        const group = event.target.closest('.page-group');
+
+        if (group && group !== dragged) {
+            group.draggable = false;
         }
     });
 
     list.addEventListener('dragstart', function (event) {
-        dragged = event.target.closest('.page-row');
+        dragged = event.target.closest('.page-group');
 
         if (!dragged) {
             return;
@@ -42,7 +56,7 @@
 
         // Firefox starter ikke et traek, medmindre der er sat data.
         event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', dragged.dataset.pageId);
+        event.dataTransfer.setData('text/plain', dragged.dataset.groupId);
     });
 
     list.addEventListener('dragend', function () {
@@ -63,7 +77,11 @@
         // Uden preventDefault afviser browseren droppet som standard.
         event.preventDefault();
 
-        const target = event.target.closest('.page-row');
+        // Man kan svaeve over en hvilken som helst raekke i en gruppe,
+        // ogsaa en underside. Maalet er altid hele gruppen, saa den
+        // traekkede gruppe aldrig lander midt imellem en hovedside og dens
+        // undersider.
+        const target = event.target.closest('.page-group');
 
         if (!target || target === dragged || !dragged) {
             return;
@@ -74,7 +92,7 @@
         });
         target.classList.add('is-over');
 
-        // Afgoer ud fra musens position, om raekken skal ind foer eller
+        // Afgoer ud fra musens position, om gruppen skal ind foer eller
         // efter den, man svaever over. Uden det ville man aldrig kunne
         // placere noget nederst i listen.
         const box = target.getBoundingClientRect();

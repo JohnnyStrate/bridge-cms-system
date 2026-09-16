@@ -359,15 +359,16 @@
 
 /* --- Traek-og-slip i sidelisten ------------------------------------- */
 
-/* Raekken der loeftes. */
-.page-row.is-dragging {
+/* Gruppen der loeftes — hovedsiden og alle dens undersider. */
+.page-group.is-dragging {
     opacity: 0.4;
 }
 
-/* Markering af, hvor raekken lander, hvis man slipper nu. */
-.page-row.is-over {
+/* Markering af, hvor gruppen lander, hvis man slipper nu. */
+.page-group.is-over {
     outline: 2px dashed var(--admin-orange);
-    outline-offset: -2px;
+    outline-offset: 4px;
+    border-radius: var(--radius);
 }
 
 .page-row__handle:active {
@@ -452,6 +453,23 @@
 }
 
 /* --- Sidehierarki --------------------------------------------------- */
+
+/* En gruppe er én hovedside med dens undersider. Rækkerne i gruppen
+   står tættere end grupperne indbyrdes, så man kan se, hvad der hører
+   sammen og derfor flytter sig sammen. */
+.page-group {
+    display: grid;
+    gap: 0.25rem;
+}
+
+/* Har hovedsiden undersider, får hele gruppen en tynd ramme, så den
+   tydeligt ligner én blok. */
+.page-group.has-children {
+    padding: 0.3rem;
+    border: 1px solid #c7ccd3;
+    background: rgb(255 255 255 / 0.35);
+    border-radius: var(--radius);
+}
 
 /* Undersider rykkes ind efter deres dybde i traeet. */
 .page-row {

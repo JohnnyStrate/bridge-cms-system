@@ -36,7 +36,7 @@ $error    = $_GET['fejl'] ?? null;
         opdateret — det er dét, der gav den ustylede forhåndsvisning.
         Sæt tallet én op, hver gang admin.css ændres.
     -->
-    <link rel="stylesheet" href="admin.css?v=2">
+    <link rel="stylesheet" href="admin.css?v=3">
 </head>
 <body class="admin">
 
