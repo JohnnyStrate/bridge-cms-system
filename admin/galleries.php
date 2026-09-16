@@ -6,7 +6,8 @@
     <title>Document</title>
 </head>
 <body>
-   <h1>Dit galleri</h1>
+   <h1>Dine Gallerier</h1>
+   
     
 </body>
 </html>
