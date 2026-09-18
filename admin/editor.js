@@ -429,7 +429,112 @@
 
         notice.textContent = message;
     }
+// LIVE VISNING
+    /* --- Inline-redigering ------------------------------------------ */
 
+    // Elementer med data-inline er koblet til panelfeltet med samme navn.
+    // Panelets felt er stadig det, der gemmes — inline skriver bare i det.
+
+    function panelField(block, name) {
+        return block.querySelector(
+            '.ed-panel [data-scope="settings"][data-field="' + name + '"]'
+        );
+    }
+
+    // Preview -> panel, mens der skrives.
+    canvas.addEventListener('input', function (event) {
+        const element = event.target.closest('[data-inline]');
+        if (!element) {
+            return;
+        }
+
+        // En tom contenteditable efterlader tit et <br>. Fjernes, så
+        // :empty-pladsholderen vises igen.
+        if (element.textContent.trim() === '') {
+            element.innerHTML = '';
+        }
+
+        const input = panelField(element.closest('.ed-block'), element.dataset.inline);
+        if (input) {
+            input.value = element.textContent.trim();
+            markDirty();
+        }
+    });
+
+    // Panel -> preview, så de to aldrig viser noget forskelligt.
+    canvas.addEventListener('input', function (event) {
+        const input = event.target.closest('.ed-panel [data-scope="settings"][data-field]');
+        if (!input) {
+            return;
+        }
+
+        const element = input.closest('.ed-block').querySelector(
+            '.ed-block__preview [data-inline="' + input.dataset.field + '"]'
+        );
+
+        if (element && element.textContent !== input.value) {
+            element.textContent = input.value;
+        }
+    });
+
+    // Felterne er enkeltlinjede — Enter afslutter redigeringen.
+    canvas.addEventListener('keydown', function (event) {
+        const element = event.target.closest('[data-inline]');
+        if (element && event.key === 'Enter') {
+            event.preventDefault();
+            element.blur();
+        }
+    });
+
+    // Indsat tekst fra fx Word må ikke tage formatering med.
+    canvas.addEventListener('paste', function (event) {
+        if (!event.target.closest('[data-inline]')) {
+            return;
+        }
+
+        event.preventDefault();
+        const text = (event.clipboardData.getData('text/plain') || '').replace(/\s+/g, ' ');
+        document.execCommand('insertText', false, text);
+    });
+
+    // Links må ikke navigere. Klik på et billede åbner panelets filvælger.
+    canvas.addEventListener('click', function (event) {
+        if (event.target.closest('a[data-inline]')) {
+            event.preventDefault();
+            return;
+        }
+
+        const image = event.target.closest('[data-inline-image]');
+        if (!image) {
+            return;
+        }
+
+        const input = panelField(image.closest('.ed-block'), image.dataset.inlineImage);
+        const fileInput = input && input.closest('.ed-image').querySelector('.ed-image__file');
+
+        if (fileInput) {
+            fileInput.click();
+        }
+    });
+
+    // Kaldes efter upload, så det nye billede ses med det samme.
+    function syncInlineImage(pathInput) {
+        const element = pathInput.closest('.ed-block').querySelector(
+            '.ed-block__preview [data-inline-image="' + pathInput.dataset.field + '"]'
+        );
+
+        if (!element) {
+            return;
+        }
+
+        const url = document.body.dataset.basePath + '/' + pathInput.value;
+
+        if (element.tagName === 'IMG') {
+            element.src = url;
+        } else {
+            element.style.backgroundImage = "url('" + url + "')";
+        }
+    }
     /* --- Forhaandsvis ------------------------------------------------ */
 
     document.getElementById('preview-btn').addEventListener('click', function () {
@@ -550,37 +655,4 @@
         // Slaas Auto fra, gemmes det tal, skyderen allerede staar paa.
         p.stored.value = isAuto ? '0' : p.range.value;
     });
-    function panelField(block, name) {
-        return block.querySelector(
-             '.ed-panel [data-scope="settings"][data-field="' + name + '"]'
-
-        );
-    }
-    canvas.addEventListener('input', function(event){
-        const element = event.target.closest('[data-inline]');
-        if (!element){
-            return;
-        }
-        if (element.textContent.trim()=== ''){
-            element.innerHTHML = '';
-        }
-        const input = panelField(element.closest('.ed-block'), element.dataset.inline);
-        if(input){
-            input.value  = element.textContent.trim();
-            markDirty();
-        }
-        canvas.addEventListener('input', function(event){
-        const input = event.target.closest('.ed-panel [data-scope="settings"[data-field]]')
-        if(!input){
-            return;
-        }
-        }
-        const element = input.closets('.ed-block').querySelector(
-        '.ed-block__preview [data-inline="' + input.dataset.field + '"]'
-
-        );
-        if (element && element.textContext !== input.value){
-            element.textContent = input.value;
-        }
-    );
 }());
