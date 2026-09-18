@@ -90,6 +90,7 @@ final class HeroBlock extends AbstractBlock
             'bgImage' => $context->asset((string) ($settings['bg_image'] ?? '')),
 
             'cssVars' => static::cssVariables($styles),
+            'context' => $context,
         ]);
     }
 }

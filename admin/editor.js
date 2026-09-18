@@ -550,4 +550,37 @@
         // Slaas Auto fra, gemmes det tal, skyderen allerede staar paa.
         p.stored.value = isAuto ? '0' : p.range.value;
     });
+    function panelField(block, name) {
+        return block.querySelector(
+             '.ed-panel [data-scope="settings"][data-field="' + name + '"]'
+
+        );
+    }
+    canvas.addEventListener('input', function(event){
+        const element = event.target.closest('[data-inline]');
+        if (!element){
+            return;
+        }
+        if (element.textContent.trim()=== ''){
+            element.innerHTHML = '';
+        }
+        const input = panelField(element.closest('.ed-block'), element.dataset.inline);
+        if(input){
+            input.value  = element.textContent.trim();
+            markDirty();
+        }
+        canvas.addEventListener('input', function(event){
+        const input = event.target.closest('.ed-panel [data-scope="settings"[data-field]]')
+        if(!input){
+            return;
+        }
+        }
+        const element = input.closets('.ed-block').querySelector(
+        '.ed-block__preview [data-inline="' + input.dataset.field + '"]'
+
+        );
+        if (element && element.textContext !== input.value){
+            element.textContent = input.value;
+        }
+    );
 }());

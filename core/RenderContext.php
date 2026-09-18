@@ -20,10 +20,42 @@ final class RenderContext
         public readonly string $mode,
         private readonly string $basePath,
         private readonly int $depth,
-        private readonly ?SiteMap $siteMap
+        private readonly ?SiteMap $siteMap,
+        private readonly ?GalleryMap $galleries = null,
+        private readonly bool $inlineEditing = false
     ) {
     }
+public function withInlineEditing(): self {
+    return new self(
+        $this->mode,
+        $this->basePath,
+        $this->depth,
+        $this->siteMap,
+        $this->galleries,
+        true
+    );
+}
+public function isInlineEditing(): bool //retunerer en sandt eller falsk 
+{
+    return $this->inlineEditing;
+}
+public function inline(string $field, string $placeholder = ''){
+    if (!$this->inlineEditing)  {
+return = '';
+    }
+ return ' data-inline="' . e($field) . '"'
+            . ' data-placeholder="' . e($placeholder) . '"'
+            . ' contenteditable="true" spellcheck="false"';
+            }
+    public function inlineImage(string, $field) :string{
 
+    if(!$this->inlineEditing){
+        return '';
+
+    }
+    return ' data-inline-image="' . e($field) . '"'
+            . ' title="Klik for at skifte billede"';
+    }
     /**
      * Til admin-editoren og forhåndsvisning på localhost.
      *

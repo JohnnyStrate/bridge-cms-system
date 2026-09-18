@@ -50,8 +50,7 @@ $parentChoices = PageTree::choices(
     $allPages,
     array_merge([$pageId], $pageRepository->descendantIds($pageId))
 );
-$context = RenderContext::editor($basePath, $siteMap);
-
+$context = RenderContext::editor($basePath, $siteMap, $galleryMap)->withInlineEditing();
 // Feltrendereren kender listen over sider, så et side-felt kan tegnes
 // som en dropdown frem for et tekstfelt, man kan stave forkert i.
 $fields = new FieldRenderer($siteMap->choices(), $basePath);
