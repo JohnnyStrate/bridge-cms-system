@@ -50,7 +50,7 @@ $parentChoices = PageTree::choices(
     $allPages,
     array_merge([$pageId], $pageRepository->descendantIds($pageId))
 );
-
+$context = RenderContext::editor($basePath, $siteMap, $galleryMap)->withInlineEditing();
 // Feltrendereren kender listen over sider, så et side-felt kan tegnes
 // som en dropdown frem for et tekstfelt, man kan stave forkert i.
 // Gallerierne slås op ét sted og sendes både til rendering (så blokken
