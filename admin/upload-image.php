@@ -34,6 +34,65 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     reply(405, ['ok' => false, 'error' => 'Kun POST er tilladt.']);
 }
 
+/*
+ * To slags upload bruger det samme endpoint:
+ *
+ *   image    — én fil ad gangen, fra billedfeltet i editoren.
+ *              Svar: {"ok": true, "path": "uploads/..."}
+ *
+ *   images[] — flere filer, fra galleriets træk-og-slip.
+ *              Svar: {"ok": true, "files": [{"path": …, "name": …}],
+ *                     "errors": ["fil.jpg: besked"]}
+ *
+ * Ved flerupload stopper én afvist fil ikke de andre. De filer, der kom
+ * igennem, returneres, og de afviste nævnes i "errors", så brugeren kan
+ * se, at ikke alle kom med.
+ */
+if (isset($_FILES['images'])) {
+    $uploader = new ImageUploader(APP_ROOT . '/uploads');
+
+    /*
+     * PHP vender strukturen om ved flere filer: ['name' => [...],
+     * 'tmp_name' => [...]] i stedet for én række pr. fil. Her vendes den
+     * tilbage, så hver fil bliver ét array, som store() forstår.
+     */
+    $keys  = array_keys($_FILES['images']);
+    $count = is_array($_FILES['images']['name'] ?? null)
+        ? count($_FILES['images']['name'])
+        : 0;
+
+    $files  = [];
+    $errors = [];
+
+    for ($i = 0; $i < $count; $i++) {
+        $one = [];
+
+        foreach ($keys as $key) {
+            $one[$key] = $_FILES['images'][$key][$i] ?? null;
+        }
+
+        $name = (string) ($one['name'] ?? 'fil');
+
+        try {
+            $files[] = ['path' => $uploader->store($one), 'name' => $name];
+
+        } catch (RuntimeException $e) {
+            // Beskederne fra ImageUploader er skrevet til brugeren.
+            $errors[] = $name . ': ' . $e->getMessage();
+
+        } catch (Throwable $e) {
+            error_log('Billedupload fejlede: ' . $e->getMessage());
+            $errors[] = $name . ': der opstod en teknisk fejl.';
+        }
+    }
+
+    if ($files === [] && $errors === []) {
+        reply(400, ['ok' => false, 'error' => 'Ingen filer modtaget.']);
+    }
+
+    reply(200, ['ok' => true, 'files' => $files, 'errors' => $errors]);
+}
+
 if (!isset($_FILES['image'])) {
     reply(400, ['ok' => false, 'error' => 'Ingen fil modtaget.']);
 }

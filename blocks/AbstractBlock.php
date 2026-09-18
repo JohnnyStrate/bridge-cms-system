@@ -118,12 +118,23 @@ abstract class AbstractBlock implements BlockInterface
      * udseende. Derfor ser eksisterende sider ud som før, indtil nogen
      * vælger en størrelse.
      *
-     * @param string             $prefix Bruges i feltnavn og CSS-variabel, fx 'card'.
-     * @param string             $group  Boksens navn, som brugeren ser det i editoren.
-     * @param array<int, string> $parts  Hvilke felter: 'width', 'height', 'radius'.
+     * En blok kan give en anden startværdi end 0 med $defaults, fx en
+     * afrunding, der hører til designet:
+     *
+     *   ...static::boxStyleFields('card', 'Kort', ['width', 'radius'], ['radius' => 9]),
+     *
+     * @param string             $prefix   Bruges i feltnavn og CSS-variabel, fx 'card'.
+     * @param string             $group    Boksens navn, som brugeren ser det i editoren.
+     * @param array<int, string> $parts    Hvilke felter: 'width', 'height', 'radius'.
+     * @param array<string, int> $defaults Startværdier pr. felt. Udeladte starter på 0.
      * @return array<string, array<string, mixed>>
      */
-    protected static function boxStyleFields(string $prefix, string $group, array $parts): array
+    protected static function boxStyleFields(
+        string $prefix,
+        string $group,
+        array $parts,
+        array $defaults = []
+    ): array
     {
         $fields = [
             // 'start' er den værdi, skyderen står på, når man slår Auto
@@ -165,7 +176,7 @@ abstract class AbstractBlock implements BlockInterface
                 'type'    => 'size',
                 'group'   => $group,
                 'unit'    => 'px',
-                'default' => 0,
+                'default' => (int) ($defaults[$part] ?? 0),
             ];
         }
 
