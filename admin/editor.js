@@ -397,7 +397,7 @@
             image.src = document.body.dataset.basePath + '/' + result.path;
             image.alt = '';
             preview.appendChild(image);
-
+            syncInlineImage(pathInput);
             // Filen ligger paa disken nu, men stien staar kun i editoren.
             // Foerst naar siden gemmes, kender databasen den.
             markDirty();
