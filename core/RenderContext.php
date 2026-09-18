@@ -71,12 +71,18 @@ public function isInlineEditing(): bool //retunerer en sandt eller falsk
         return ' data-inline-image="' . e($field) . '"'
             . ' title="Klik for at skifte billede"';
     }
-    
-    //  * @param string $basePath Fx '/cms-system-beckIt'
-    
-    public static function editor(string $basePath = '', ?SiteMap $siteMap = null): self
-    {
-        return new self(self::MODE_EDITOR, rtrim($basePath, '/'), 0, $siteMap);
+
+    /**
+     * Til admin-editoren og forhåndsvisning på localhost.
+     *
+     * @param string $basePath Fx '/cms-system-beckIt'
+     */
+    public static function editor(
+        string $basePath = '',
+        ?SiteMap $siteMap = null,
+        ?GalleryMap $galleries = null
+    ): self {
+        return new self(self::MODE_EDITOR, rtrim($basePath, '/'), 0, $siteMap, $galleries);
     }
 
     public static function export(
@@ -163,4 +169,3 @@ public function isInlineEditing(): bool //retunerer en sandt eller falsk
         return $this->galleries->images($galleryId);
     }
 }
-

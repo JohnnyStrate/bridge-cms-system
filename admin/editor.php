@@ -50,15 +50,13 @@ $parentChoices = PageTree::choices(
     $allPages,
     array_merge([$pageId], $pageRepository->descendantIds($pageId))
 );
-$context = RenderContext::editor($basePath, $siteMap, $galleryMap)->withInlineEditing();
 // Feltrendereren kender listen over sider, så et side-felt kan tegnes
 // som en dropdown frem for et tekstfelt, man kan stave forkert i.
 // Gallerierne slås op ét sted og sendes både til rendering (så blokken
 // kan tegne billederne) og til feltrendereren (så dropdownen har dem).
 $galleryMap = GalleryMap::fromGalleries((new GalleryRepository($pdo))->all());
 
-$context = RenderContext::editor($basePath, $siteMap, $galleryMap);
-
+$context = RenderContext::editor($basePath, $siteMap, $galleryMap)->withInlineEditing();
 $fields = new FieldRenderer($siteMap->choices(), $basePath, $galleryMap->choices());
 // De globale blokke der allerede findes. Tom liste = brugeren har ikke
 // tilføjet en navbar endnu.
