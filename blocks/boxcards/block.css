@@ -1,0 +1,116 @@
+/* =====================================================================
+   Box cards
+
+   En overskrift i sin egen bjælke, og under den en bred flade med kort.
+   Farverne kommer fra editoren som CSS-variabler; værdierne her er kun
+   det, designet starter med.
+   ===================================================================== */
+
+.block--boxcards {
+    --background-color: #757675;
+    --title-bg: #757675;
+    --title-color: #ffffff;
+    --title-size: 28px;
+    --card-bg: #f5f5f5;
+    --text-color: #000000;
+    --text-size: 16px;
+    --button-bg: #95acbf;
+    --button-color: #5f4589;
+    --font-family: 'Jost';
+
+    padding: var(--space-lg) var(--space-md);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* Bjælken med overskriften. Den fylder kun sit indhold og står i
+   midten, i modsætning til fladen nedenunder. */
+.boxcards__title {
+    width: var(--title-width, fit-content);
+    max-width: 100%;
+    margin: 0 auto var(--space-md);
+    padding: 0.6rem 2.5rem;
+    border-radius: var(--title-radius, 9px);
+    background: var(--title-bg);
+    color: var(--title-color);
+    font-size: var(--title-size);
+
+    /* Extrabold, som i designet. */
+    font-weight: 800;
+    text-align: center;
+}
+
+/* Den brede flade bag kortene. Uden valgt bredde fylder den hele
+   sektionen; --box-width og --box-height sættes kun, når brugeren har
+   valgt en størrelse. */
+.boxcards__panel {
+    max-width: var(--box-width, none);
+    min-height: var(--box-height, auto);
+    margin-inline: auto;
+    padding: var(--space-lg) var(--space-md);
+    border-radius: var(--box-radius, 9px);
+    background: var(--background-color);
+}
+
+.boxcards__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+/* Bryder kortene ned i en ny række, bestemmer denne klasse, om den
+   sidste række midterstilles eller starter fra venstre. */
+.boxcards__grid--center {
+    justify-content: center;
+}
+
+.boxcards__grid--left {
+    justify-content: flex-start;
+}
+
+/* Kortene er lige brede og står i et stående format som et A4.
+   flex-basis giver dem en fælles udgangsbredde, og de krymper først,
+   når der ikke er plads. */
+.boxcards__card {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 var(--card-width, 16rem);
+    min-height: var(--card-height, auto);
+    padding: var(--space-md);
+    border-radius: var(--card-radius, 9px);
+    background: var(--card-bg);
+    color: var(--text-color);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.15);
+}
+
+.boxcards__text {
+    margin: 0 0 var(--space-md);
+    font-size: var(--text-size);
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Knappen står altid nederst i kortet og i midten, også når kortene
+   har forskellig mængde tekst. margin-top: auto skubber den ned. */
+.boxcards__button {
+    align-self: center;
+    margin-top: auto;
+    padding: 0.4rem 1.2rem;
+    background: var(--button-bg);
+    color: var(--button-color);
+    font-weight: 600;
+    font-style: italic;
+    text-decoration: none;
+}
+
+.boxcards__button:hover,
+.boxcards__button:focus-visible {
+    filter: brightness(1.08);
+}
+
+/* På telefon fylder kortene bredden, så teksten ikke bliver en smal
+   søjle på to ord. */
+@media (max-width: 40rem) {
+    .boxcards__card {
+        flex-basis: 100%;
+    }
+}

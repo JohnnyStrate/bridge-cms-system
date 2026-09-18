@@ -24,6 +24,7 @@ final class BlockRegistry
         'textarea' => TextAreaBlock::class,
         'image'    => ImageBlock::class,
         'gallery'  => GalleryBlock::class,
+        'boxcards' => BoxCardsBlock::class,
          'footer'   => FooterBlock::class,
 
     ];
