@@ -39,28 +39,41 @@ public function isInlineEditing(): bool //retunerer en sandt eller falsk
 {
     return $this->inlineEditing;
 }
-public function inline(string $field, string $placeholder = ''){
-    if (!$this->inlineEditing)  {
-return = '';
-    }
- return ' data-inline="' . e($field) . '"'
+    public function inline(string $field, string $placeholder = '', bool $multiline = false): string
+    {
+        if (!$this->inlineEditing) {
+            return '';
+        }
+
+        return ' data-inline="' . e($field) . '"'
             . ' data-placeholder="' . e($placeholder) . '"'
+            . ($multiline ? ' data-inline-multiline' : '')
             . ' contenteditable="true" spellcheck="false"';
-            }
-    public function inlineImage(string, $field) :string{
-
-    if(!$this->inlineEditing){
-        return '';
-
     }
-    return ' data-inline-image="' . e($field) . '"'
+
+    public function inlineRow(string $repeater, int $index, string $field, string $placeholder = ''): string
+    {
+        if (!$this->inlineEditing) {
+            return '';
+        }
+
+        return ' data-inline-repeater="' . e($repeater) . '"'
+            . ' data-inline-row="' . $index . '"'
+            . $this->inline($field, $placeholder);
+    }
+
+    public function inlineImage(string $field): string
+    {
+        if (!$this->inlineEditing) {
+            return '';
+        }
+
+        return ' data-inline-image="' . e($field) . '"'
             . ' title="Klik for at skifte billede"';
     }
-    /**
-     * Til admin-editoren og forhåndsvisning på localhost.
-     *
-     * @param string $basePath Fx '/cms-system-beckIt'
-     */
+    
+    //  * @param string $basePath Fx '/cms-system-beckIt'
+    
     public static function editor(string $basePath = '', ?SiteMap $siteMap = null): self
     {
         return new self(self::MODE_EDITOR, rtrim($basePath, '/'), 0, $siteMap);
