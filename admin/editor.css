@@ -654,3 +654,20 @@
 .ed-size.is-auto .ed-size__range {
     cursor: default;
 }
+
+/* Fjern-knappen i billedvælgeren. Den er skjult, når feltet er tomt. */
+.ed-image__clear {
+    padding: 0.35rem 0.7rem;
+    border: 1px solid #c7ccd3;
+    border-radius: var(--radius);
+    background: var(--admin-surface);
+    color: var(--admin-danger);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.ed-image__clear:hover {
+    background: var(--admin-danger);
+    border-color: var(--admin-danger);
+    color: #fff;
+}

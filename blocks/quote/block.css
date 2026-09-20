@@ -1,0 +1,118 @@
+/* =====================================================================
+   Quote-boks
+
+   Billede til venstre, farvet boks med citat til højre. Billedet lægger
+   sig en smule ind over boksen; hvor meget, styres af --overlap.
+   ===================================================================== */
+
+.block--quote {
+    --background-color: #213377;
+    --text-color: #ffffff;
+    --quote-size: 26px;
+    --text-size: 16px;
+    --note-size: 11px;
+    --font-family: 'Jost';
+    --overlap: 40px;
+
+    padding: var(--space-lg) var(--space-md);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.quote__inner {
+    display: flex;
+    align-items: stretch;
+    max-width: var(--box-width, 75rem);
+    margin-inline: auto;
+}
+
+/* Billedet. z-index løfter det op over boksen, så overlappet og
+   skyggen falder den rigtige vej. */
+.quote__figure {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 var(--image-width, 50%);
+    margin: 0;
+    margin-right: calc(var(--overlap) * -1);
+}
+
+.quote__image {
+    display: block;
+    width: 100%;
+    height: var(--image-height, 100%);
+    border-radius: var(--image-radius, 9px);
+    object-fit: cover;
+
+    /* Skyggen fra designet: x 13, y 1, blur 7.5, spread 0,
+       sort med 27 % gennemsigtighed. */
+    box-shadow: 13px 1px 7.5px 0 rgb(0 0 0 / 0.27);
+}
+
+.quote__box {
+    flex: 1 1 auto;
+    min-height: var(--box-height, auto);
+
+    /* Venstre polstring gør plads til det, billedet dækker, så teksten
+       ikke havner under billedkanten. */
+    padding: var(--space-lg) var(--space-lg) var(--space-lg)
+             calc(var(--space-lg) + var(--overlap));
+    border-radius: var(--box-radius, 9px);
+    background: var(--background-color);
+    color: var(--text-color);
+
+    /* Den lille tekst skal ligge nederst, også når citatet er kort. */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Uden billede fylder boksen hele bredden og har almindelig polstring. */
+.quote--no-image .quote__box {
+    padding-left: var(--space-lg);
+}
+
+/* Citatet: tykkere og kursiv, som i designet. */
+.quote__text {
+    margin: 0;
+    font-size: var(--quote-size);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.35;
+}
+
+.quote__body {
+    margin: var(--space-md) 0 0;
+    max-width: var(--measure);
+    font-size: var(--text-size);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* Den lille kontakttekst nederst til højre. margin-top: auto skubber
+   den ned, uanset hvor meget tekst der står over den. */
+.quote__note {
+    margin: auto 0 0;
+    padding-top: var(--space-md);
+    font-size: var(--note-size);
+    line-height: 1.5;
+    text-align: right;
+}
+
+/* På smalle skærme giver overlappet ingen mening: billedet ville dække
+   teksten. Delene stables i stedet under hinanden. */
+@media (max-width: 52rem) {
+    .quote__inner {
+        display: block;
+    }
+
+    .quote__figure {
+        margin-right: 0;
+        margin-bottom: var(--space-md);
+    }
+
+    .quote__box {
+        padding-left: var(--space-lg);
+    }
+
+    .quote__note {
+        text-align: left;
+    }
+}
