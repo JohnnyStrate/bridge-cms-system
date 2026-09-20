@@ -25,6 +25,7 @@ final class BlockRegistry
         'image'    => ImageBlock::class,
         'gallery'  => GalleryBlock::class,
         'boxcards' => BoxCardsBlock::class,
+        'quote'    => QuoteBlock::class,
          'footer'   => FooterBlock::class,
 
     ];

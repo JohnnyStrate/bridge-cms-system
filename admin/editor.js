@@ -334,6 +334,30 @@
 
     /* --- Billedupload ------------------------------------------------ */
 
+    // Fjern billedet. Stien toemmes, og blokken gemmes uden billede.
+    // Selve filen slettes ikke fra uploads/ — den kan sagtens vaere i
+    // brug et andet sted paa sitet.
+    canvas.addEventListener('click', function (event) {
+        const button = event.target.closest('[data-action="clear-image"]');
+
+        if (!button) {
+            return;
+        }
+
+        const wrapper = button.closest('.ed-image');
+        const pathInput = wrapper.querySelector('.ed-image__path');
+        const preview = wrapper.querySelector('.ed-image__preview');
+
+        pathInput.value = '';
+        preview.innerHTML = '<span class="ed-image__placeholder">Intet billede</span>';
+        button.hidden = true;
+
+        // Ogsaa den levende visning skal af med billedet med det samme.
+        syncInlineImage(pathInput);
+
+        markDirty();
+    });
+
     // change bobler, saa én lytter daekker ogsaa de billedfelter, der
     // foerst dukker op, naar brugeren tilfoejer en blok eller en raekke.
     canvas.addEventListener('change', async function (event) {
@@ -398,6 +422,15 @@
             image.alt = '';
             preview.appendChild(image);
             syncInlineImage(pathInput);
+
+            // Er billedet lige blevet fjernet, er fjern-knappen skjult.
+            // Nu er der et billede igen, saa den skal frem.
+            const clearButton = wrapper.querySelector('[data-action="clear-image"]');
+
+            if (clearButton) {
+                clearButton.hidden = false;
+            }
+
             // Filen ligger paa disken nu, men stien staar kun i editoren.
             // Foerst naar siden gemmes, kender databasen den.
             markDirty();
@@ -527,9 +560,24 @@
             return;
         }
 
+        // Tom sti betyder, at billedet er fjernet. Uden det her ville et
+        // <img> staa tilbage som et brudt ikon, og en baggrund ville
+        // blive ved med at vise det gamle billede.
+        if (pathInput.value === '') {
+            if (element.tagName === 'IMG') {
+                element.removeAttribute('src');
+                element.hidden = true;
+            } else {
+                element.style.backgroundImage = 'none';
+            }
+
+            return;
+        }
+
         const url = document.body.dataset.basePath + '/' + pathInput.value;
 
         if (element.tagName === 'IMG') {
+            element.hidden = false;
             element.src = url;
         } else {
             element.style.backgroundImage = "url('" + url + "')";

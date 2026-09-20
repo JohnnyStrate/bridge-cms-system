@@ -153,8 +153,22 @@ final class FieldValidator
      */
     private static function imagePath(mixed $value, mixed $default): string
     {
-        if (!is_string($value) || trim($value) === '') {
+        /*
+         * Forskellen på "feltet mangler" og "feltet er tømt" er vigtig her.
+         *
+         * null betyder, at feltet slet ikke blev sendt med — fx en ny blok
+         * eller ældre data uden feltet. Så bruges standardbilledet.
+         *
+         * En tom tekst betyder, at brugeren har fjernet billedet. Uden
+         * denne skelnen ville et billede med et standardbillede aldrig
+         * kunne fjernes: det kom bare tilbage ved næste gem.
+         */
+        if ($value === null) {
             return (string) $default;
+        }
+
+        if (!is_string($value) || trim($value) === '') {
+            return '';
         }
 
         $value = ltrim(trim($value), '/');

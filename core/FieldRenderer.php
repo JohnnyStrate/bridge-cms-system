@@ -302,6 +302,13 @@ final class FieldRenderer
             . '<span class="ed-image__btn-text">Vælg fil</span>'
             . '<input type="file" class="ed-image__file" accept="image/*" hidden>'
             . '</label>'
+            // Uden en fjern-knap kan et billede ikke tages af igen:
+            // stifeltet er skrivebeskyttet, og filvælgeren kan kun
+            // udskifte billedet med et andet.
+            . '<button type="button" class="ed-image__clear"'
+            . ' data-action="clear-image"'
+            . ($value !== '' ? '' : ' hidden')
+            . ' title="Fjern billedet">Fjern</button>'
             . '</span>';
     }
 
