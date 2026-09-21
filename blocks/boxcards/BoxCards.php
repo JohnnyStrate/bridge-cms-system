@@ -210,6 +210,7 @@ final class BoxCardsBlock extends AbstractBlock
             'cards'   => $cards,
             'align'   => $align === 'left' ? 'left' : 'center',
             'cssVars' => static::cssVariables($styles),
+            'context' => $context,
         ]);
     }
 }
