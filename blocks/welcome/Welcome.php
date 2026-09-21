@@ -1,57 +1,123 @@
 <?php
+declare(strict_types=1);
+
 /**
- * Template for Welcome-blokken.
+ * Welcome: velkomstsektion med overskrift, brødtekst og en punktliste.
+ * Svarer til "Velkommen til Kolding Bridge Center" i Figma-designet.
  *
- * @var string                            $title
- * @var string                            $intro
- * @var string                            $listTitle
- * @var string                            $footerText
- * @var array<int, array<string, string>> $items
- * @var string                            $cssVars
- * @var RenderContext                     $context
- *
- * nl2br() på brødteksten bevarer redaktørens linjeskift. Rækkefølgen er
- * vigtig: e() escaper FØRST, nl2br() tilføjer <br> BAGEFTER. Byttes de om,
- * ville de indsatte br-tags selv blive escapet og vist som tekst.
- *
- * I editoren bruges nl2br() IKKE. Der vises den rå tekst med linjeskift,
- * fordi det er præcis den værdi, der bliver gemt. CSS'en viser
- * linjeskiftene i stedet (white-space: pre-wrap).
- *
- * Tomme felter og tomme punkter tegnes også i editoren, så man kan klikke
- * i dem og udfylde dem.
+ * Blokken demonstrerer repeater-feltet: punktlisten er et vilkårligt antal
+ * rækker gemt i blokkens egen JSON. Det er dét, der gør, at vi slipper for
+ * ægte indlejrede blokke med parent_id — og dermed for rekursiv rendering,
+ * rekursiv validering og forældreløse rækker ved sletning.
  */
-$editing = $context->isInlineEditing();
-?>
-<section class="block block--welcome"<?= eAttr(['style' => $cssVars]) ?>>
-    <div class="welcome__inner">
-        <?php if ($title !== '' || $editing): ?>
-            <h2 class="welcome__title"<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></h2>
-        <?php endif; ?>
+final class WelcomeBlock extends AbstractBlock
+{
+    public static function type(): string
+    {
+        return 'welcome';
+    }
 
-        <?php if ($intro !== '' || $editing): ?>
-            <p class="welcome__intro"<?= $context->inline('intro', 'Introtekst', true) ?>><?= $editing ? e($intro) : nl2br(e($intro)) ?></p>
-        <?php endif; ?>
+    public static function label(): string
+    {
+        return 'Velkomst';
+    }
 
-        <?php if ($items !== [] || $editing): ?>
-            <div class="welcome__card">
-                <?php if ($listTitle !== '' || $editing): ?>
-                    <h3 class="welcome__list-title"<?= $context->inline('list_title', 'Overskrift over listen') ?>><?= e($listTitle) ?></h3>
-                <?php endif; ?>
+    public static function getSchema(): array
+    {
+        return [
+            'title' => [
+                'type'    => 'text',
+                'label'   => 'Overskrift',
+                'default' => 'Velkommen',
+            ],
+            'intro' => [
+                'type'    => 'textarea',
+                'label'   => 'Introtekst',
+                'default' => 'Skriv en kort introduktion her.',
+                'max'     => 1000,
+            ],
+            'list_title' => [
+                'type'    => 'text',
+                'label'   => 'Overskrift over listen',
+                'default' => 'Vi tilbyder:',
+            ],
+            'items' => [
+                'type'     => 'repeater',
+                'label'    => 'Punkter',
+                'max_rows' => 20,
+                'fields'   => [
+                    'text' => [
+                        'type'    => 'text',
+                        'label'   => 'Tekst',
+                        'default' => '',
+                    ],
+                ],
+                'default' => [
+                    ['text' => 'Første punkt'],
+                    ['text' => 'Andet punkt'],
+                    ['text' => 'Tredje punkt'],
+                ],
+            ],
+            'footer_text' => [
+                'type'    => 'textarea',
+                'label'   => 'Afsluttende tekst',
+                'default' => '',
+                'max'     => 1000,
+            ],
+        ];
+    }
 
-                <ul class="welcome__list">
-                    <?php foreach ($items as $index => $item): ?>
-                        <?php $text = trim((string) ($item['text'] ?? '')); ?>
-                        <?php if ($text !== '' || $editing): ?>
-                            <li<?= $context->inlineRow('items', $index, 'text', 'Punkt') ?>><?= e($text) ?></li>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+    public static function getStyleSchema(): array
+    {
+        return [
+            'title_size' => [
+                'type'    => 'number',
+                'label'   => 'Skriftstørrelse på overskrift',
+                'default' => 36,
+                'min'     => 12,
+                'max'     => 96,
+                'unit'    => 'px',
+            ],
+            'font_family' => [
+                'type'    => 'select',
+                'label'   => 'Skrifttype',
+                'default' => 'Jost',
+                'options' => FieldValidator::ALLOWED_FONTS,
+            ],
+            'background_color' => [
+                'type'    => 'color',
+                'label'   => 'Baggrundsfarve',
+                'default' => '#1e3a8a',
+            ],
+            'text_color' => [
+                'type'    => 'color',
+                'label'   => 'Tekstfarve',
+                'default' => '#ffffff',
+            ],
+            // To bokse med hver sine størrelser: den blå yderboks og det
+            // lyse kort med listen indeni.
+            ...static::boxStyleFields('box', 'Blå boks', ['width', 'height', 'radius']),
+            ...static::boxStyleFields('card', 'Lys boks', ['width', 'height', 'radius']),
+        ];
+    }
 
-        <?php if ($footerText !== '' || $editing): ?>
-            <p class="welcome__footer"<?= $context->inline('footer_text', 'Afsluttende tekst', true) ?>><?= $editing ? e($footerText) : nl2br(e($footerText)) ?></p>
-        <?php endif; ?>
-    </div>
-</section>
+    public static function render(
+        array $settings,
+        array $styles,
+        RenderContext $context
+    ): string {
+        $items = $settings['items'] ?? [];
+
+        return static::renderTemplate([
+            'title'      => $settings['title']       ?? '',
+            'intro'      => $settings['intro']       ?? '',
+            'listTitle'  => $settings['list_title']  ?? '',
+            'footerText' => $settings['footer_text'] ?? '',
+            // array_values: raekkenumrene skal vaere 0, 1, 2 ... saa de
+            // matcher raekkerne i editorens panel.
+            'items'      => is_array($items) ? array_values($items) : [],
+            'cssVars'    => static::cssVariables($styles),
+            'context'    => $context,
+        ]);
+    }
+}
