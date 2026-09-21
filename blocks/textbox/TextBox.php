@@ -215,6 +215,7 @@ final class TextBoxBlock extends AbstractBlock
             ),
 
             'cssVars' => static::cssVariables($styles),
+            'context' => $context,
         ]);
     }
 }
