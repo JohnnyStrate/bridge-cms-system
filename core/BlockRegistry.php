@@ -28,6 +28,7 @@ final class BlockRegistry
         'quote'    => QuoteBlock::class,
         'textbox'  => TextBoxBlock::class,
         'ranklist' => RankListBlock::class,
+        'table'    => TableBlock::class,
          'footer'   => FooterBlock::class,
 
     ];

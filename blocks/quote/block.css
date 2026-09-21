@@ -29,7 +29,7 @@
    skyggen falder den rigtige vej. */
 .quote__figure {
     position: relative;
-    z-index: 1;
+    z-index: 0;
     flex: 0 0 var(--image-width, 50%);
     margin: 0;
     margin-right: calc(var(--overlap) * -1);

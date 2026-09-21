@@ -1,0 +1,130 @@
+/* =====================================================================
+   Tabel
+
+   Hver kolonne er sin egen boks: en blå top med runde hjørner foroven og
+   en lys bund med runde hjørner forneden. Hvor de to mødes, er hjørnerne
+   skarpe, så toppen og bunden ser ud som ét stykke.
+
+   Rækkerne er grids med én spalte pr. kolonne. Antallet kommer fra
+   blokken som --table-cols, så der kan være to, tre eller flere bokse.
+   ===================================================================== */
+
+.block--table {
+    --heading-color: #272727;
+    --heading-size: 30px;
+    --header-bg: #213377;
+    --header-color: #ffffff;
+    --cell-bg: #f8f8f8;
+    --text-color: #3c3737;
+    --link-color: #5a8bcc;
+    --note-color: #5c5c5c;
+    --text-size: 17px;
+    --column-gap: 6px;
+    --font-family: 'Jost';
+    --table-cols: 3;
+
+    padding: var(--space-lg) var(--space-md);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.table__inner {
+    max-width: var(--box-width, 72rem);
+    margin-inline: auto;
+}
+
+.table__title {
+    margin: 0 0 var(--space-md);
+    color: var(--heading-color);
+    font-size: var(--heading-size);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* For mange kolonner til en smal skærm: tabellen kan scrolles vandret
+   frem for at presse teksten sammen. */
+.table__scroll {
+    overflow-x: auto;
+}
+
+.table__grid {
+    min-width: calc(var(--table-cols) * 9rem);
+}
+
+.table__row {
+    display: grid;
+    grid-template-columns: repeat(var(--table-cols), minmax(0, 1fr));
+    column-gap: var(--column-gap);
+}
+
+.table__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+    font-size: var(--text-size);
+}
+
+/* --- Den blå top ----------------------------------------------------- */
+
+.table__row--head .table__cell {
+    padding-block: 1.3rem;
+    border-radius: var(--header-radius, 9px) var(--header-radius, 9px) 0 0;
+    background: var(--header-bg);
+    color: var(--header-color);
+    font-size: calc(var(--text-size) * 1.6);
+    font-weight: 700;
+}
+
+/* --- Den lyse bund ---------------------------------------------------- */
+
+.table__row:not(.table__row--head) .table__cell {
+    background: var(--cell-bg);
+    color: var(--text-color);
+    font-weight: 400;
+}
+
+/* Lidt ekstra luft øverst og nederst i hver boks. */
+.table__row--head + .table__row .table__cell {
+    padding-top: 1.6rem;
+}
+
+.table__row:not(.table__row--head):last-child .table__cell {
+    padding-bottom: 1.6rem;
+    border-radius: 0 0 var(--cells-radius, 9px) var(--cells-radius, 9px);
+}
+
+.table__link {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.table__link:hover,
+.table__link:focus-visible {
+    text-decoration: underline;
+}
+
+/* --- Den lille tekst under tabellen ---------------------------------- */
+
+.table__note {
+    margin: 0.5rem 0 0;
+    color: var(--note-color);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    text-align: right;
+}
+
+/* Kun i editoren. */
+.table__editor-note {
+    margin: 0.5rem 0 0;
+    color: var(--note-color);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+@media (max-width: 40rem) {
+    .table__cell {
+        padding-inline: 0.6rem;
+    }
+}
