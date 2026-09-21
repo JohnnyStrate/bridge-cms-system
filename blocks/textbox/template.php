@@ -56,11 +56,11 @@ $editing = $context->isInlineEditing();
             */ ?>
             <div class="textbox__footer" >
                 <?php if ($footerTitle !== ''): ?>
-                    <h3 class="textbox__footer-title"><?= e($footerTitle) ?></h3>
+                    <h3 class="textbox__footer-title" <?= $context->inline('footerTitle', 'Overskrift (tom = ingen afslutning)') ?>><?= e($footerTitle) ?></h3>
                 <?php endif; ?>
 
                 <?php if ($footerLabel !== ''): ?>
-                    <a class="textbox__button" href="<?= e($footerHref) ?>"><?= e($footerLabel) ?></a>
+                    <a class="textbox__button" <?= $context->inline('cardHref', 'Ekstern adresse') ?>href="<?= e($footerHref) ?>"><?= e($footerLabel) ?></a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
