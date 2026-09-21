@@ -187,6 +187,7 @@ final class FooterBlock extends AbstractBlock
             'links'     => $links,
             'copyright' => $copyright,
             'cssVars'   => static::cssVariables($styles),
+            'context' => $context,
         ]);
     }
 }

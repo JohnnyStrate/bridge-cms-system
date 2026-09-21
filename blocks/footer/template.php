@@ -10,28 +10,31 @@
  * @var string                            $phoneHref  Tom, hvis tom.
  * @var array<int, array<string, string>> $links
  * @var string                            $copyright
- * @var string                            $cssVars
+ * @var string    
+ * @var RenderContext                        $cssVars
  *
+ * 
  * Templaten træffer ingen beslutninger om adresser — den viser kun det,
  * FooterBlock::render() allerede har regnet ud.
  */
+$context->isInlineEditing();
 ?>
 <footer class="block block--footer"<?= eAttr(['style' => $cssVars]) ?>>
     <div class="footer__inner">
 
         <div class="footer__col">
             <?php if ($clubName !== ''): ?>
-                <p class="footer__name"><?= e($clubName) ?></p>
+                <p class="footer__name" <?= $context->inline('club_name', 'Klubbens navn') ?>><?= e($clubName) ?></p>
             <?php endif; ?>
 
             <?php if ($address !== ''): ?>
-                <p class="footer__line"><?= e($address) ?></p>
+                <p class="footer__line" <?= $context->inline('address', 'Adresse') ?>><?= e($address) ?></p>
             <?php endif; ?>
 
             <?php if ($phone !== ''): ?>
                 <p class="footer__line">
                     <?php if ($phoneHref !== ''): ?>
-                        <a href="<?= e($phoneHref) ?>"><?= e($phone) ?></a>
+                        <a href="<?= e($phoneHref) ?>" <?= $context->inline('phone', 'Telefon') ?>><?= e($phone) ?></a>
                     <?php else: ?>
                         <?= e($phone) ?>
                     <?php endif; ?>
@@ -41,7 +44,7 @@
             <?php if ($email !== ''): ?>
                 <p class="footer__line">
                     <?php if ($emailHref !== ''): ?>
-                        <a href="<?= e($emailHref) ?>"><?= e($email) ?></a>
+                        <a   <?= $context->inline('email', 'E-mail') ?>href="<?= e($emailHref) ?>"><?= e($email) ?></a>
                     <?php else: ?>
                         <?= e($email) ?>
                     <?php endif; ?>
@@ -64,6 +67,6 @@
     </div>
 
     <?php if ($copyright !== ''): ?>
-        <p class="footer__bottom"><?= e($copyright) ?></p>
+        <p  <?= $context->inline('copyright', 'Bundtekst (skriv {år} for årstallet)') ?> class="footer__bottom"><?= e($copyright) ?></p>
     <?php endif; ?>
 </footer>
