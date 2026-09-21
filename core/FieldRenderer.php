@@ -44,12 +44,39 @@ final class FieldRenderer
 
         $html .= '<fieldset class="ed-group"><legend>Indhold</legend>';
 
+        // Felter med en 'group' samles i deres egen lille ramme med
+        // gruppens navn som overskrift — samme princip som under
+        // Udseende. Så slipper etiketterne for at gentage, hvilken del
+        // af blokken de hører til ("Kortet: tekst", "Kortet: knap" ...).
+        // Felter uden gruppe vises først, som de altid har gjort.
+        $groups = [];
+
         foreach ($class::getSchema() as $name => $field) {
             $value = $settings[$name] ?? '';
+            $group = (string) ($field['group'] ?? '');
+
+            if ($group !== '') {
+                $groups[$group][$name] = $field;
+                continue;
+            }
 
             $html .= ($field['type'] ?? '') === 'repeater'
                 ? $this->repeater($name, $field, is_array($value) ? $value : [])
                 : $this->field('settings', $name, $field, $value);
+        }
+
+        foreach ($groups as $group => $fields) {
+            $html .= '<fieldset class="ed-subgroup"><legend>' . e($group) . '</legend>';
+
+            foreach ($fields as $name => $field) {
+                $value = $settings[$name] ?? '';
+
+                $html .= ($field['type'] ?? '') === 'repeater'
+                    ? $this->repeater($name, $field, is_array($value) ? $value : [])
+                    : $this->field('settings', $name, $field, $value);
+            }
+
+            $html .= '</fieldset>';
         }
 
         $html .= '</fieldset>';

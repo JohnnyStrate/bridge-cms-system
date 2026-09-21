@@ -1,0 +1,145 @@
+/* =====================================================================
+   Tekstboks
+
+   En farvet boks med en lang tekst, et lille kort i øverste højre
+   hjørne og en afslutning nederst.
+
+   Kortet FLYDER til højre. Derfor lægger teksten sig selv omkring det:
+   smal øverst, hvor kortet fylder, og i fuld bredde igen, når teksten
+   når forbi kortet. To faste spalter ville i stedet efterlade et tomt
+   hul under kortet, hver gang teksten er længere end det.
+   ===================================================================== */
+
+.block--textbox {
+    --background-color: #696969;
+    --text-color: #ffffff;
+    --title-size: 20px;
+    --text-size: 16px;
+    --card-bg: #f5f5f5;
+    --card-text-color: #000000;
+    --button-bg: #95acbf;
+    --button-color: #5f4589;
+    --font-family: 'Jost';
+
+    padding: var(--space-lg) var(--space-md);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* Boksen fylder ikke hele siden: den har en maksimal bredde og står i
+   midten. --box-width sættes kun, når brugeren har valgt en bredde. */
+.textbox__inner {
+    max-width: var(--box-width, 68rem);
+    min-height: var(--box-height, auto);
+    margin-inline: auto;
+    padding: var(--space-lg);
+    border-radius: var(--box-radius, 9px);
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+/* Kortet i hjørnet. float er det, der får teksten til at flyde omkring
+   det; margin holder teksten fri af kanten. */
+.textbox__card {
+    float: right;
+    width: var(--card-width, 15rem);
+    min-height: var(--card-height, auto);
+    margin: 0 0 var(--space-md) var(--space-md);
+    padding: var(--space-md);
+    border-radius: var(--card-radius, 9px);
+    background: var(--card-bg);
+    color: var(--card-text-color);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.15);
+
+    /* Knappen skal kunne skubbes ned i bunden af kortet. */
+    display: flex;
+    flex-direction: column;
+}
+
+.textbox__card-text {
+    margin: 0 0 var(--space-md);
+    font-size: var(--text-size);
+    line-height: 1.5;
+}
+
+.textbox__title {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--title-size);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.textbox__body {
+    font-size: var(--text-size);
+    line-height: 1.6;
+}
+
+/* Afslutningen. clear: both afslutter flydningen, så den altid ligger
+   under kortet — også når teksten er kortere end kortet er højt. */
+.textbox__footer {
+    clear: both;
+    padding-top: var(--space-lg);
+    text-align: center;
+}
+
+.textbox__footer-title {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--text-size);
+    font-weight: 700;
+}
+
+/* Knapperne i kortet og nederst er ens. I kortet skubber margin-top
+   knappen ned i bunden, så to kort ved siden af hinanden flugter. */
+.textbox__button {
+    align-self: center;
+    margin-top: auto;
+    padding: 0.4rem 1.2rem;
+    background: var(--button-bg);
+    color: var(--button-color);
+    font-weight: 600;
+    font-style: italic;
+    text-decoration: none;
+}
+
+.textbox__footer .textbox__button {
+    display: inline-block;
+    margin-top: 0;
+}
+
+.textbox__button:hover,
+.textbox__button:focus-visible {
+    filter: brightness(1.08);
+}
+
+/* På smalle skærme er der ikke plads til at flyde: kortet ville
+   klemme teksten sammen til to ord pr. linje. Det lægger sig i stedet
+   under teksten i fuld bredde.
+
+   Kortet står først i markup'en, fordi float kræver det. Uden flydning
+   ville det derfor lande ØVERST — før overskriften. Her gøres boksen
+   til en kolonne, og rækkefølgen sættes eksplicit, så man læser
+   overskrift, tekst og derefter kortet. */
+@media (max-width: 48rem) {
+    .textbox__inner {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .textbox__card {
+        float: none;
+        width: auto;
+        margin: var(--space-md) 0 0;
+        order: 3;
+    }
+
+    .textbox__title {
+        order: 1;
+    }
+
+    .textbox__body {
+        order: 2;
+    }
+
+    .textbox__footer {
+        order: 4;
+    }
+}
