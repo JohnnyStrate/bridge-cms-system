@@ -25,12 +25,12 @@ final class TextAreaBlock extends AbstractBlock
             'title' => [
                 'type'    => 'text',
                 'label'   => 'Overskrift',
-                'default' => '',
+                'default' => 'Skriv en overskrift..',
             ],
             'body' => [
                 'type'    => 'textarea',
                 'label'   => 'Tekst',
-                'default' => 'Skriv din tekst her.',
+                'default' => 'Skriv din tekst her..',
                 'max'     => 5000,
             ],
         ];
@@ -91,6 +91,7 @@ final class TextAreaBlock extends AbstractBlock
             'title'   => (string) ($settings['title'] ?? ''),
             'body'    => (string) ($settings['body'] ?? ''),
             'cssVars' => static::cssVariables($styles),
+            'context' =>$context,
         ]);
     }
 }
