@@ -587,3 +587,195 @@
     outline: 3px dashed var(--admin-blue);
     outline-offset: -3px;
 }
+
+/* ////WECLOME BLOK-CSS*/
+
+/* =====================================================================
+   INLINE-REDIGERING
+   Styling til de felter, man kan redigere direkte i live-visningen.
+   Alt herinde gælder KUN inde i editorens forhåndsvisning
+   (.ed-block__preview) — den færdige side og eksporten rører vi ikke.
+
+   To slags elementer:
+     [data-inline]        = tekst man kan skrive i
+     [data-inline-image]  = billede man kan klikke på for at skifte
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. TÆND FOR KLIK
+   Den vigtigste regel i hele filen. Længere oppe i editor.css står:
+
+       .ed-block__preview > * { pointer-events: none; }
+
+   Den slår ALLE klik fra i forhåndsvisningen, så man ikke kommer til at
+   klikke på et link og forlade editoren. Her tænder vi dem igen — men
+   kun på de elementer, der faktisk skal kunne redigeres.
+
+   Hvorfor [contenteditable] og [title] er skrevet med?
+   De gør selektoren mere specifik, så den også vinder over den her,
+   der står længere nede i filen:
+
+       .ed-block__preview .navbar__links a { pointer-events: none; }
+
+   Uden dem ville man ikke kunne redigere navbarens menupunkter.
+   --------------------------------------------------------------------- */
+.ed-block__preview [data-inline][contenteditable],
+.ed-block__preview [data-inline-image][title] {
+    pointer-events: auto;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. SELVE TEKSTFELTET
+   Grundudseendet for alt, man kan skrive i.
+   --------------------------------------------------------------------- */
+.ed-block__preview [data-inline] {
+    /* Markøren bliver til en skrivemarkør, så det ligner et tekstfelt. */
+    cursor: text;
+
+    /* Et tomt felt ville fylde 0 px og være umuligt at ramme med musen.
+       2ch = bredden af cirka to tegn. */
+    min-width: 2ch;
+
+    /* Rammen er her hele tiden, men er gennemsigtig indtil man peger på
+       feltet. Ligger den her frem for kun i :hover, hopper teksten ikke,
+       når rammen kommer frem. */
+    outline: 2px dashed transparent;
+
+    /* Lidt luft mellem tekst og ramme, så rammen ikke klistrer. */
+    outline-offset: 3px;
+
+    /* Blød overgang, når rammen toner frem. */
+    transition: outline-color 0.15s;
+}
+
+
+/* Peger man på feltet: stiplet ramme, så man kan se, det kan redigeres.
+   currentColor = samme farve som teksten. Smart her, fordi blokkene har
+   vidt forskellige baggrunde — hvid tekst på mørkeblå hero, mørk tekst
+   på hvid baggrund. Rammen er synlig begge steder uden en fast farve. */
+.ed-block__preview [data-inline]:hover {
+    outline-color: currentColor;
+}
+
+
+/* Klikker man ind i feltet: fuldt optrukket blå ramme.
+   Forskellen fra :hover (stiplet vs. optrukket) viser, om man bare peger
+   eller faktisk står og skriver i feltet. */
+.ed-block__preview [data-inline]:focus {
+    outline: 2px solid var(--admin-blue);
+}
+
+
+/* ---------------------------------------------------------------------
+   3. TEKSTFELTER MED LINJESKIFT (textarea)
+   Kun felter, der har fået 'true' med som tredje argument til inline().
+   I Welcome er det 'intro' og 'footer_text'.
+
+   Uden for editoren laver nl2br() linjeskiftene om til <br>. I editoren
+   gør vi det IKKE, fordi teksten i elementet skal være præcis den, der
+   bliver gemt — altså med rigtige \n.
+
+   pre-wrap er dét, der får de \n til at blive VIST som linjeskift.
+   Uden den ville al teksten stå på én lang linje, selvom der er
+   linjeskift i den. Ordombrydning virker stadig.
+   --------------------------------------------------------------------- */
+.ed-block__preview [data-inline-multiline] {
+    white-space: pre-wrap;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. TOMME FELTER
+   Et tomt felt er usynligt — der er intet at se og intet at klikke på.
+   Her viser vi feltets navn i stedet, som en pladsholder.
+
+   attr(data-placeholder) henter teksten fra elementets egen attribut.
+   Den kommer fra PHP: inline('title', 'Overskrift') skriver
+   data-placeholder="Overskrift" ud.
+
+   Teksten er lavet med ::before frem for at stå i elementet. Det er
+   vigtigt: indhold i ::before kan man ikke markere eller skrive i, og
+   det kommer derfor aldrig med i det, der bliver gemt.
+
+   :empty rammer kun elementer, der er HELT tomme. Derfor rydder
+   editor.js det <br>, browseren efterlader, når man sletter al teksten —
+   ellers ville feltet ikke tælle som tomt, og pladsholderen ville ikke
+   komme frem igen.
+   --------------------------------------------------------------------- */
+.ed-block__preview [data-inline]:empty::before {
+    content: attr(data-placeholder);
+    opacity: 0.5;
+}
+
+
+/* ---------------------------------------------------------------------
+   5. BILLEDER
+   Et klik åbner filvælgeren i blokkens panel (det ordner editor.js).
+   --------------------------------------------------------------------- */
+
+/* Håndmarkør, så det er tydeligt, at billedet kan klikkes på — til
+   forskel fra tekstfelterne, der har en skrivemarkør. */
+.ed-block__preview [data-inline-image] {
+    cursor: pointer;
+}
+
+/* Stiplet ramme, når man peger på billedet.
+   Negativ outline-offset trækker rammen INDENFOR billedets kant. På et
+   baggrundsbillede, der fylder hele bredden, ville en ramme udenfor
+   blive klippet af og slet ikke kunne ses. */
+.ed-block__preview [data-inline-image]:hover {
+    outline: 3px dashed var(--admin-blue);
+    outline-offset: -3px;
+}
+
+
+/* ---------------------------------------------------------------------
+   6. BILLEDFELT UDEN BILLEDE
+   Et <img> uden src er usynligt (eller et brudt ikon), og så er der
+   ikke noget at klikke på. Templaten giver det derfor en gennemsigtig
+   1x1-pixel og klassen is-empty, som vi her gør til en grå flade.
+
+   Bruges ikke af Welcome — den har ingen billedfelter. Den er med, så
+   du ikke skal tilbage i filen, når du laver Hero, Image eller Navbar.
+   --------------------------------------------------------------------- */
+.ed-block__preview img.is-empty {
+    /* display: block fjerner det lille mellemrum under et inline-billede. */
+    display: block;
+
+    /* Stort nok til at kunne rammes med musen. */
+    min-width: 120px;
+    min-height: 48px;
+
+    /* Lysegrå, så det ligner en tom plads og ikke en fejl. */
+    background: #e5e7eb;
+}
+
+/* I billedblokken er billedet hovedindholdet, så den tomme flade skal
+   fylde mere end de 120x48 px ovenfor. */
+.ed-block__preview .block--image img.is-empty {
+    width: 100%;
+    min-height: 220px;
+}
+
+
+/* ---------------------------------------------------------------------
+   7. FORÆLDEDE REPEATER-RÆKKER
+   Tilføjer eller sletter man en række i panelet ("+ Tilføj række"),
+   passer rækkenumrene i live-visningen ikke længere. editor.js slår
+   derfor de rækker fra, indtil siden er gemt og genindlæst.
+
+   I Welcome er det punkterne i listen.
+
+   Det er rent visuelt — JavaScript har allerede fjernet contenteditable,
+   så rækken faktisk ikke kan redigeres. Her viser vi bare hvorfor.
+   --------------------------------------------------------------------- */
+.ed-block__preview .is-stale {
+    /* Dæmpet, så man kan se, at den er sat ud af drift. */
+    opacity: 0.6;
+
+    /* Forbudt-markør frem for skrivemarkøren, så man ikke bliver
+       forvirret over, at klik ikke gør noget. */
+    cursor: not-allowed;
+}
