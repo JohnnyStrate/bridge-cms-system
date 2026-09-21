@@ -215,7 +215,10 @@ final class FieldRenderer
             : '';
 
         return match ($field['type'] ?? 'text') {
-            'textarea' => '<textarea ' . $attributes . $placeholder . ' rows="4">'
+            // 'rows' i skemaet giver et højere felt, fx til en liste med
+            // en spiller pr. linje. Uden det er feltet 4 linjer højt.
+            'textarea' => '<textarea ' . $attributes . $placeholder
+                . ' rows="' . max(2, min(40, (int) ($field['rows'] ?? 4))) . '">'
                 . e((string) $value) . '</textarea>',
 
             'color' => '<input type="color" ' . $attributes
@@ -366,8 +369,10 @@ final class FieldRenderer
         }
 
         return $html . '</div>'
+            // 'add_label' i skemaet giver knappen en tekst, der passer til
+            // blokken, fx "Tilføj gruppe". Uden den står der "Tilføj række".
             . '<button type="button" class="ed-repeater__add" data-action="add-row">'
-            . '+ Tilføj række</button>'
+            . '+ ' . e((string) ($field['add_label'] ?? 'Tilføj række')) . '</button>'
             . '<template data-row-template>'
             . $this->row($field['fields'] ?? [], [])
             . '</template>'

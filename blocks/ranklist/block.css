@@ -1,0 +1,178 @@
+/* =====================================================================
+   Rangliste
+
+   En blå bjælke med kolonneoverskrifter og under den én lys boks pr.
+   gruppe. Hver boks er delt i to: navn og de tre tal til venstre, Total
+   for sig til højre.
+
+   Hver række er et grid med de samme to spalter som bjælken. Baggrunden
+   sidder på cellerne, og rækkerne står tæt, så cellerne tilsammen ligner
+   to sammenhængende bokse. Hjørnerne rundes kun på første og sidste
+   række i hver gruppe.
+   ===================================================================== */
+
+.block--ranklist {
+    --heading-color: #272727;
+    --heading-size: 30px;
+    --header-bg: #213377;
+    --header-color: #ffffff;
+    --subtitle-color: #3b3b3b;
+    --row-bg: #f8f8f8;
+    --text-color: #3c3737;
+    --text-size: 16px;
+    --font-family: 'Jost';
+
+    /* Afstanden mellem de to spalter — "hullet" mellem bokse. */
+    --ranklist-gap: 3rem;
+
+    padding: var(--space-lg) var(--space-md);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.ranklist__inner {
+    max-width: var(--box-width, 72rem);
+    margin-inline: auto;
+}
+
+.ranklist__title {
+    margin: 0 0 var(--space-md);
+    color: var(--heading-color);
+    font-size: var(--heading-size);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* På smalle skærme er der ikke plads til fem kolonner. Frem for at
+   presse tallene sammen, kan listen scrolles vandret. */
+.ranklist__scroll {
+    overflow-x: auto;
+}
+
+.ranklist__table {
+    min-width: 38rem;
+}
+
+/* --- Rækkerne ------------------------------------------------------- */
+
+.ranklist__row {
+    display: grid;
+    grid-template-columns: minmax(0, 3.2fr) minmax(0, 1fr);
+    column-gap: var(--ranklist-gap);
+}
+
+/* Navn får mere plads end hvert af de tre tal. */
+.ranklist__main {
+    display: grid;
+    grid-template-columns: minmax(0, 2.6fr) repeat(3, minmax(0, 1fr));
+    align-items: center;
+}
+
+.ranklist__total {
+    display: grid;
+    align-items: center;
+}
+
+.ranklist__cell {
+    padding: 0.55rem 0.5rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Navnene står fra venstre, alt andet er centreret. */
+.ranklist__cell--name {
+    padding-left: 3rem;
+    text-align: left;
+}
+
+/* --- Den blå bjælke ------------------------------------------------- */
+
+.ranklist__row--head .ranklist__main,
+.ranklist__row--head .ranklist__total {
+    padding-block: 0.9rem;
+    border-radius: var(--header-radius, 9px);
+    background: var(--header-bg);
+    color: var(--header-color);
+    font-size: calc(var(--text-size) * 1.35);
+    font-weight: 700;
+}
+
+/* --- Grupperne ------------------------------------------------------ */
+
+.ranklist__group {
+    margin-top: var(--space-md);
+}
+
+.ranklist__subtitle {
+    margin: 0 0 0.4rem 0.3rem;
+    color: var(--subtitle-color);
+    font-size: calc(var(--text-size) * 1.1);
+    font-weight: 500;
+}
+
+.ranklist__body .ranklist__main,
+.ranklist__body .ranklist__total {
+    background: var(--row-bg);
+    color: var(--text-color);
+}
+
+/* Lidt ekstra luft øverst og nederst i hver boks. */
+.ranklist__body .ranklist__row:first-child > * {
+    padding-top: 0.7rem;
+}
+
+.ranklist__body .ranklist__row:last-child > * {
+    padding-bottom: 0.7rem;
+}
+
+/* Hjørnerne: kun yderst i hver boks. Én række alene får alle fire. */
+.ranklist__body .ranklist__row:first-child > * {
+    border-top-left-radius: var(--rows-radius, 9px);
+    border-top-right-radius: var(--rows-radius, 9px);
+}
+
+.ranklist__body .ranklist__row:last-child > * {
+    border-bottom-left-radius: var(--rows-radius, 9px);
+    border-bottom-right-radius: var(--rows-radius, 9px);
+}
+
+.ranklist__body .ranklist__cell--name {
+    font-size: var(--text-size);
+    font-weight: 500;
+}
+
+.ranklist__cell--number {
+    font-size: var(--text-size);
+    font-weight: 300;
+    font-style: italic;
+}
+
+.ranklist__cell--pts {
+    font-size: calc(var(--text-size) * 1.12);
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* --- Kun i editoren ------------------------------------------------- */
+
+.ranklist__note {
+    margin: 0.4rem 0 0 0.3rem;
+    color: var(--subtitle-color);
+    font-size: 0.85rem;
+    font-style: italic;
+    opacity: 0.75;
+}
+
+.ranklist__note--warning {
+    color: #b3261e;
+    opacity: 1;
+}
+
+@media (max-width: 40rem) {
+    .block--ranklist {
+        --ranklist-gap: 1rem;
+    }
+
+    .ranklist__cell--name {
+        padding-left: 1rem;
+    }
+}
