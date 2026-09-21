@@ -65,4 +65,55 @@ $editing = $context->isInlineEditing();
             </div>
         <?php endif; ?>
     </div>
+    <!-- //DEN DER NEDTIMER -->
+    <div class="div">
+
+
+    </div>
 </section>
+<script>
+const linkBtns = document.querySelectorAll('.textbox__button');
+const div = document.querySelector('.div');
+
+linkBtns.forEach((linkBtn) => {
+    linkBtn.addEventListener('click', (e) => {
+        console.log('hej');
+        div.innerHTML='<p>Tryk på </p> <button type="button div" class="ed-btn ed-btn--edit">&#9998;</button><p>for at indsætte link</p>';
+        div.classList.toggle('show');
+
+        setTimeout(() => {
+            div.classList.remove('show');
+        }, 5000);
+
+    });
+});
+</script>
+<style>
+    .div{
+        width:300px;
+        height:300px;
+        background-color:#4A6FA5;
+        display:flex;
+        flex-direction: column;
+        text-align:center;
+        justify-content:center;
+        padding:10px;
+        align-items:center;
+        font-size:25px;
+        position: absolute;
+        z-index:1;
+        left:45%;
+        bottom:50%;
+        color:white;
+        display:none;
+        border-radius:10px;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+
+    
+    }
+    .div.show{
+       display:flex;
+       color:white;
+    }
+    .button.div{}
+</style>
