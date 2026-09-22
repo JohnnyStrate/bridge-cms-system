@@ -4,7 +4,8 @@
  *
  * @var string                            $title
  * @var array<int, array<string, string>> $images  Hver med src, alt, caption.
- * @var string                            $cssVars
+ * @var string  
+ * @var RenderContext                          $cssVars
  *
  * Billederne ligger i en <ul>, fordi et galleri er en liste. Det giver
  * skaermlaesere antallet af billeder paa forhaand.

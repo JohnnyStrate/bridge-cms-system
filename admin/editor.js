@@ -468,10 +468,63 @@
     // Elementer med data-inline er koblet til panelfeltet med samme navn.
     // Panelets felt er stadig det, der gemmes — inline skriver bare i det.
 
-    function panelField(block, name) {
+    // LIVE VISNING
+    /* --- Inline-redigering ------------------------------------------ */
+
+    // Elementer med data-inline er koblet til et felt i blokkens panel.
+    // Panelets felt er stadig det, der gemmes.
+    //
+    //   data-inline="title"                       -> [data-field="title"]
+    //   data-inline="text" + data-inline-repeater="items" + data-inline-row="2"
+    //                                             -> 3. .ed-row i [data-repeater="items"]
+    //   data-inline-multiline                     -> linjeskift tilladt (textarea)
+    //   data-inline-image="logo"                  -> klik aabner filvaelgeren
+
+    // Finder panelfeltet, som et element i forhaandsvisningen hoerer til.
+    function panelField(element) {
+        const block = element.closest('.ed-block');
+        const name  = element.dataset.inline || element.dataset.inlineImage;
+
+        // Et felt inde i en repeater-raekke findes via raekkens nummer.
+        if (element.dataset.inlineRepeater) {
+            const repeater = block.querySelector(
+                '.ed-panel [data-repeater="' + element.dataset.inlineRepeater + '"]'
+            );
+            const rows = repeater ? repeater.querySelectorAll('.ed-row') : [];
+            const row  = rows[Number(element.dataset.inlineRow)];
+
+            return row ? row.querySelector('[data-rfield="' + name + '"]') : null;
+        }
+
         return block.querySelector(
             '.ed-panel [data-scope="settings"][data-field="' + name + '"]'
         );
+    }
+
+    // Den omvendte vej: fra et panelfelt til elementet i forhaandsvisningen.
+    function previewField(input) {
+        const preview = input.closest('.ed-block').querySelector('.ed-block__preview');
+
+        if (input.dataset.rfield) {
+            const repeater = input.closest('[data-repeater]');
+            const index    = Array.from(repeater.querySelectorAll('.ed-row'))
+                .indexOf(input.closest('.ed-row'));
+
+            return preview.querySelector(
+                '[data-inline-repeater="' + repeater.dataset.repeater + '"]'
+                + '[data-inline-row="' + index + '"]'
+                + '[data-inline="' + input.dataset.rfield + '"]'
+            );
+        }
+
+        return preview.querySelector('[data-inline="' + input.dataset.field + '"]');
+    }
+
+    // Teksten som den skal gemmes. innerText bevarer linjeskift.
+    function inlineValue(element) {
+        return element.hasAttribute('data-inline-multiline')
+            ? element.innerText.replace(/\n$/, '')
+            : element.textContent.trim();
     }
 
     // Preview -> panel, mens der skrives.
@@ -487,53 +540,75 @@
             element.innerHTML = '';
         }
 
-        const input = panelField(element.closest('.ed-block'), element.dataset.inline);
+        const input = panelField(element);
         if (input) {
-            input.value = element.textContent.trim();
+            input.value = inlineValue(element);
             markDirty();
         }
     });
 
     // Panel -> preview, så de to aldrig viser noget forskelligt.
     canvas.addEventListener('input', function (event) {
-        const input = event.target.closest('.ed-panel [data-scope="settings"][data-field]');
+        const input = event.target.closest(
+            '.ed-panel [data-scope="settings"][data-field], .ed-panel [data-rfield]'
+        );
         if (!input) {
             return;
         }
 
-        const element = input.closest('.ed-block').querySelector(
-            '.ed-block__preview [data-inline="' + input.dataset.field + '"]'
-        );
+        const element = previewField(input);
 
-        if (element && element.textContent !== input.value) {
+        if (element && inlineValue(element) !== input.value) {
             element.textContent = input.value;
         }
     });
 
-    // Felterne er enkeltlinjede — Enter afslutter redigeringen.
+    // Enter afslutter redigeringen — undtagen i tekstfelter med linjeskift.
     canvas.addEventListener('keydown', function (event) {
         const element = event.target.closest('[data-inline]');
-        if (element && event.key === 'Enter') {
-            event.preventDefault();
+        if (!element || event.key !== 'Enter') {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (element.hasAttribute('data-inline-multiline')) {
+            // Et rent \n frem for browserens <div> eller <br>. Vises
+            // korrekt, fordi CSS'en giver elementet white-space: pre-wrap.
+            document.execCommand('insertText', false, '\n');
+        } else {
             element.blur();
         }
     });
 
     // Indsat tekst fra fx Word må ikke tage formatering med.
     canvas.addEventListener('paste', function (event) {
-        if (!event.target.closest('[data-inline]')) {
+        const element = event.target.closest('[data-inline]');
+        if (!element) {
             return;
         }
 
         event.preventDefault();
-        const text = (event.clipboardData.getData('text/plain') || '').replace(/\s+/g, ' ');
+
+        let text = (event.clipboardData.getData('text/plain') || '').replace(/\r\n?/g, '\n');
+
+        if (!element.hasAttribute('data-inline-multiline')) {
+            text = text.replace(/\s+/g, ' ');
+        }
+
         document.execCommand('insertText', false, text);
     });
 
     // Links må ikke navigere. Klik på et billede åbner panelets filvælger.
     canvas.addEventListener('click', function (event) {
-        if (event.target.closest('a[data-inline]')) {
-            event.preventDefault();
+        const text = event.target.closest('[data-inline]');
+
+        // Tekst vinder over billede: et klik i en billedtekst skal
+        // redigere teksten, ikke aabne filvaelgeren.
+        if (text) {
+            if (event.target.closest('a')) {
+                event.preventDefault();
+            }
             return;
         }
 
@@ -542,13 +617,38 @@
             return;
         }
 
-        const input = panelField(image.closest('.ed-block'), image.dataset.inlineImage);
-        const fileInput = input && input.closest('.ed-image').querySelector('.ed-image__file');
+        const input = panelField(image);
+        const wrapper = input && input.closest('.ed-image');
+        const fileInput = wrapper && wrapper.querySelector('.ed-image__file');
 
         if (fileInput) {
             fileInput.click();
         }
     });
+
+    // Tilfoejes eller fjernes en raekke i panelet, passer raekkenumrene i
+    // forhaandsvisningen ikke laengere. De raekker slaas fra, indtil siden
+    // er gemt og genindlaest. Capture-fasen (true) goer, at lytteren naar
+    // at finde repeateren, foer raekken fjernes.
+    canvas.addEventListener('click', function (event) {
+        const button = event.target.closest(
+            '[data-action="add-row"], [data-action="remove-row"]'
+        );
+        if (!button) {
+            return;
+        }
+
+        const repeater = button.closest('[data-repeater]');
+
+        button.closest('.ed-block').querySelectorAll(
+            '.ed-block__preview [data-inline-repeater="' + repeater.dataset.repeater + '"]'
+        ).forEach(function (element) {
+            element.removeAttribute('contenteditable');
+            element.removeAttribute('data-inline');
+            element.classList.add('is-stale');
+            element.title = 'Gem og genindlaes siden for at redigere her igen';
+        });
+    }, true);
 
     // Kaldes efter upload, så det nye billede ses med det samme.
     function syncInlineImage(pathInput) {
@@ -704,3 +804,7 @@
         p.stored.value = isAuto ? '0' : p.range.value;
     });
 }());
+
+
+
+// LINK POPOVER!!!!!!!

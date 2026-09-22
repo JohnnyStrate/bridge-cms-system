@@ -136,6 +136,7 @@ final class QuoteBlock extends AbstractBlock
             'body'     => trim((string) ($settings['body'] ?? '')),
             'note'     => trim((string) ($settings['note'] ?? '')),
             'cssVars'  => static::cssVariables($styles),
+            'context' => $context,
         ]);
     }
 }

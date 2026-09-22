@@ -113,8 +113,11 @@ final class WelcomeBlock extends AbstractBlock
             'intro'      => $settings['intro']       ?? '',
             'listTitle'  => $settings['list_title']  ?? '',
             'footerText' => $settings['footer_text'] ?? '',
-            'items'      => is_array($items) ? $items : [],
+            // array_values: raekkenumrene skal vaere 0, 1, 2 ... saa de
+            // matcher raekkerne i editorens panel.
+            'items'      => is_array($items) ? array_values($items) : [],
             'cssVars'    => static::cssVariables($styles),
+            'context'    => $context,
         ]);
     }
 }
