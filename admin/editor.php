@@ -95,8 +95,10 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
         . '<span class="ed-block__label">' . e($class::label())
         . ' <span class="ed-block__badge">' . e($def['hint']) . '</span></span>'
         . '<div class="ed-block__actions">'
+        . '<button type="button" class="ed-btn ed-btn--styles" data-action="styles"'
+        . ' aria-expanded="false" title="Udseende">&#127912;</button>'
         . '<button type="button" class="ed-btn ed-btn--edit" data-action="edit"'
-        . ' aria-expanded="false">&#9998;</button>'
+        . ' aria-expanded="false" title="Alle felter">&#9998;</button>'
         . '<button type="button" class="ed-btn ed-btn--delete" data-action="delete">&times;</button>'
         . '</div>'
         . '<div class="ed-block__preview">'
@@ -115,7 +117,7 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
     <title>Rediger: <?= e($page['title']) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin.css<?= PageRenderer::cacheBuster('admin/admin.css') ?>">
     <link rel="stylesheet" href="editor.css<?= PageRenderer::cacheBuster('admin/editor.css') ?>">
 
@@ -194,8 +196,10 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
             <span class="ed-block__label"><?= e($class::label()) ?></span>
 
             <div class="ed-block__actions">
+                <button type="button" class="ed-btn ed-btn--styles" data-action="styles"
+                        aria-expanded="false" title="Udseende">&#127912;</button>
                 <button type="button" class="ed-btn ed-btn--edit" data-action="edit"
-                        aria-expanded="false">&#9998;</button>
+                        aria-expanded="false" title="Alle felter">&#9998;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="up">&and;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="down">&or;</button>
                 <button type="button" class="ed-btn ed-btn--delete" data-action="delete">&times;</button>
@@ -285,8 +289,10 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
         <article class="ed-block" data-block-id="" data-block-type="<?= e($type) ?>">
             <span class="ed-block__label"><?= e($label) ?></span>
             <div class="ed-block__actions">
+                <button type="button" class="ed-btn ed-btn--styles" data-action="styles"
+                        aria-expanded="false" title="Udseende">&#127912;</button>
                 <button type="button" class="ed-btn ed-btn--edit" data-action="edit"
-                        aria-expanded="false">&#9998;</button>
+                        aria-expanded="false" title="Alle felter">&#9998;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="up">&and;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="down">&or;</button>
                 <button type="button" class="ed-btn ed-btn--delete" data-action="delete">&times;</button>

@@ -132,7 +132,8 @@ final class FieldRenderer
 
         $attributes = 'id="' . e($id) . '"'
             . ' data-scope="' . e($scope) . '"'
-            . ' data-field="' . e($name) . '"';
+            . ' data-field="' . e($name) . '"'
+            . $this->cssVariable($scope, $name, $field);
 
         if (($field['type'] ?? '') === 'size') {
             return $this->size($id, $scope, $name, $label, $field, (int) $value);
@@ -142,6 +143,38 @@ final class FieldRenderer
             . '<label for="' . e($id) . '">' . e($label) . '</label>'
             . $this->input($attributes, $field, $value)
             . '</p>';
+    }
+
+    /**
+     * Fortæller browseren, hvilken CSS-variabel et stylingfelt styrer.
+     *
+     * AbstractBlock::cssVariables() laver 'title_size' => 48 om til
+     * "--title-size:48px" i blokkens style-attribut. Den regel skal
+     * editor.js kunne den samme af, for at kunne opdatere forhånds-
+     * visningen med det samme, når man trækker i en skyder.
+     *
+     * Reglen bliver IKKE skrevet igen i JavaScript. Den skrives her, ud
+     * fra det samme skema, og sendes med ud i DOM'en. Så er der stadig
+     * kun ét sted, der ved, at 'title_size' bliver til '--title-size'
+     * med enheden 'px'.
+     *
+     * Kun stylingfelter får attributterne. Indholdsfelter ændrer tekst,
+     * ikke udseende, og har ingen variabel.
+     *
+     * @param array<string, mixed> $field
+     */
+    private function cssVariable(string $scope, string $name, array $field): string
+    {
+        if ($scope !== 'styles') {
+            return '';
+        }
+
+        // 'auto' betyder, at 0 er en gyldig værdi, der skal FJERNE
+        // variablen frem for at sætte den til 0px — præcis som
+        // cssVariables() springer den over på serveren.
+        return ' data-css-var="--' . e(str_replace('_', '-', $name)) . '"'
+            . ' data-css-unit="' . e((string) ($field['unit'] ?? '')) . '"'
+            . (!empty($field['auto']) ? ' data-css-auto' : '');
     }
 
     /**
@@ -198,6 +231,7 @@ final class FieldRenderer
                 . ($unit !== '' ? '<span class="ed-size__unit">' . e($unit) . '</span>' : '')
             . '</span>'
             . '<input type="hidden" data-scope="' . e($scope) . '" data-field="' . e($name) . '"'
+                . $this->cssVariable($scope, $name, $field)
                 . ' value="' . ($isAuto ? 0 : $shown) . '">'
             . '</div>';
     }
@@ -215,10 +249,7 @@ final class FieldRenderer
             : '';
 
         return match ($field['type'] ?? 'text') {
-            // 'rows' i skemaet giver et højere felt, fx til en liste med
-            // en spiller pr. linje. Uden det er feltet 4 linjer højt.
-            'textarea' => '<textarea ' . $attributes . $placeholder
-                . ' rows="' . max(2, min(40, (int) ($field['rows'] ?? 4))) . '">'
+            'textarea' => '<textarea ' . $attributes . $placeholder . ' rows="4">'
                 . e((string) $value) . '</textarea>',
 
             'color' => '<input type="color" ' . $attributes
@@ -369,10 +400,8 @@ final class FieldRenderer
         }
 
         return $html . '</div>'
-            // 'add_label' i skemaet giver knappen en tekst, der passer til
-            // blokken, fx "Tilføj gruppe". Uden den står der "Tilføj række".
             . '<button type="button" class="ed-repeater__add" data-action="add-row">'
-            . '+ ' . e((string) ($field['add_label'] ?? 'Tilføj række')) . '</button>'
+            . '+ Tilføj række</button>'
             . '<template data-row-template>'
             . $this->row($field['fields'] ?? [], [])
             . '</template>'

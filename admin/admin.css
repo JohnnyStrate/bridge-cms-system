@@ -783,3 +783,74 @@
 
 
 /* LINK POPOVER */
+/* --- Udseende-kortet ------------------------------------------------ */
+
+/* Paletteknappen ved siden af blyanten. Blyanten aabner hele panelet;
+   paletten loefter kun Udseende-delen ud som et lille kort. */
+.ed-btn--styles {
+    background: #6b4fa0;
+}
+
+/* Blokken, hvis udseende-kort staar aabent. Den relative position er
+   allerede sat paa .ed-block, saa kortet kan haenge fast i den. */
+.ed-block.is-styling {
+    z-index: 20;
+}
+
+/* Panelet loeftes ud som et kort i hoejre side af blokken.
+   Det BLIVER liggende i DOM'en, hvor det hoerer til — det er kun
+   praesentationen, der aendrer sig. Havde vi flyttet det, ville de
+   delegerede lyttere paa canvas ikke laengere naa det. */
+.ed-block.is-styling .ed-panel {
+    position: absolute;
+    top: 0;
+    right: 0.75rem;
+    z-index: 30;
+    width: min(23rem, calc(100% - 1.5rem));
+    max-height: min(32rem, 80vh);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.9rem 1rem 1rem;
+    border: 1px solid #cfd5db;
+    border-top: 1px solid #cfd5db;
+    border-radius: var(--radius);
+    background: var(--admin-surface);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.16);
+}
+
+/* I kortet vises kun Udseende. Indhold hoerer til blyanten.
+   :first-of-type er "Indhold"-rammen — den er altid den foerste,
+   FieldRenderer tegner. */
+.ed-block.is-styling .ed-panel > .ed-group:first-of-type {
+    display: none;
+}
+
+/* Rammen om Udseende er overfloedig inde i kortet — kortet ER rammen. */
+.ed-block.is-styling .ed-panel > .ed-group {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.ed-block.is-styling .ed-panel > .ed-group > legend {
+    padding: 0 0 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+
+/* Grupperne ("Blaa boks") staar under hinanden i den smalle bredde i
+   stedet for side om side. */
+.ed-block.is-styling .ed-subgroup {
+    flex: 1 1 100%;
+}
+
+/* Paa smalle skaerme daekker kortet blokken frem for at klemme sig
+   sammen i hoejre side. */
+@media (max-width: 55rem) {
+    .ed-block.is-styling .ed-panel {
+        right: 0.75rem;
+        left: 0.75rem;
+        width: auto;
+    }
+}

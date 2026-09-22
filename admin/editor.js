@@ -162,11 +162,40 @@
         const isGlobal = Boolean(block.dataset.globalSlot);
 
         switch (button.dataset.action) {
-            case 'edit': {
+                      case 'edit': {
                 const panel = block.querySelector('.ed-panel');
                 const open = panel.hasAttribute('hidden');
+
+                // Blyanten viser altid HELE panelet. Aabner man det,
+                // mens udseende-kortet staar aabent, lukkes kortet.
+                block.classList.remove('is-styling');
+
                 panel.toggleAttribute('hidden', !open);
                 button.setAttribute('aria-expanded', String(open));
+                break;
+            }
+
+            case 'styles': {
+                // Samme panel, anden praesentation: klassen faar CSS'en
+                // til at loefte det ud som et lille kort ved siden af
+                // blokken og skjule alt andet end Udseende-rammen.
+                //
+                // Panelet bliver liggende i DOM'en, hvor det hoerer til.
+                // Flyttede vi det, ville de delegerede lyttere paa
+                // canvas ikke laengere naa det.
+                const panel = block.querySelector('.ed-panel');
+                const open = !block.classList.contains('is-styling');
+
+                closeStyleCards();
+
+                block.classList.toggle('is-styling', open);
+                panel.toggleAttribute('hidden', !open);
+                button.setAttribute('aria-expanded', String(open));
+
+                if (open) {
+                    block.querySelector('.ed-block__actions [data-action="edit"]')
+                        .setAttribute('aria-expanded', 'false');
+                }
                 break;
             }
 
@@ -683,6 +712,129 @@
             element.style.backgroundImage = "url('" + url + "')";
         }
     }
+
+    /* --- Live styling ------------------------------------------------ */
+
+    // Farver og stoerrelser gemmes som CSS-variabler paa blokkens
+    // rodelement. Det gjorde de ogsaa foer — se AbstractBlock::cssVariables().
+    // Derfor skal der ikke gengives noget for at vise en aendring: det
+    // er nok at saette den samme variabel i browseren.
+    //
+    // Hvilken variabel et felt styrer, og hvilken enhed den har, staar
+    // paa selve feltet (data-css-var, data-css-unit, data-css-auto).
+    // FieldRenderer skriver dem ud fra skemaet, saa reglen findes
+    // stadig kun ét sted.
+
+    // Blokkens rodelement i forhaandsvisningen — det, style-attributten
+    // med variablerne sidder paa.
+    function styledRoot(block) {
+        const preview = block.querySelector('.ed-block__preview');
+
+        return preview
+            ? (preview.querySelector(':scope > .block') || preview.firstElementChild)
+            : null;
+    }
+
+    function applyStyleField(input) {
+        const block = input.closest('.ed-block');
+        const root  = block && styledRoot(block);
+
+        if (!root) {
+            return;
+        }
+
+        const variable = input.dataset.cssVar;
+        const unit     = input.dataset.cssUnit || '';
+        const value    = input.value;
+
+        // "Auto" gemmes som 0 og betyder: lad blokkens egen CSS
+        // bestemme. Variablen fjernes derfor helt, praecis som
+        // cssVariables() springer den over paa serveren.
+        const isAuto = input.hasAttribute('data-css-auto') && Number(value) === 0;
+
+        if (isAuto || value === '') {
+            root.style.removeProperty(variable);
+            return;
+        }
+
+        root.style.setProperty(variable, value + unit);
+    }
+
+    // input daekker skydere, tal-felter og farvevaelgere, mens man
+    // traekker. change daekker dropdowns og selve farvedialogen.
+    ['input', 'change'].forEach(function (type) {
+        canvas.addEventListener(type, function (event) {
+            const input = event.target.closest('[data-css-var]');
+
+            if (input) {
+                applyStyleField(input);
+            }
+        });
+    });
+
+    // Stoerrelsesfelterne skriver deres vaerdi i et SKJULT felt, som
+    // ikke selv udloeser input-haendelser. Auto-knappen og skyderen
+    // opdaterer det, og derfor skal vi laese det bagefter.
+    canvas.addEventListener('input', function (event) {
+        const box = event.target.closest('[data-size]');
+
+        if (box) {
+            const stored = box.querySelector('input[type="hidden"][data-css-var]');
+
+            if (stored) {
+                applyStyleField(stored);
+            }
+        }
+    });
+
+    canvas.addEventListener('change', function (event) {
+        const box = event.target.closest('[data-size]');
+
+        if (box) {
+            const stored = box.querySelector('input[type="hidden"][data-css-var]');
+
+            if (stored) {
+                applyStyleField(stored);
+            }
+        }
+    });
+
+    /* --- Udseende-kortet ---------------------------------------------- */
+
+    function closeStyleCards() {
+        canvas.querySelectorAll('.ed-block.is-styling').forEach(function (block) {
+            block.classList.remove('is-styling');
+            block.querySelector('.ed-panel').setAttribute('hidden', '');
+            block.querySelector('.ed-block__actions [data-action="styles"]')
+                .setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    // Escape lukker kortet. Klik udenfor goer ikke — man skal kunne
+    // rette teksten i blokken, mens man ser farverne.
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeStyleCards();
+        }
+    });
+
+    // En blok uden stylingfelter har intet at vise i kortet. Knappen
+    // skjules i stedet for at aabne noget tomt. Koeres ogsaa naar en
+    // blok tilfoejes, fordi skabelonen er en kopi af den samme markup.
+    function syncStyleButtons(scope) {
+        scope.querySelectorAll('.ed-block').forEach(function (block) {
+            const button = block.querySelector('[data-action="styles"]');
+
+            if (button) {
+                button.hidden = !block.querySelector('.ed-panel [data-css-var]');
+            }
+        });
+    }
+
+    syncStyleButtons(canvas);
+
+
+
     /* --- Forhaandsvis ------------------------------------------------ */
 
     document.getElementById('preview-btn').addEventListener('click', function () {
