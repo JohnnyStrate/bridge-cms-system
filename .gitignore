@@ -1,5 +1,9 @@
-database.php
-uploads/*
-!uploads/.htaccess
-export
-Database.php
+# Hver udviklers egne databaseoplysninger. Se include/database.example.php.
+# Skråstregen foran betyder "kun præcis denne sti" — uden den ville
+# linjen også skjule core/Database.php (Windows skelner ikke store/små).
+/include/database.php
+
+# Uploadede billeder og den færdige eksport er ikke kildekode.
+/uploads/*
+!/uploads/.htaccess
+/export/
