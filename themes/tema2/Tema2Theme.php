@@ -11,8 +11,7 @@ declare(strict_types=1);
  *
  * Temaets egne billeder ligger i themes/tema2/assets/.
  *
- * Footeren kommer i en senere levering. Indtil da har temaet kun en
- * navbar i globals(), og der vises ingen footer.
+ * Navbar og footer er temaets globale blokke (se globals()).
  */
 final class Tema2Theme extends AbstractTheme
 {
@@ -40,6 +39,7 @@ final class Tema2Theme extends AbstractTheme
             'tema2-cards'     => Tema2CardsBlock::class,
             'tema2-callout'   => Tema2CalloutBlock::class,
             'tema2-quote'     => Tema2QuoteBlock::class,
+            'tema2-footer'    => Tema2FooterBlock::class,
         ];
     }
 
@@ -47,6 +47,7 @@ final class Tema2Theme extends AbstractTheme
     {
         return [
             'header' => 'tema2-navbar',
+            'footer' => 'tema2-footer',
         ];
     }
 }

@@ -1,0 +1,353 @@
+/* =====================================================================
+   Footer — tema 2
+
+   Blaa gradient som navbarens pille og en boelget overkant — hero'ens
+   boelge vendt paa hovedet, fyldt med farven paa sektionen ovenover.
+   Samme tre kolonner og sidemargen som resten af tema 2.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema2-footer {
+    --gradient-start: #152b3a;
+    --gradient-end: #2c5677;
+    --wave-color: #1d3444;
+    --text-color: #ffffff;
+    --accent-color: #f0a21e;
+    --font-family: 'Jost';
+    --radius: 12px;
+
+    --t2-container: 72rem;
+    --t2-side: 8rem;
+    --t2-gutter: clamp(1.25rem, 4.8vw, 6rem);
+    --wave-height: clamp(2.5rem, 6vw, 6rem);
+
+    display: grid;
+    grid-template-columns:
+        minmax(var(--t2-side), 1fr)
+        minmax(0, var(--t2-container))
+        minmax(var(--t2-side), 1fr);
+    padding: calc(var(--wave-height) + clamp(2.5rem, 5vw, 4.5rem)) var(--t2-gutter) 0;
+    overflow: hidden;
+    isolation: isolate;
+    background: linear-gradient(120deg, var(--gradient-start) 15%, var(--gradient-end));
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* Boelgen oeverst: samme form som i hero'en, drejet 180 grader. */
+.t2f__wave {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    height: var(--wave-height);
+    fill: var(--wave-color);
+    transform: rotate(180deg);
+    pointer-events: none;
+}
+
+.t2f__watermark {
+    position: absolute;
+    right: -4rem;
+    bottom: -5rem;
+    z-index: -1;
+    width: clamp(16rem, 30vw, 28rem);
+    fill: var(--text-color);
+    opacity: 0.04;
+    transform: rotate(-14deg);
+    pointer-events: none;
+}
+
+/* --- Kolonner -------------------------------------------------------- */
+
+.t2f__inner {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    gap: 2.5rem clamp(2rem, 4vw, 4rem);
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.t2f__logo {
+    display: block;
+    max-width: 7.5rem;
+    max-height: 4.25rem;
+    width: auto;
+    margin-bottom: 1.4rem;
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+}
+
+.t2f__logo--empty {
+    display: grid;
+    place-items: center;
+    width: 7.5rem;
+    height: 4rem;
+    border: 2px dashed currentColor;
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.t2f__tagline {
+    max-width: 22rem;
+    margin: 0 0 1.75rem;
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.7;
+    opacity: 0.9;
+}
+
+.t2f__heading {
+    margin: 0.4rem 0 1.1rem;
+    color: var(--accent-color);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+.t2f__line {
+    margin: 0 0 0.55rem;
+    font-size: 0.98rem;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+.t2f__line a,
+.t2f__links a {
+    color: inherit;
+    text-decoration: none;
+    background-image: linear-gradient(var(--accent-color), var(--accent-color));
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    transition: background-size 0.3s ease, color 0.2s ease;
+}
+
+.t2f__line a:hover,
+.t2f__line a:focus-visible,
+.t2f__links a:hover,
+.t2f__links a:focus-visible {
+    background-size: 100% 1px;
+}
+
+.t2f__hours {
+    margin: 0;
+}
+
+.t2f__hours div {
+    margin-bottom: 0.7rem;
+}
+
+.t2f__hours dt {
+    font-size: 0.98rem;
+    font-weight: 500;
+}
+
+.t2f__hours dd {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 300;
+    opacity: 0.85;
+}
+
+.t2f__links {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.98rem;
+    font-weight: 300;
+}
+
+/* Linket glider en anelse frem ved hover. */
+.t2f__links a {
+    position: relative;
+    display: inline-block;
+    transition: transform 0.25s ease, background-size 0.3s ease;
+}
+
+.t2f__links a:hover,
+.t2f__links a:focus-visible {
+    transform: translateX(0.35rem);
+}
+
+/* --- Knappen --------------------------------------------------------- */
+
+/* Samme form og pil som knapperne i resten af temaet, men som frostet glas:
+   den blaa gradient-knap ville forsvinde paa den blaa baggrund. */
+
+.t2f__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.4rem;
+    max-width: min(18rem, 100%);
+    padding: 0.55rem 0.9rem 0.55rem 0.8rem;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.08);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: inherit;
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.t2f__button-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.t2f__arrow {
+    flex: none;
+    width: 1.9rem;
+    height: auto;
+    overflow: visible;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2f__button:hover,
+.t2f__button:focus-visible {
+    background: rgb(255 255 255 / 0.16);
+    transform: translateY(-2px);
+}
+
+.t2f__button:hover .t2f__arrow,
+.t2f__button:focus-visible .t2f__arrow {
+    transform: translateX(0.45rem);
+}
+
+/* --- Bundlinje ------------------------------------------------------- */
+
+.t2f__bottom {
+    grid-column: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding: 1.4rem 0 1.8rem;
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+    font-size: 0.85rem;
+}
+
+.t2f__copy {
+    margin: 0;
+    opacity: 0.75;
+}
+
+.t2f__suits {
+    display: inline-flex;
+    gap: 0.6rem;
+}
+
+.t2f__suit {
+    width: 0.95rem;
+    height: 0.95rem;
+    fill: var(--text-color);
+    opacity: 0.8;
+    transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1), opacity 0.2s ease;
+}
+
+.t2f__suit--red {
+    fill: #ff6b61;
+}
+
+.t2f__suits:hover .t2f__suit {
+    opacity: 1;
+    transform: translateY(-4px) rotate(-10deg);
+}
+
+.t2f__suits:hover .t2f__suit:nth-child(2) { transition-delay: 0.05s; }
+.t2f__suits:hover .t2f__suit:nth-child(3) { transition-delay: 0.1s; }
+.t2f__suits:hover .t2f__suit:nth-child(4) { transition-delay: 0.15s; }
+
+.t2f__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.t2f__top svg {
+    width: 0.7rem;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2f__top:hover {
+    opacity: 1;
+}
+
+.t2f__top:hover svg {
+    transform: translateY(-3px);
+}
+
+/* --- Animation ------------------------------------------------------- */
+
+@keyframes t2f-rise {
+    from { opacity: 0; transform: translateY(1.5rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.t2f--armed .t2f__reveal {
+    opacity: 0;
+}
+
+.t2f--armed.is-visible .t2f__reveal {
+    animation: t2f-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.1s + var(--i, 0) * 0.12s);
+}
+
+/* --- Smalle skaerme -------------------------------------------------- */
+
+@media (max-width: 64rem) {
+    .block--tema2-footer {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2f__inner,
+    .t2f__bottom {
+        grid-column: 1;
+    }
+
+    .t2f__inner {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .t2f__brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 34rem) {
+    .t2f__inner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2f__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t2f--armed .t2f__reveal {
+        opacity: 1;
+    }
+
+    .block--tema2-footer,
+    .block--tema2-footer * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
