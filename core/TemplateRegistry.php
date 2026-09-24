@@ -2,43 +2,40 @@
 declare(strict_types=1);
 
 /**
- * Finder skabelonerne i /templates/.
+ * Finder skabelonerne i temaernes templates-mapper.
  *
- * Til forskel fra BlockRegistry er der ingen håndholdt liste. Registryet
- * scanner mappen og tager de klasser, der følger TemplateInterface. En ny
- * skabelon er derfor én ny mappe og nul ændringer i fælles filer — så to
- * personer kan lave hver sin skabelon uden at få konflikter i git.
+ * En skabelon er en side med dummy-indhold, der hører til ét tema:
+ *
+ *     themes/blaa-tema/templates/KlubforsideTemplate.php
+ *         → final class KlubforsideTemplate extends AbstractTemplate
+ *
+ * Har en skabelon brug for egne filer (et thumbnail), må den gerne have sin
+ * egen mappe: themes/<tema>/templates/<mappe>/<Navn>Template.php.
+ *
+ * Ingen håndholdt liste: en ny skabelon er én ny fil og nul ændringer i
+ * fælles filer.
  *
  * SIKKERHED
  * Listen dannes ud fra mapper på disken, ALDRIG ud fra brugerinput. Det,
- * brugeren sender, slås op blandt de fundne slugs, præcis som en
- * block_type slås op i BlockRegistry. En manipuleret værdi kan derfor
- * ikke pege på en vilkårlig fil.
+ * brugeren sender, slås op blandt de fundne slugs.
  *
- * KONVENTION
- * Skabelonerne ligger i temamappen, og filen hedder det samme som klassen:
- *
- *     templates/blaa-tema/KlubforsideTemplate.php
- *         → final class KlubforsideTemplate extends AbstractTemplate
- *
- * Har en skabelon brug for sine egne filer (et thumbnail, en delfil), må den
- * gerne få sin egen mappe inde i temaet:
- *
- *     templates/blaa-tema/klubforside/KlubforsideTemplate.php
- *
- * Begge dybder findes automatisk.
+ * Slug'en er global på tværs af temaer, så den skrives med temaet foran,
+ * når den ikke er det blå temas: 'tema1-forside'.
  */
 final class TemplateRegistry
 {
     /** @var array<string, class-string<TemplateInterface>>|null */
     private static ?array $templates = null;
 
+    /** @var array<string, string> slug => temaets slug */
+    private static array $themes = [];
+
     private function __construct()
     {
     }
 
     /**
-     * Alle skabeloner, sorteret som de skal vises i "Opret side".
+     * Alle skabeloner i alle temaer, sorteret som de skal vises.
      *
      * @return array<string, class-string<TemplateInterface>> slug => klasse
      */
@@ -50,42 +47,39 @@ final class TemplateRegistry
 
         $found = [];
 
-        // templates/<tema>/Navn.php og templates/<tema>/<mappe>/Navn.php.
-        $files = array_merge(
-            glob(APP_ROOT . '/templates/*/*.php') ?: [],
-            glob(APP_ROOT . '/templates/*/*/*.php') ?: []
-        );
+        foreach (array_keys(ThemeRegistry::all()) as $theme) {
+            $base  = APP_ROOT . '/themes/' . $theme . '/templates';
+            $files = array_merge(
+                glob($base . '/*.php') ?: [],
+                glob($base . '/*/*.php') ?: []
+            );
 
-        foreach ($files as $file) {
-            $class = basename($file, '.php');
+            foreach ($files as $file) {
+                $class = basename($file, '.php');
 
-            // Klassenavnet kommer fra et filnavn, vi selv har fundet.
-            // Guarden er med, fordi autoloaderen laver navnet til en sti
-            // igen, og den slags skal aldrig kunne pege uden for projektet.
-            if (preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $class) !== 1) {
-                continue;
+                if (preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $class) !== 1) {
+                    continue;
+                }
+
+                require_once $file;
+
+                // En hjælpefil, der ikke er en skabelon, springes over.
+                if (!class_exists($class) || !is_subclass_of($class, TemplateInterface::class)) {
+                    continue;
+                }
+
+                $slug = $class::slug();
+
+                if (preg_match('/^[a-z0-9-]+$/', $slug) !== 1 || isset($found[$slug])) {
+                    error_log("Skabelon '{$class}' har en ugyldig eller optaget slug og blev sprunget over.");
+                    continue;
+                }
+
+                $found[$slug]        = $class;
+                self::$themes[$slug] = $theme;
             }
-
-            require_once $file;
-
-            // En hjælpefil i mappen, der ikke er en skabelon, springes
-            // over frem for at vælte "Opret side".
-            if (!class_exists($class) || !is_subclass_of($class, TemplateInterface::class)) {
-                continue;
-            }
-
-            $slug = $class::slug();
-
-            if ($slug === '' || isset($found[$slug])) {
-                error_log("Skabelon '{$class}' har en tom eller optaget slug og blev sprunget over.");
-                continue;
-            }
-
-            $found[$slug] = $class;
         }
 
-        // Lavest sortOrder først, derefter alfabetisk på navnet, så
-        // rækkefølgen er den samme hver gang uanset filsystemet.
         uasort($found, static function (string $a, string $b): int {
             return [$a::sortOrder(), $a::name()] <=> [$b::sortOrder(), $b::name()];
         });
@@ -106,35 +100,25 @@ final class TemplateRegistry
         return self::get($slug) !== null;
     }
 
-    /**
-     * Skabelonerne delt op i temaer, til "Opret side".
-     *
-     * Temaet læses af mappen, skabelonen ligger i — samme regel som for
-     * blokkene, så de to lister bruger de samme overskrifter.
-     *
-     * @return array<string, array<string, class-string<TemplateInterface>>>
-     */
-    public static function grouped(): array
+    /** Temaet en skabelon hører til. */
+    public static function themeOf(string $slug): string
     {
-        $templates = self::all();
-        $folders   = [];
-        $labels    = [];
+        self::all();
 
-        foreach ($templates as $slug => $class) {
-            $folders[$slug] = Themes::ofClass($class, 'templates');
-            $labels[$slug]  = $class::name();
-        }
+        return self::$themes[$slug] ?? '';
+    }
 
-        $grouped = [];
-
-        // Themes::group() grupperer navne. Her skal klasserne med videre,
-        // så grupperingen genbruges og nøglerne oversættes tilbage.
-        foreach (Themes::group($labels, $folders) as $theme => $group) {
-            foreach (array_keys($group) as $slug) {
-                $grouped[$theme][$slug] = $templates[$slug];
-            }
-        }
-
-        return $grouped;
+    /**
+     * Skabelonerne i ét tema. "Opret side" viser kun det aktive temas.
+     *
+     * @return array<string, class-string<TemplateInterface>>
+     */
+    public static function forTheme(string $themeSlug): array
+    {
+        return array_filter(
+            self::all(),
+            static fn (string $slug): bool => self::themeOf($slug) === $themeSlug,
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }

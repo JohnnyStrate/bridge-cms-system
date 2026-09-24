@@ -4,7 +4,8 @@
 --  Opretter alle tabeller i en TOM database. Indeholder ingen data;
 --  grunddata (de globale blokke) ligger i seed.sql.
 --
---  Skabelonerne står IKKE i databasen. De ligger som kode i /templates/
+--  Skabelonerne står IKKE i databasen. De ligger som kode i
+--  /themes/<tema>/templates/
 --  og følger derfor med i git.
 --
 --  NY INSTALLATION
@@ -81,16 +82,21 @@ CREATE TABLE `page_blocks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
---  Globale blokke (navbar og footer), fælles for alle sider
+--  Globale blokke (navbar og footer) — én pr. tema og slot
 --
---  Primærnøglen og den unikke nøgle på slot er IKKE til pynt:
---  GlobalBlockRepository::save() bruger
---  INSERT ... ON DUPLICATE KEY UPDATE og er afhængig af, at der højst
---  findes én række pr. slot. Uden dem fejler det at gemme navbar og
---  footer med "Field 'id' doesn't have a default value".
+--  Hvert tema har sin egen navbar og footer. De gemmes side om side, så
+--  man kan skifte tema og tilbage igen uden at miste noget. Hvilket tema
+--  der vises, står i site_settings.active_theme.
+--
+--  `theme` er temaets mappenavn i /themes/, fx 'blaa-tema' eller 'tema1'.
+--
+--  Den unikke nøgle på (theme, slot) er IKKE til pynt:
+--  GlobalBlockRepository::save() bruger INSERT ... ON DUPLICATE KEY UPDATE
+--  og er afhængig af, at der højst findes én række pr. tema og slot.
 -- ---------------------------------------------------------------------
 CREATE TABLE `global_blocks` (
   `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `theme`      VARCHAR(50) NOT NULL,
   `slot`       VARCHAR(50) NOT NULL,
   `block_type` VARCHAR(50) NOT NULL,
   `settings`   LONGTEXT NOT NULL CHECK (JSON_VALID(`settings`)),
@@ -98,7 +104,19 @@ CREATE TABLE `global_blocks` (
   `is_visible` TINYINT(1) NOT NULL DEFAULT 1,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_global_blocks_slot` (`slot`)
+  UNIQUE KEY `uq_global_blocks_theme_slot` (`theme`, `slot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  Indstillinger for hele sitet, som nøgle/værdi
+--
+--  active_theme = mappenavnet på det tema, sitet bruger.
+-- ---------------------------------------------------------------------
+CREATE TABLE `site_settings` (
+  `key`        VARCHAR(50) NOT NULL,
+  `value`      TEXT NOT NULL,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------

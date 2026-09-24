@@ -4,10 +4,10 @@ declare(strict_types=1);
 /**
  * Al SQL der rører tabellen `global_blocks`.
  *
- * Tabellen har en unik nøgle på `slot`, så der pr. definition kun kan
- * findes én navbar. Det er databasen, der garanterer det — ikke koden.
- * Derfor er gemning en upsert: vi behøver ikke først slå op, om blokken
- * findes, og to samtidige gemninger kan ikke lave to rækker.
+ * Tabellen har en unik nøgle på (theme, slot), så hvert tema højst har én
+ * navbar og én footer. Det er databasen, der garanterer det — ikke koden.
+ * Derfor er gemning en upsert: to samtidige gemninger kan ikke lave to
+ * rækker.
  */
 final class GlobalBlockRepository
 {
@@ -15,30 +15,22 @@ final class GlobalBlockRepository
     {
     }
 
-    /** @return array<int, array<string, mixed>> */
-    public function all(): array
-    {
-        $stmt = $this->pdo->query(
-            'SELECT id, slot, block_type, settings, styles, is_visible
-               FROM global_blocks
-              ORDER BY slot ASC'
-        );
-
-        return array_map([$this, 'hydrate'], $stmt->fetchAll());
-    }
-
-    public function find(string $slot): ?array
+    /**
+     * Et temas gemte globale blokke.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function forTheme(string $theme): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, slot, block_type, settings, styles, is_visible
+            'SELECT id, theme, slot, block_type, settings, styles, is_visible
                FROM global_blocks
-              WHERE slot = :slot'
+              WHERE theme = :theme
+              ORDER BY slot ASC'
         );
-        $stmt->execute(['slot' => $slot]);
+        $stmt->execute(['theme' => $theme]);
 
-        $row = $stmt->fetch();
-
-        return $row ? $this->hydrate($row) : null;
+        return array_map([$this, 'hydrate'], $stmt->fetchAll());
     }
 
     /**
@@ -46,6 +38,7 @@ final class GlobalBlockRepository
      * @param array<string, mixed> $styles
      */
     public function save(
+        string $theme,
         string $slot,
         string $blockType,
         array $settings,
@@ -53,8 +46,8 @@ final class GlobalBlockRepository
         bool $isVisible = true
     ): void {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO global_blocks (slot, block_type, settings, styles, is_visible)
-                  VALUES (:slot, :block_type, :settings, :styles, :is_visible)
+            'INSERT INTO global_blocks (theme, slot, block_type, settings, styles, is_visible)
+                  VALUES (:theme, :slot, :block_type, :settings, :styles, :is_visible)
              ON DUPLICATE KEY UPDATE
                   block_type = VALUES(block_type),
                   settings   = VALUES(settings),
@@ -63,6 +56,7 @@ final class GlobalBlockRepository
         );
 
         $stmt->execute([
+            'theme'      => $theme,
             'slot'       => $slot,
             'block_type' => $blockType,
             'settings'   => $this->encode($settings),
@@ -71,10 +65,35 @@ final class GlobalBlockRepository
         ]);
     }
 
-    public function delete(string $slot): void
-    {
-        $stmt = $this->pdo->prepare('DELETE FROM global_blocks WHERE slot = :slot');
-        $stmt->execute(['slot' => $slot]);
+    /**
+     * Skjuler en global blok uden at slette dens indhold.
+     *
+     * Findes rækken ikke, oprettes den som skjult med de værdier, der
+     * sendes med — ellers ville temaets dummy-navbar dukke op igen.
+     *
+     * @param array<string, mixed> $settings
+     * @param array<string, mixed> $styles
+     */
+    public function hide(
+        string $theme,
+        string $slot,
+        string $blockType,
+        array $settings,
+        array $styles
+    ): void {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO global_blocks (theme, slot, block_type, settings, styles, is_visible)
+                  VALUES (:theme, :slot, :block_type, :settings, :styles, 0)
+             ON DUPLICATE KEY UPDATE is_visible = 0'
+        );
+
+        $stmt->execute([
+            'theme'      => $theme,
+            'slot'       => $slot,
+            'block_type' => $blockType,
+            'settings'   => $this->encode($settings),
+            'styles'     => $this->encode($styles),
+        ]);
     }
 
     private function hydrate(array $row): array

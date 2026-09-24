@@ -10,8 +10,9 @@ declare(strict_types=1);
  *
  * GLOBALE BLOKKE
  * Editoren sender også de globale blokke med i samme kald. De hører ikke
- * til siden, men til sitet, og gemmes derfor i global_blocks. Samme
- * transaktion: en navbar må ikke blive gemt, hvis resten af siden fejler.
+ * til siden, men til det aktive tema, og gemmes derfor i global_blocks via
+ * GlobalBlocks. Samme transaktion: en navbar må ikke blive gemt, hvis
+ * resten af siden fejler.
  *
  * ALT ELLER INTET
  * Det hele sker i én transaktion. Uden den kunne fem ud af otte blokke
@@ -30,7 +31,7 @@ final class PageSaver
         private readonly PDO $pdo,
         private readonly PageRepository $pages,
         private readonly BlockRepository $blocks,
-        private readonly ?GlobalBlockRepository $globals = null
+        private readonly ?GlobalBlocks $globals = null
     ) {
     }
 
@@ -79,7 +80,7 @@ final class PageSaver
             // Mangler nøglen helt, er det en ældre klient. Så rører vi
             // ikke de globale blokke — frem for at slette dem alle sammen.
             if ($this->globals !== null && array_key_exists('globals', $payload)) {
-                $savedGlobals = $this->saveGlobals(
+                $savedGlobals = $this->globals->saveFromEditor(
                     is_array($payload['globals']) ? $payload['globals'] : []
                 );
             }
@@ -96,67 +97,6 @@ final class PageSaver
             $this->pdo->rollBack();
             throw $e;
         }
-    }
-
-    /**
-     * Gemmer sitets globale blokke.
-     *
-     * Browseren sender en slot, en ønsket bloktype og nogle værdier.
-     * GlobalBlocks afgør, om typen er tilladt i den slot — ellers kunne et
-     * manipuleret kald gøre en vilkårlig blok global.
-     *
-     * En slot, der ikke er med i det browseren sendte, er en blok
-     * brugeren har fjernet. Samme logik som for sidens egne blokke.
-     *
-     * @param array<int, mixed> $incoming
-     */
-    private function saveGlobals(array $incoming): int
-    {
-        $kept = [];
-
-        foreach ($incoming as $item) {
-            if (!is_array($item)) {
-                continue;
-            }
-
-            $slot = (string) ($item['slot'] ?? '');
-
-            // Browserens ønske om type godkendes af slot'en. Er den ikke på
-            // slot'ens liste, bruges standarden — browseren kan altså vælge
-            // mellem temaernes navbars, men ikke pege på en vilkårlig blok.
-            $type = GlobalBlocks::typeFor($slot, (string) ($item['block_type'] ?? ''));
-
-            if ($type === null) {
-                continue;
-            }
-
-            $class = BlockRegistry::get($type);
-
-            if ($class === null) {
-                continue;
-            }
-
-            $settings = FieldValidator::validateAll(
-                $class::getSchema(),
-                is_array($item['settings'] ?? null) ? $item['settings'] : []
-            );
-
-            $styles = FieldValidator::validateAll(
-                $class::getStyleSchema(),
-                is_array($item['styles'] ?? null) ? $item['styles'] : []
-            );
-
-            $this->globals->save($slot, $type, $settings, $styles);
-            $kept[] = $slot;
-        }
-
-        foreach (array_keys(GlobalBlocks::SLOTS) as $slot) {
-            if (!in_array($slot, $kept, true)) {
-                $this->globals->delete($slot);
-            }
-        }
-
-        return count($kept);
     }
 
     /**

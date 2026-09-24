@@ -6,50 +6,69 @@ declare(strict_types=1);
  * der kan tegne blokken.
  *
  * Det er systemets allowlist. En værdi fra databasen bliver ALDRIG brugt
- * til at bygge en filsti direkte — den slås op i kortet nedenfor, og
- * findes den ikke, sker der ingenting. Uden det trin ville en manipuleret
- * block_type kunne pege på en vilkårlig fil på serveren.
+ * til at bygge en filsti direkte — den slås op i listen nedenfor, og
+ * findes den ikke, sker der ingenting.
  *
- * At tilføje en ny bloktype er to trin: opret mappen under det tema den
- * hører til (fx /blocks/blaa-tema/), og tilføj én linje i kortet. Ingen
- * ændringer i renderer, editor eller database.
+ * HVOR LISTEN KOMMER FRA
+ *   - SHARED nedenfor: værktøjsblokke, alle temaer kan bruge (blocks/faelles/).
+ *   - Hvert temas blocks() i themes/<tema>/<Navn>Theme.php.
+ * En ny blok i et tema skrives altså ind i temaets egen klasse, ikke her.
+ * Så kan to personer lave hvert sit tema uden konflikter i git.
+ *
+ * Alle temaers blokke er kendte, også de inaktive temaers. En side, der
+ * blev bygget i det blå tema, kan derfor stadig tegnes efter et temaskift.
  *
  * NAVNGIVNING
- * Nøglen til venstre er databasenøglen. Den står i page_blocks.block_type på
- * alle eksisterende sider og må derfor ikke ændres uden en migration.
- *
- * Blokkene i det blå tema var de første i projektet og har af samme grund
- * korte navne ('hero', 'welcome'). Blokke i et NYT tema navngives med temaet
- * foran — 'tema1-hero', 'tema1-welcome' — så to temaer kan have hver sin
- * hero uden at støde sammen. Klassenavnet følger samme mønster
- * (Tema1HeroBlock), fordi PHP kun har ét navnerum her.
+ * Nøglen er databasenøglen. Den står i page_blocks.block_type og må ikke
+ * ændres uden en migration. Blokke i nye temaer får temaet foran:
+ * 'tema1-hero' og klassen Tema1HeroBlock.
  */
 final class BlockRegistry
 {
     /** @var array<string, class-string<BlockInterface>> */
-    private const BLOCKS = [
-        // Fælles — bruges af alle temaer (blocks/faelles/)
-        'navbar'   => NavbarBlock::class,
-        'footer'   => FooterBlock::class,
+    private const SHARED = [
         'image'    => ImageBlock::class,
         'textarea' => TextAreaBlock::class,
         'gallery'  => GalleryBlock::class,
-
-        // Blåt tema (blocks/blaa-tema/)
-        'hero'     => HeroBlock::class,
-        'welcome'  => WelcomeBlock::class,
-        'boxcards' => BoxCardsBlock::class,
-        'quote'    => QuoteBlock::class,
-        'textbox'  => TextBoxBlock::class,
-        'ranklist' => RankListBlock::class,
-        'table'    => TableBlock::class,
-
-        // Tema 1 (blocks/tema1/)
-        'tema1-navbar' => Tema1NavbarBlock::class,
     ];
+
+    /** @var array<string, class-string<BlockInterface>>|null */
+    private static ?array $blocks = null;
+
+    /** @var array<string, string>|null bloktype => temaets slug ('' = fælles) */
+    private static ?array $owners = null;
 
     private function __construct()
     {
+    }
+
+    /** @return array<string, class-string<BlockInterface>> */
+    private static function map(): array
+    {
+        if (self::$blocks !== null) {
+            return self::$blocks;
+        }
+
+        $blocks = self::SHARED;
+        $owners = array_fill_keys(array_keys(self::SHARED), '');
+
+        foreach (ThemeRegistry::all() as $slug => $theme) {
+            foreach ($theme::blocks() as $type => $class) {
+                // To temaer med samme type ville gøre det tilfældigt, hvilken
+                // blok der tegnes. Den første vinder, og fejlen logges.
+                if (isset($blocks[$type])) {
+                    error_log("Bloktypen '{$type}' i temaet '{$slug}' findes allerede og er sprunget over.");
+                    continue;
+                }
+
+                $blocks[$type] = $class;
+                $owners[$type] = $slug;
+            }
+        }
+
+        self::$owners = $owners;
+
+        return self::$blocks = $blocks;
     }
 
     /**
@@ -57,9 +76,8 @@ final class BlockRegistry
      */
     public static function get(string $type): ?string
     {
-        $class = self::BLOCKS[$type] ?? null;
+        $class = self::map()[$type] ?? null;
 
-        // Klassen indlæses af autoloaderen på dette tidspunkt.
         // Findes filen ikke, må vi hellere svare "ukendt blok" end at
         // lade en fatal fejl vælte hele siden.
         if ($class === null || !class_exists($class)) {
@@ -74,10 +92,16 @@ final class BlockRegistry
         return self::get($type) !== null;
     }
 
+    /** Temaet en bloktype hører til. '' = fælles blok eller ukendt. */
+    public static function themeOf(string $type): string
+    {
+        self::map();
+
+        return self::$owners[$type] ?? '';
+    }
+
     /**
-     * Alle bloktyper med deres visningsnavn. Bruges til "+"-menuen i
-     * editoren, så listen dér altid matcher, hvad systemet rent faktisk
-     * kan tegne.
+     * Alle bloktyper med deres visningsnavn.
      *
      * @return array<string, string>
      */
@@ -85,7 +109,7 @@ final class BlockRegistry
     {
         $result = [];
 
-        foreach (array_keys(self::BLOCKS) as $type) {
+        foreach (array_keys(self::map()) as $type) {
             $class = self::get($type);
 
             if ($class !== null) {
@@ -97,28 +121,37 @@ final class BlockRegistry
     }
 
     /**
-     * Det samme som all(), men delt op i temaer.
+     * Blokkene editorens "+"-menu tilbyder: det aktive temas egne blokke
+     * og derefter de fælles. Andre temaers blokke er ikke med.
      *
-     * Editorens "+"-menu bruger denne, for når to temaer hver har en hero,
-     * står der ellers "Hero" to gange i listen uden at brugeren kan se
-     * forskel. Temaet læses af blokkens egen mappe, så listen ikke kan komme
-     * til at sige noget andet end filerne.
-     *
-     * @return array<string, array<string, string>> temanavn => (type => navn)
+     * @return array<string, array<string, string>> overskrift => (type => navn)
      */
-    public static function grouped(): array
+    public static function grouped(string $themeSlug): array
     {
-        $labels  = self::all();
-        $folders = [];
+        $theme  = ThemeRegistry::get($themeSlug);
+        $own    = [];
+        $shared = [];
 
-        foreach (array_keys($labels) as $type) {
-            $class = self::get($type);
+        foreach (self::all() as $type => $label) {
+            $owner = self::themeOf($type);
 
-            $folders[$type] = $class === null
-                ? ''
-                : Themes::ofClass($class, 'blocks');
+            if ($owner === '') {
+                $shared[$type] = $label;
+            } elseif ($owner === $themeSlug) {
+                $own[$type] = $label;
+            }
         }
 
-        return Themes::group($labels, $folders);
+        $groups = [];
+
+        if ($own !== [] && $theme !== null) {
+            $groups[$theme::name()] = $own;
+        }
+
+        if ($shared !== []) {
+            $groups['Fælles blokke'] = $shared;
+        }
+
+        return $groups;
     }
 }

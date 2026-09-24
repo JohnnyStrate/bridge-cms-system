@@ -75,6 +75,7 @@ foreach ((array) ($state['blocks'] ?? []) as $incoming) {
 
 // De globale blokke vises også ugemt, så brugeren kan se en ændret
 // navbar, før den slår igennem på hele sitet.
+$theme  = ThemeRegistry::active($pdo);
 $before = [];
 $after  = [];
 
@@ -83,8 +84,9 @@ foreach ((array) ($state['globals'] ?? []) as $incoming) {
         continue;
     }
 
+    // Typen kommer fra det aktive tema, ikke fra browseren.
     $slot = (string) ($incoming['slot'] ?? '');
-    $type = GlobalBlocks::typeFor($slot, (string) ($incoming['block_type'] ?? ''));
+    $type = GlobalBlocks::typeFor($slot, $theme);
 
     if ($type === null) {
         continue;
@@ -96,7 +98,7 @@ foreach ((array) ($state['globals'] ?? []) as $incoming) {
         continue;
     }
 
-    if ((GlobalBlocks::SLOTS[$slot]['position'] ?? 'before') === 'after') {
+    if (GlobalBlocks::SLOTS[$slot]['position'] === 'after') {
         $after[] = $block;
     } else {
         $before[] = $block;

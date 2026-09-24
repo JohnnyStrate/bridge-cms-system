@@ -1,0 +1,196 @@
+/* =====================================================================
+   Footer — tema 1
+
+   Makker til tema 1's navbar: samme farver, og en skraa OVERkant der
+   spejler navbarens skraa underkant.
+
+   Variablerne nedenfor er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema1-footer {
+    --background-color: #f6f1e8;
+    --text-color: #241f1c;
+    --accent-color: #e2574c;
+    --accent-text-color: #ffffff;
+    --text-size: 15px;
+    --slant: 28px;
+    --font-family: 'Jost';
+
+    position: relative;
+    z-index: 0;
+    padding-top: calc(var(--slant) + 2.5rem);
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+    font-size: var(--text-size);
+    line-height: 1.6;
+}
+
+/* Den skraa kant ligger i et baggrundslag for sig, ligesom i navbaren,
+   saa clip-path ikke ogsaa klipper indholdet. */
+.block--tema1-footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--background-color);
+    clip-path: polygon(0 var(--slant), 100% 0, 100% 100%, 0 100%);
+}
+
+.t1foot__inner {
+    display: grid;
+    grid-template-columns: minmax(14rem, 1.4fr) repeat(2, minmax(10rem, 1fr));
+    gap: 2rem 3rem;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 0 1.5rem 2rem;
+}
+
+/* --- Navn og maerke ------------------------------------------------- */
+
+.t1foot__brand {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+}
+
+/* Samme blob-maerke som i navbaren, saa de to hoerer synligt sammen. */
+.t1foot__mark {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 35% 65% 60% 40% / 45% 40% 60% 55%;
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: border-radius 0.6s ease, transform 0.4s ease;
+}
+
+.t1foot__brand:hover .t1foot__mark {
+    border-radius: 60% 40% 40% 60% / 55% 60% 40% 45%;
+    transform: rotate(-8deg);
+}
+
+.t1foot__name {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.t1foot__tagline {
+    margin: 0.25rem 0 0;
+    opacity: 0.75;
+    max-width: 22rem;
+}
+
+/* --- Kolonner ------------------------------------------------------- */
+
+.t1foot__heading {
+    margin: 0 0 0.6rem;
+    font-size: 0.8em;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+}
+
+.t1foot__line {
+    margin: 0;
+}
+
+.t1foot__line + .t1foot__line {
+    margin-top: 0.2rem;
+}
+
+.t1foot__line a {
+    color: inherit;
+    text-decoration: none;
+    background-image: linear-gradient(var(--accent-color), var(--accent-color));
+    background-size: 0% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.3s ease;
+}
+
+.t1foot__line a:hover,
+.t1foot__line a:focus-visible {
+    background-size: 100% 2px;
+}
+
+/* --- Links som piller, samme animation som navbaren ---------------- */
+
+.t1foot__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0 0 0 -0.85rem;
+    padding: 0;
+    list-style: none;
+}
+
+.t1foot__links a {
+    position: relative;
+    z-index: 0;
+    display: block;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.25s ease;
+}
+
+.t1foot__links a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--accent-color);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t1foot__links a:hover,
+.t1foot__links a:focus-visible {
+    color: var(--accent-text-color);
+}
+
+.t1foot__links a:hover::before,
+.t1foot__links a:focus-visible::before {
+    transform: scaleX(1);
+}
+
+/* --- Bundlinje ------------------------------------------------------ */
+
+.t1foot__bottom {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--text-color) 15%, transparent);
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 52rem) {
+    .t1foot__inner {
+        grid-template-columns: 1fr;
+        gap: 1.75rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block--tema1-footer,
+    .block--tema1-footer * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

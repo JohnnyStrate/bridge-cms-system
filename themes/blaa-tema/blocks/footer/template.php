@@ -44,7 +44,7 @@ $context->isInlineEditing();
             <?php if ($email !== ''): ?>
                 <p class="footer__line">
                     <?php if ($emailHref !== ''): ?>
-                        <a   <?= $context->inline('email', 'E-mail') ?>href="<?= e($emailHref) ?>"><?= e($email) ?></a>
+                        <a <?= $context->inline('email', 'E-mail') ?> href="<?= e($emailHref) ?>"><?= e($email) ?></a>
                     <?php else: ?>
                         <?= e($email) ?>
                     <?php endif; ?>

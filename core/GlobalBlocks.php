@@ -2,85 +2,88 @@
 declare(strict_types=1);
 
 /**
- * Blokke der hører til HELE sitet, ikke til én side.
+ * Blokke der hører til HELE sitet, ikke til én side: navbar og footer.
  *
- * En "slot" er en fast plads i layoutet — fx toppen af hver side. Slot'en
- * bestemmer selv, hvilke bloktyper der må ligge i den. Browseren kan altså
- * ikke sende en vilkårlig bloktype ind og få den gemt som global; den kan
- * kun pege på en slot og vælge blandt de typer, vi selv har skrevet her.
+ * En "slot" er en fast plads i layoutet — fx toppen af hver side. HVILKEN
+ * blok der ligger i slot'en, bestemmer temaet selv i sin globals():
  *
- * FLERE TYPER PR. SLOT
- * 'block_types' er en LISTE, fordi hvert tema kan have sin egen navbar. Der
- * er stadig kun ÉN navbar på sitet ad gangen — listen siger, hvad man må
- * vælge imellem, ikke hvor mange der vises. Den første i listen er
- * standarden og bruges, hvis det gemte valg ikke længere findes.
+ *     Tema1Theme::globals() = ['header' => 'tema1-navbar', 'footer' => 'tema1-footer']
+ *
+ * Browseren kan altså ikke vælge bloktypen. Den kan kun pege på en slot,
+ * og serveren slår typen op i det aktive tema.
+ *
+ * ÉN PR. TEMA
+ * Hvert tema har sin egen navbar og footer i global_blocks, og kun det
+ * aktive temas vises. Skifter man tema og tilbage igen, er ens gamle
+ * navbar der stadig.
+ *
+ * TRE TILSTANDE PR. SLOT
+ *   - Ingen række:        temaets dummy-indhold (blokkens standardværdier).
+ *                         Sådan ser et nyvalgt tema ud med det samme.
+ *   - Række, synlig:      det, brugeren har gemt.
+ *   - Række, is_visible=0: brugeren har fjernet den i editoren.
  *
  * Placeringen ('before'/'after') afgør, om blokken lægges før eller efter
- * sidens egne blokke. Det er den eneste "rækkefølge", en global blok har —
- * derfor mangler der bevidst en sort_order i tabellen.
- *
- * Vil I have en ny global plads, er det én blok mere i SLOTS.
+ * sidens egne blokke. Vil I have en ny global plads, er det én linje mere
+ * i SLOTS og en linje i de temaers globals(), der skal bruge den.
  */
 final class GlobalBlocks
 {
-    /** @var array<string, array<string, mixed>> */
+    /** @var array<string, array{label: string, hint: string, position: string}> */
     public const SLOTS = [
         'header' => [
-            // Første type er standarden. Tilføj temaets egen navbar her.
-            'block_types' => ['navbar', 'tema1-navbar'],
-            'hint'        => 'vises på alle sider',
-            'position'    => 'before',
+            'label'    => 'Navbar',
+            'hint'     => 'vises på alle sider',
+            'position' => 'before',
         ],
         'footer' => [
-            'block_types' => ['footer'],
-            'hint'        => 'vises på alle sider',
-            'position'    => 'after',
+            'label'    => 'Footer',
+            'hint'     => 'vises på alle sider',
+            'position' => 'after',
         ],
     ];
 
-    public function __construct(private readonly GlobalBlockRepository $repository)
+    /** @var array<string, array<string, mixed>>|null */
+    private ?array $rows = null;
+
+    public function __construct(
+        private readonly GlobalBlockRepository $repository,
+        private readonly string $theme
+    ) {
+    }
+
+    /** Temaets slug, fx 'tema1'. */
+    public function theme(): string
     {
+        return $this->theme;
     }
 
     /**
-     * De bloktyper en slot må indeholde. Tom liste = slot'en findes ikke.
-     *
-     * Typer, der ikke findes i BlockRegistry, sorteres fra. Så kan en
-     * halvfærdig eller slettet blok ikke give en tom knap i editoren.
-     *
-     * @return array<int, string>
+     * Bloktypen et tema bruger i en slot. null = temaet har intet i den
+     * slot, eller blokken findes ikke (endnu).
      */
-    public static function typesFor(string $slot): array
+    public static function typeFor(string $slot, string $theme): ?string
     {
-        $types = (array) (self::SLOTS[$slot]['block_types'] ?? []);
+        $class = ThemeRegistry::get($theme);
 
-        return array_values(array_filter($types, static function ($type): bool {
-            return is_string($type) && BlockRegistry::exists($type);
-        }));
-    }
-
-    /**
-     * Den bloktype en slot skal gemmes med.
-     *
-     * $requested er brugerens valg, som det kom fra browseren. Det bruges
-     * KUN, hvis det står i slot'ens egen liste — ellers falder vi tilbage
-     * til standarden. Det er dét trin, der gør, at et manipuleret kald
-     * ikke kan gøre en vilkårlig blok global.
-     */
-    public static function typeFor(string $slot, string $requested = ''): ?string
-    {
-        $types = self::typesFor($slot);
-
-        if ($types === []) {
+        if ($class === null || !isset(self::SLOTS[$slot])) {
             return null;
         }
 
-        return in_array($requested, $types, true) ? $requested : $types[0];
+        $type = (string) ($class::globals()[$slot] ?? '');
+
+        return BlockRegistry::exists($type) ? $type : null;
+    }
+
+    /** Bloktypen i en slot for DETTE tema. */
+    public function type(string $slot): ?string
+    {
+        return self::typeFor($slot, $this->theme);
     }
 
     /**
-     * Bloktyper der KUN kan være globale. De skjules i sidens "+"-menu,
-     * så brugeren ikke kan lave en løs navbar på en enkelt side.
+     * Bloktyper der KUN kan være globale — på tværs af alle temaer. De
+     * skjules i sidens "+"-menu og afvises, hvis de sendes som sideblok.
      *
      * @return array<int, string>
      */
@@ -88,13 +91,13 @@ final class GlobalBlocks
     {
         $types = [];
 
-        foreach (array_keys(self::SLOTS) as $slot) {
-            foreach (self::typesFor($slot) as $type) {
-                $types[] = $type;
+        foreach (ThemeRegistry::all() as $theme) {
+            foreach ($theme::globals() as $type) {
+                $types[] = (string) $type;
             }
         }
 
-        return $types;
+        return array_values(array_unique($types));
     }
 
     public static function isManaged(string $blockType): bool
@@ -103,37 +106,65 @@ final class GlobalBlocks
     }
 
     /**
-     * De slots der faktisk er oprettet, klar til rendering.
+     * Temaets globale blokke, klar til rendering — også de skjulte.
+     *
+     * Værdierne er valideret mod blokkens skema. Har temaet skiftet
+     * bloktype i en slot, siden rækken blev gemt, bruges temaets nye type,
+     * og de felter, der passer, beholdes.
      *
      * @return array<string, array<string, mixed>> slot => blokrække
      */
-    public function saved(): array
+    public function rows(): array
     {
-        $rows = [];
-
-        foreach ($this->repository->all() as $row) {
-            $slot = (string) $row['slot'];
-
-            // En slot der er fjernet fra koden, men stadig står i
-            // databasen, springes over frem for at vælte siden.
-            if (!isset(self::SLOTS[$slot])) {
-                continue;
-            }
-
-            // Slot'en har det sidste ord: står der en type i kolonnen, som
-            // slot'en ikke tillader længere (fx et tema, der er fjernet),
-            // bruges slot'ens standard i stedet for at vise ingenting.
-            $type = self::typeFor($slot, (string) $row['block_type']);
-
-            if ($type === null) {
-                continue;
-            }
-
-            $row['block_type'] = $type;
-            $rows[$slot]       = $row;
+        if ($this->rows !== null) {
+            return $this->rows;
         }
 
-        return $rows;
+        $saved = [];
+
+        foreach ($this->repository->forTheme($this->theme) as $row) {
+            $saved[(string) $row['slot']] = $row;
+        }
+
+        $rows = [];
+
+        foreach (array_keys(self::SLOTS) as $slot) {
+            $type  = $this->type($slot);
+            $class = $type === null ? null : BlockRegistry::get($type);
+
+            if ($class === null) {
+                continue;
+            }
+
+            $row = $saved[$slot] ?? null;
+
+            $rows[$slot] = [
+                'slot'       => $slot,
+                'block_type' => $type,
+                'settings'   => $row === null
+                    ? $class::defaultSettings()
+                    : FieldValidator::validateAll($class::getSchema(), $row['settings']),
+                'styles'     => $row === null
+                    ? $class::defaultStyles()
+                    : FieldValidator::validateAll($class::getStyleSchema(), $row['styles']),
+                'is_visible' => $row === null ? true : (bool) $row['is_visible'],
+            ];
+        }
+
+        return $this->rows = $rows;
+    }
+
+    /**
+     * Kun de synlige. Det er dem, editoren og siden viser.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function visible(): array
+    {
+        return array_filter(
+            $this->rows(),
+            static fn (array $row): bool => (bool) $row['is_visible']
+        );
     }
 
     /**
@@ -146,17 +177,13 @@ final class GlobalBlocks
      * @param array<int, array<string, mixed>> $pageBlocks
      * @return array<int, array<string, mixed>>
      */
-    public function wrap(array $pageBlocks, bool $onlyVisible = true): array
+    public function wrap(array $pageBlocks): array
     {
         $before = [];
         $after  = [];
 
-        foreach ($this->saved() as $slot => $row) {
-            if ($onlyVisible && !$row['is_visible']) {
-                continue;
-            }
-
-            if ((self::SLOTS[$slot]['position'] ?? 'before') === 'after') {
+        foreach ($this->visible() as $slot => $row) {
+            if (self::SLOTS[$slot]['position'] === 'after') {
                 $after[] = $row;
             } else {
                 $before[] = $row;
@@ -164,5 +191,65 @@ final class GlobalBlocks
         }
 
         return array_merge($before, $pageBlocks, $after);
+    }
+
+    /**
+     * Gemmer det, editoren sendte. Slots, der ikke er med, er dem
+     * brugeren har fjernet — de skjules, men indholdet bevares.
+     *
+     * Bloktypen kommer fra temaet, ikke fra browseren.
+     *
+     * @param array<int, mixed> $incoming
+     * @return int Antal gemte slots.
+     */
+    public function saveFromEditor(array $incoming): int
+    {
+        $kept = [];
+
+        foreach ($incoming as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $slot  = (string) ($item['slot'] ?? '');
+            $type  = $this->type($slot);
+            $class = $type === null ? null : BlockRegistry::get($type);
+
+            if ($class === null || in_array($slot, $kept, true)) {
+                continue;
+            }
+
+            $this->repository->save(
+                $this->theme,
+                $slot,
+                $type,
+                FieldValidator::validateAll(
+                    $class::getSchema(),
+                    is_array($item['settings'] ?? null) ? $item['settings'] : []
+                ),
+                FieldValidator::validateAll(
+                    $class::getStyleSchema(),
+                    is_array($item['styles'] ?? null) ? $item['styles'] : []
+                )
+            );
+
+            $kept[] = $slot;
+        }
+
+        foreach ($this->rows() as $slot => $row) {
+            if (!in_array($slot, $kept, true)) {
+                $this->repository->hide(
+                    $this->theme,
+                    $slot,
+                    (string) $row['block_type'],
+                    $row['settings'],
+                    $row['styles']
+                );
+            }
+        }
+
+        $this->rows = null;
+
+        return count($kept);
     }
 }

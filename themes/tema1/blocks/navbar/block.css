@@ -1,7 +1,7 @@
 /* =====================================================================
    Navbar — tema 1
 
-   Helt sit eget udseende, uafhaengigt af den blaa navbar i faelles/:
+   Helt sit eget udseende, uafhaengigt af det blaa temas navbar:
    lys bjaelke, skraa underkant, links som piller og en fremhaevet knap.
 
    Variablerne nedenfor er STANDARDVAERDIER. Naar brugeren aendrer en farve
@@ -10,7 +10,7 @@
    ingen af dem laengere nede i filen.
    ===================================================================== */
 
-block-.-tema1-navbar {
+.block--tema1-navbar {
     --background-color: #f6f1e8;
     --text-color: #241f1c;
     --accent-color: #e2574c;

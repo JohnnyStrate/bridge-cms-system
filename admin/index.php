@@ -46,7 +46,7 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css?v=4">
+    <link rel="stylesheet" href="admin.css?v=5">
 </head>
 <body class="admin">
 
@@ -57,6 +57,7 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
         <li><a href="create-page.php">Opret side</a></li>
         <li><a href="export.php">Udgiv</a></li>
 <li><a href="galleries.php">Galleri</a></li>
+        <li><a href="themes.php">Tema</a></li>
         <li><a href="#">Indstillinger</a></li>
     </ul>
 </nav>

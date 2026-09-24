@@ -23,8 +23,8 @@ $slug = trim((string) filter_input(INPUT_GET, 'template'));
 $pdo       = Database::getConnection();
 
 
-// Slug'en slås op blandt de skabeloner, der faktisk findes i
-// /templates/. En gættet værdi rammer derfor ingenting.
+// Slug'en slås op blandt de skabeloner, der faktisk findes i temaernes
+// templates-mapper. En gættet værdi rammer derfor ingenting.
 $template = TemplateRegistry::get($slug);
 
 if ($template === null) {
@@ -32,9 +32,13 @@ if ($template === null) {
     exit('Skabelonen blev ikke fundet.');
 }
 
-// Sitets navbar og footer lægges omkring, så brugeren ser skabelonen,
-// som den kommer til at stå på sitet — ikke som løsrevne sektioner.
-$globals = new GlobalBlocks(new GlobalBlockRepository($pdo));
+// SKABELONENS temas navbar og footer lægges omkring — ikke nødvendigvis det
+// aktive temas. Så kan "Tema"-siden vise et tema, før man skifter til det.
+// Har temaet aldrig været brugt, vises dets dummy-navbar og -footer.
+$globals = new GlobalBlocks(
+    new GlobalBlockRepository($pdo),
+    TemplateRegistry::themeOf($slug)
+);
 // Skabelonens blokke tegnes direkte fra koden. Værdierne valideres af
 // PageRenderer mod blokkenes skemaer, præcis som når siden er oprettet.
 $blocks = $globals->wrap(array_map(
@@ -49,7 +53,8 @@ $blocks = $globals->wrap(array_map(
 $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 $context  = RenderContext::editor(
     $basePath,
-    SiteMap::fromPages((new PageRepository($pdo))->findAll())
+    SiteMap::fromPages((new PageRepository($pdo))->findAll()),
+    GalleryMap::fromGalleries((new GalleryRepository($pdo))->all())
 );
 
 // renderDocument() forventer en side. Skabelonen har ingen, så vi giver

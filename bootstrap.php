@@ -36,13 +36,14 @@ spl_autoload_register(static function (string $class): void {
 
     // Mapper der gennemsøges.
     //
-    // Blokke og skabeloner er grupperet i temamapper:
+    // Hvert tema har sin egen mappe med sine blokke og skabeloner:
     //
-    //     blocks/blaa-tema/hero/Hero.php
-    //     templates/blaa-tema/KlubforsideTemplate.php
+    //     themes/tema1/Tema1Theme.php
+    //     themes/tema1/blocks/navbar/Tema1Navbar.php
+    //     themes/tema1/templates/Tema1ForsideTemplate.php
     //
-    // Derfor gennemsøges BÅDE temamappen og blokmappen inde i den. Et nyt
-    // tema er dermed kun en ny mappe — der skal ikke rettes noget her.
+    // De fælles værktøjsblokke ligger i blocks/faelles/. Et nyt tema er
+    // kun en ny mappe — der skal ikke rettes noget her.
     static $directories = null;
 
     if ($directories === null) {
@@ -50,14 +51,15 @@ spl_autoload_register(static function (string $class): void {
             APP_ROOT . '/core/',
             APP_ROOT . '/repositories/',
             APP_ROOT . '/blocks/',
-            APP_ROOT . '/templates/',
+            APP_ROOT . '/themes/',
         ];
 
         $patterns = [
-            '/blocks/*',      // temamappen: blocks/blaa-tema/
-            '/blocks/*/*',    // blokken:    blocks/blaa-tema/hero/
-            '/templates/*',   // temamappen: templates/blaa-tema/
-            '/templates/*/*', // plads til en skabelon med sin egen mappe
+            '/blocks/*/*',              // blocks/faelles/image/
+            '/themes/*',                // themes/tema1/
+            '/themes/*/blocks/*',       // themes/tema1/blocks/navbar/
+            '/themes/*/templates',      // themes/tema1/templates/
+            '/themes/*/templates/*',    // en skabelon med sin egen mappe
         ];
 
         foreach ($patterns as $pattern) {

@@ -4,15 +4,12 @@ declare(strict_types=1);
 /**
  * Navbar til tema 1.
  *
- * Samme opgave som NavbarBlock i faelles/ — logo og menupunkter — men et
+ * Samme opgave som det blå temas navbar — logo og menupunkter — men et
  * helt andet udseende: lys bjælke, skrå underkant, links som piller og en
- * fremhævet knap yderst til højre. Stylingen ligger i mappens egen
- * block.css og rører ikke den blå navbar.
+ * fremhævet knap yderst til højre.
  *
- * Den er global ligesom den blå: 'tema1-navbar' står i
- * GlobalBlocks::SLOTS['header']['block_types'], så man vælger ÉN af dem til
- * sitet. Skal man skifte, sletter man navbaren i editoren og tilføjer den
- * anden.
+ * Den er tema 1's globale navbar: Tema1Theme::globals() peger på
+ * 'tema1-navbar' i slot'en 'header'.
  *
  * Adresserne regnes ud her i render(), ikke i templaten — samme regel som i
  * den blå navbar: side før url, fordi den interne henvisning overlever, at

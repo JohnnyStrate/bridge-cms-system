@@ -15,7 +15,11 @@ declare(strict_types=1);
  * GLOBALE BLOKKE
  * Navbaren ligger i laerredet som alle andre blokke, så editoren stadig
  * ligner den færdige side. Den er bare markeret med data-global-slot og
- * gemmes i global_blocks — altså på alle sider på én gang.
+ * gemmes i global_blocks på det aktive tema — altså på alle sider på én gang.
+ *
+ * TEMA
+ * "+"-menuen viser kun det aktive temas blokke og de fælles. Blokke fra et
+ * andet tema, der allerede ligger på siden, vises og kan redigeres som før.
  */
 
 require_once __DIR__ . '/../bootstrap.php';
@@ -25,7 +29,9 @@ $pageId = filter_input(INPUT_GET, 'page_id', FILTER_VALIDATE_INT) ?: 0;
 $pdo             = Database::getConnection();
 $pageRepository  = new PageRepository($pdo);
 $blockRepository = new BlockRepository($pdo);
-$globalBlocks    = new GlobalBlocks(new GlobalBlockRepository($pdo));
+$theme           = ThemeRegistry::active($pdo);
+$themeClass      = ThemeRegistry::get($theme);
+$globalBlocks    = new GlobalBlocks(new GlobalBlockRepository($pdo), $theme);
 
 $page = $pageRepository->find($pageId);
 
@@ -58,9 +64,26 @@ $galleryMap = GalleryMap::fromGalleries((new GalleryRepository($pdo))->all());
 
 $context = RenderContext::editor($basePath, $siteMap, $galleryMap)->withInlineEditing();
 $fields = new FieldRenderer($siteMap->choices(), $basePath, $galleryMap->choices());
-// De globale blokke der allerede findes. Tom liste = brugeren har ikke
-// tilføjet en navbar endnu.
-$savedGlobals = $globalBlocks->saved();
+
+// "+"-menuens grupper: det aktive temas blokke og de fælles, uden de
+// globale — dem tilføjer man med knapperne øverst i menuen.
+$menuGroups = [];
+
+foreach (BlockRegistry::grouped($theme) as $groupName => $groupBlocks) {
+    $choices = array_filter(
+        $groupBlocks,
+        static fn (string $type): bool => !GlobalBlocks::isManaged($type),
+        ARRAY_FILTER_USE_KEY
+    );
+
+    if ($choices !== []) {
+        $menuGroups[$groupName] = $choices;
+    }
+}
+
+// Det aktive temas synlige navbar og footer. Mangler en slot her, har
+// brugeren fjernet den, og "+"-menuen tilbyder at tilføje den igen.
+$savedGlobals = $globalBlocks->visible();
 
 /**
  * Tegner én global blok som editor-element.
@@ -69,36 +92,27 @@ $savedGlobals = $globalBlocks->saved();
  * så de to aldrig kan skride fra hinanden. $row === null betyder "ny
  * blok" og giver blokkens standardværdier.
  *
- * $type er den ønskede bloktype. En slot kan rumme flere — fx en navbar
- * pr. tema — og GlobalBlocks har det sidste ord om, hvad der er tilladt.
+ * Bloktypen bestemmes af det aktive tema, ikke af rækken.
  */
-$globalArticle = static function (string $slot, array $def, ?array $row, string $type = '')
-    use ($fields, $context): string {
+$globalArticle = static function (string $slot, array $def, ?array $row)
+    use ($fields, $context, $globalBlocks): string {
 
-    if ($type === '') {
-        $type = (string) ($row['block_type'] ?? '');
-    }
-
-    $type  = GlobalBlocks::typeFor($slot, $type);
+    $type  = $globalBlocks->type($slot);
     $class = $type === null ? null : BlockRegistry::get($type);
 
     if ($class === null) {
         return '';
     }
 
-    $settings = $row === null
-        ? $class::defaultSettings()
-        : FieldValidator::validateAll($class::getSchema(), $row['settings']);
-
-    $styles = $row === null
-        ? $class::defaultStyles()
-        : FieldValidator::validateAll($class::getStyleSchema(), $row['styles']);
+    // Rækker fra GlobalBlocks er allerede valideret mod skemaet.
+    $settings = $row === null ? $class::defaultSettings() : $row['settings'];
+    $styles   = $row === null ? $class::defaultStyles() : $row['styles'];
 
     // Ingen op/ned-knapper: en global bloks plads bestemmes af dens slot,
     // ikke af rækkefølgen på den enkelte side.
     return '<article class="ed-block ed-block--global"'
         . ' data-global-slot="' . e($slot) . '"'
-        . ' data-global-position="' . e($def['position'] ?? 'before') . '"'
+        . ' data-global-position="' . e($def['position']) . '"'
         . ' data-block-type="' . e($type) . '">'
         . '<span class="ed-block__label">' . e($class::label())
         . ' <span class="ed-block__badge">' . e($def['hint']) . '</span></span>'
@@ -144,6 +158,9 @@ $globalArticle = static function (string $slot, array $def, ?array $row, string 
 <header class="ed-top">
     <a class="ed-back" href="index.php" aria-label="Tilbage til dine sider">&larr;</a>
     <h1 class="ed-title"><?= e($page['title']) ?></h1>
+    <?php if ($themeClass !== null): ?>
+        <a class="ed-theme" href="themes.php" title="Skift tema">Tema: <?= e($themeClass::name()) ?></a>
+    <?php endif; ?>
 </header>
 
 <section class="ed-settings">
@@ -182,7 +199,7 @@ $globalArticle = static function (string $slot, array $def, ?array $row, string 
 
     <?php /* Globale blokke der ligger FØR sidens eget indhold. */ ?>
     <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
-        <?php if (($def['position'] ?? 'before') !== 'before' || !isset($savedGlobals[$slot])) {
+        <?php if ($def['position'] !== 'before' || !isset($savedGlobals[$slot])) {
             continue;
         } ?>
         <?= $globalArticle($slot, $def, $savedGlobals[$slot]) ?>
@@ -223,7 +240,7 @@ $globalArticle = static function (string $slot, array $def, ?array $row, string 
 
     <?php /* Globale blokke der ligger EFTER sidens eget indhold, fx en footer. */ ?>
     <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
-        <?php if (($def['position'] ?? 'before') !== 'after' || !isset($savedGlobals[$slot])) {
+        <?php if ($def['position'] !== 'after' || !isset($savedGlobals[$slot])) {
             continue;
         } ?>
         <?= $globalArticle($slot, $def, $savedGlobals[$slot]) ?>
@@ -237,54 +254,37 @@ $globalArticle = static function (string $slot, array $def, ?array $row, string 
     <div class="ed-add__menu" id="add-menu" hidden>
 
         <?php /*
-            Globale blokke står først og er markeret. Er blokken allerede
-            oprettet, er knappen slået fra — så brugeren kan se, at den
-            findes, frem for at tro at den mangler.
-        */ ?>
-        <?php /*
-            En slot kan rumme flere typer — fx en navbar pr. tema — så der
-            er én knap pr. variant. Alle knapper i en slot slås fra, så snart
-            slot'en er fyldt: der er kun én navbar på sitet, og man skifter
-            tema ved at slette den og vælge en anden.
+            Globale blokke står først og er markeret: én knap pr. slot, med
+            det aktive temas navbar og footer. Er blokken allerede på siden,
+            er knappen slået fra — så brugeren kan se, at den findes, frem
+            for at tro at den mangler.
         */ ?>
         <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
-            <?php foreach (GlobalBlocks::typesFor($slot) as $globalType): ?>
-                <?php $class = BlockRegistry::get($globalType); ?>
-                <?php if ($class === null) {
-                    continue;
-                } ?>
-                <button type="button" class="ed-add__choice ed-add__choice--global"
-                        data-add-global="<?= e($slot) ?>"
-                        data-global-type="<?= e($globalType) ?>"
-                        data-global-position="<?= e($def['position'] ?? 'before') ?>"
-                        <?= isset($savedGlobals[$slot]) ? 'disabled' : '' ?>>
-                    <?= e($class::label()) ?>
-                    <span class="ed-add__note"><?= e($def['hint']) ?></span>
-                </button>
-            <?php endforeach; ?>
+            <?php
+                $globalType = $globalBlocks->type($slot);
+                $class      = $globalType === null ? null : BlockRegistry::get($globalType);
+            ?>
+            <?php if ($class === null) {
+                continue;
+            } ?>
+            <button type="button" class="ed-add__choice ed-add__choice--global"
+                    data-add-global="<?= e($slot) ?>"
+                    data-global-type="<?= e($globalType) ?>"
+                    data-global-position="<?= e($def['position']) ?>"
+                    <?= isset($savedGlobals[$slot]) ? 'disabled' : '' ?>>
+                <?= e($class::label()) ?>
+                <span class="ed-add__note"><?= e($def['hint']) ?></span>
+            </button>
         <?php endforeach; ?>
 
         <?php /*
-            Resten er delt op efter tema. To temaer kan hver have en hero,
-            og uden overskrifterne stod der bare "Hero" to gange.
+            Resten: det aktive temas blokke og de fælles.
 
-            Har et tema kun globale blokke tilbage efter frasorteringen,
-            vises overskriften ikke — derfor bygges gruppen først, og
-            skrives kun hvis der er noget i den.
+            Har en gruppe kun globale blokke tilbage efter frasorteringen,
+            vises overskriften ikke.
         */ ?>
-        <?php foreach (BlockRegistry::grouped() as $theme => $blocks): ?>
-            <?php
-                $choices = array_filter(
-                    $blocks,
-                    static fn (string $label, string $type): bool
-                        => !GlobalBlocks::isManaged($type),
-                    ARRAY_FILTER_USE_BOTH
-                );
-            ?>
-            <?php if ($choices === []) {
-                continue;
-            } ?>
-            <p class="ed-add__group"><?= e($theme) ?></p>
+        <?php foreach ($menuGroups as $groupName => $choices): ?>
+            <p class="ed-add__group"><?= e($groupName) ?></p>
             <?php foreach ($choices as $type => $label): ?>
                 <button type="button" class="ed-add__choice" data-add-type="<?= e($type) ?>">
                     <?= e($label) ?>
@@ -312,10 +312,7 @@ $globalArticle = static function (string $slot, array $def, ?array $row, string 
  * et netværkskald og en ekstra fil for præcis samme resultat.
  */
 ?>
-<?php foreach (BlockRegistry::all() as $type => $label): ?>
-    <?php if (GlobalBlocks::isManaged($type)) {
-        continue;
-    } ?>
+<?php foreach (array_merge(...array_values($menuGroups)) as $type => $label): ?>
     <?php
         $class    = BlockRegistry::get($type);
         $defaults = $class::defaultSettings();
@@ -342,13 +339,15 @@ $globalArticle = static function (string $slot, array $def, ?array $row, string 
 <?php endforeach; ?>
 
 <?php /*
-    Skabeloner til de globale blokke — én pr. slot OG type, da en slot kan
-    rumme flere. Nøglen er "slot:type", og editor.js slår op med samme nøgle.
+    Skabeloner til de globale blokke — én pr. slot, med det aktive temas
+    bloktype. Nøglen er "slot:type", og editor.js slår op med samme nøgle.
 */ ?>
 <?php foreach (GlobalBlocks::SLOTS as $slot => $def): ?>
-    <?php foreach (GlobalBlocks::typesFor($slot) as $globalType): ?>
-        <template data-global-template-for="<?= e($slot . ':' . $globalType) ?>"><?= $globalArticle($slot, $def, null, $globalType) ?></template>
-    <?php endforeach; ?>
+    <?php $globalType = $globalBlocks->type($slot); ?>
+    <?php if ($globalType === null) {
+        continue;
+    } ?>
+    <template data-global-template-for="<?= e($slot . ':' . $globalType) ?>"><?= $globalArticle($slot, $def, null) ?></template>
 <?php endforeach; ?>
 
 <script src="editor.js<?= PageRenderer::cacheBuster('admin/editor.js') ?>"></script>
