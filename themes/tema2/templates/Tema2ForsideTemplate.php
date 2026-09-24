@@ -39,6 +39,7 @@ final class Tema2ForsideTemplate extends AbstractTemplate
             // (dummy-teksten og billedet i themes/tema2/assets/).
             static::block('tema2-hero'),
             static::block('tema2-textimage'),
+            static::block('tema2-cards'),
         ];
     }
 }

@@ -37,6 +37,7 @@ final class Tema2Theme extends AbstractTheme
             'tema2-navbar'    => Tema2NavbarBlock::class,
             'tema2-hero'      => Tema2HeroBlock::class,
             'tema2-textimage' => Tema2TextImageBlock::class,
+            'tema2-cards'     => Tema2CardsBlock::class,
         ];
     }
 

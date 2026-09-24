@@ -1,0 +1,246 @@
+/* =====================================================================
+   Kort med ikoner — tema 2
+
+   Lys graa flade, overlinje + overskrift, og en raekke hvide kort med
+   ikon, titel, tekst og en lille knap.
+
+   Samme tre kolonner og sidemargen som resten af tema 2, saa alt flugter.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema2-cards {
+    --background-color: #fafafa;
+    --eyebrow-color: #c0c0c0;
+    --title-color: #343d39;
+    --card-color: #ffffff;
+    --card-text-color: #111111;
+    --icon-color: #f0a21e;
+    --title-size: 44px;
+    --font-family: 'Jost';
+    --shadow-color: #817474;
+    --shadow-blur: 13px;
+    --card-height: 336px;
+    --button-start: #192e3c;
+    --button-end: #457ba2;
+    --button-opacity: 72%;
+
+    --t2-container: 72rem;
+    --t2-side: 8rem;
+    --t2-gutter: clamp(1.25rem, 4.8vw, 6rem);
+
+    display: grid;
+    grid-template-columns:
+        minmax(var(--t2-side), 1fr)
+        minmax(0, var(--t2-container))
+        minmax(var(--t2-side), 1fr);
+    padding: clamp(3.5rem, 7vw, 6rem) var(--t2-gutter) clamp(4rem, 9vw, 8rem);
+    overflow: hidden;
+    background: var(--background-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.t2c__inner {
+    grid-column: 2;
+}
+
+/* --- Overlinje og overskrift (samme stil som tekst og billede) ------ */
+
+.t2c__head {
+    margin-bottom: clamp(3rem, 8vw, 8rem);
+}
+
+.t2c__eyebrow {
+    margin: 0 0 1.25rem;
+    color: var(--eyebrow-color);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.45em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.t2c__title {
+    margin: 0;
+    color: var(--title-color);
+    font-size: clamp(1.75rem, 3.4vw, var(--title-size));
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    line-height: 1.3;
+    text-transform: uppercase;
+}
+
+/* --- Kortene --------------------------------------------------------- */
+
+.t2c__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr));
+    gap: 1rem;
+}
+
+/*
+ * Figma: x 0, y 1, blur 13,2, #817474. En lav blur i editoren giver en
+ * tynd streg rundt om kortet i stedet for en skygge.
+ */
+.t2c__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: var(--card-height);
+    padding: 2.25rem clamp(1.5rem, 2.6vw, 2.5rem) 1.75rem;
+    background: var(--card-color);
+    box-shadow: 0 1px var(--shadow-blur) color-mix(in srgb, var(--shadow-color) 45%, transparent);
+    color: var(--card-text-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.t2c__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px calc(var(--shadow-blur) + 14px) color-mix(in srgb, var(--shadow-color) 40%, transparent);
+}
+
+.t2c__icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--icon-color);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2c__card:hover .t2c__icon {
+    transform: rotate(-12deg) scale(1.12);
+}
+
+.t2c__card-title {
+    margin: 0 0 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.t2c__card-text {
+    margin: 0 0 1.75rem;
+    font-size: 1.15rem;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+/* --- Den lille knap (samme udtryk som i hero'en) --------------------- */
+
+.t2c__button {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 100%;
+    margin-top: auto;           /* skubber knappen ned i bunden af kortet */
+    padding: 0.35rem 0.6rem 0.35rem 0.55rem;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--button-start) var(--button-opacity), transparent),
+        color-mix(in srgb, var(--button-end) var(--button-opacity), transparent)
+    );
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.t2c__button-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.t2c__arrow {
+    flex: none;
+    width: 1.35rem;
+    height: auto;
+    overflow: visible;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2c__button:hover,
+.t2c__button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgb(10 25 40 / 0.2);
+}
+
+.t2c__button:hover .t2c__arrow,
+.t2c__button:focus-visible .t2c__arrow {
+    transform: translateX(0.35rem);
+}
+
+/* --- Animation ------------------------------------------------------- */
+
+/*
+ * Scriptet i templaten saetter .t2c--armed (alt skjult) og .is-visible,
+ * naar sektionen er inde i billedet. Uden JavaScript er alt bare synligt.
+ * Overskriften wipes ind fra venstre; kortene toner ind oppe fra hoejre,
+ * ét ad gangen (--i er kortets nummer).
+ */
+@keyframes t2c-wipe {
+    from { clip-path: inset(-1rem 100% -1rem -1rem); }
+    to   { clip-path: inset(-1rem -1rem -1rem -1rem); }
+}
+
+@keyframes t2c-card-in {
+    from { opacity: 0; transform: translate(2.5rem, -1.5rem); }
+    to   { opacity: 1; transform: translate(0, 0); }
+}
+
+.t2c--armed .t2c__head {
+    clip-path: inset(-1rem 100% -1rem -1rem);
+}
+
+.t2c--armed .t2c__card {
+    opacity: 0;
+}
+
+.t2c--armed.is-visible .t2c__head {
+    animation: t2c-wipe 1s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.t2c--armed.is-visible .t2c__card {
+    animation: t2c-card-in 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.45s + var(--i, 0) * 0.12s);
+}
+
+/* --- Smalle skaerme -------------------------------------------------- */
+
+@media (max-width: 64rem) {
+    .block--tema2-cards {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2c__inner {
+        grid-column: 1;
+    }
+
+    .t2c__card {
+        min-height: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t2c--armed .t2c__head {
+        clip-path: none;
+    }
+
+    .t2c--armed .t2c__card {
+        opacity: 1;
+    }
+
+    .block--tema2-cards,
+    .block--tema2-cards * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
