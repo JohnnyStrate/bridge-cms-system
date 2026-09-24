@@ -36,8 +36,8 @@ final class tema1Template extends AbstractTemplate
     public static function blocks(): array
     {
         return [
-            static::block('hero', [
-                'title'    => 'Din klubs navn',
+            static::block('tema1_hero', [
+                'title'    => 'tema1_hero',
                 'address'  => 'Vejnavn 1, 1234 By',
                 'phone'    => '+45 00 00 00 00',
                 'bg_image' => 'assets/demo/hero-placeholder.jpg',
