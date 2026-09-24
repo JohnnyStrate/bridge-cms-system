@@ -251,6 +251,22 @@
     gap: 1rem;
 }
 
+/*
+ * Temaoverskrift mellem skabelonkortene.
+ *
+ * grid-column: 1 / -1 lader den fylde alle kolonner, så den bryder rækken
+ * i stedet for at optage pladsen for ét kort.
+ */
+.choices__group {
+    grid-column: 1 / -1;
+    margin: 0.9rem 0 0;
+    color: var(--admin-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .choice {
     display: block;
     cursor: pointer;

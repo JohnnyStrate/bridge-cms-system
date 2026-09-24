@@ -240,6 +240,28 @@
     cursor: pointer;
 }
 
+/*
+ * Temaoverskrift i "+"-menuen.
+ *
+ * flex-basis: 100% tvinger et linjeskift i den flex-wrap, knapperne ligger i,
+ * så hvert tema starter på sin egen række. Den første overskrift får ingen
+ * luft over, da menuen selv har padding.
+ */
+.ed-add__group {
+    flex: 0 0 100%;
+    margin: 0.75rem 0 0;
+    color: var(--admin-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.ed-add__group:first-child {
+    margin-top: 0;
+}
+
 /* --- Fast footer --------------------------------------------------- */
 
 .ed-footer {

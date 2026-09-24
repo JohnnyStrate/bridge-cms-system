@@ -16,10 +16,17 @@ declare(strict_types=1);
  * ikke pege på en vilkårlig fil.
  *
  * KONVENTION
- * Én mappe pr. skabelon, og filen hedder det samme som klassen:
+ * Skabelonerne ligger i temamappen, og filen hedder det samme som klassen:
  *
- *     templates/klubforside/KlubforsideTemplate.php
+ *     templates/blaa-tema/KlubforsideTemplate.php
  *         → final class KlubforsideTemplate extends AbstractTemplate
+ *
+ * Har en skabelon brug for sine egne filer (et thumbnail, en delfil), må den
+ * gerne få sin egen mappe inde i temaet:
+ *
+ *     templates/blaa-tema/klubforside/KlubforsideTemplate.php
+ *
+ * Begge dybder findes automatisk.
  */
 final class TemplateRegistry
 {
@@ -43,7 +50,13 @@ final class TemplateRegistry
 
         $found = [];
 
-        foreach (glob(APP_ROOT . '/templates/*/*.php') ?: [] as $file) {
+        // templates/<tema>/Navn.php og templates/<tema>/<mappe>/Navn.php.
+        $files = array_merge(
+            glob(APP_ROOT . '/templates/*/*.php') ?: [],
+            glob(APP_ROOT . '/templates/*/*/*.php') ?: []
+        );
+
+        foreach ($files as $file) {
             $class = basename($file, '.php');
 
             // Klassenavnet kommer fra et filnavn, vi selv har fundet.
@@ -91,5 +104,37 @@ final class TemplateRegistry
     public static function exists(string $slug): bool
     {
         return self::get($slug) !== null;
+    }
+
+    /**
+     * Skabelonerne delt op i temaer, til "Opret side".
+     *
+     * Temaet læses af mappen, skabelonen ligger i — samme regel som for
+     * blokkene, så de to lister bruger de samme overskrifter.
+     *
+     * @return array<string, array<string, class-string<TemplateInterface>>>
+     */
+    public static function grouped(): array
+    {
+        $templates = self::all();
+        $folders   = [];
+        $labels    = [];
+
+        foreach ($templates as $slug => $class) {
+            $folders[$slug] = Themes::ofClass($class, 'templates');
+            $labels[$slug]  = $class::name();
+        }
+
+        $grouped = [];
+
+        // Themes::group() grupperer navne. Her skal klasserne med videre,
+        // så grupperingen genbruges og nøglerne oversættes tilbage.
+        foreach (Themes::group($labels, $folders) as $theme => $group) {
+            foreach (array_keys($group) as $slug) {
+                $grouped[$theme][$slug] = $templates[$slug];
+            }
+        }
+
+        return $grouped;
     }
 }

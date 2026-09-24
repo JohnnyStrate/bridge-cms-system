@@ -84,7 +84,7 @@ foreach ((array) ($state['globals'] ?? []) as $incoming) {
     }
 
     $slot = (string) ($incoming['slot'] ?? '');
-    $type = GlobalBlocks::typeFor($slot);
+    $type = GlobalBlocks::typeFor($slot, (string) ($incoming['block_type'] ?? ''));
 
     if ($type === null) {
         continue;

@@ -101,8 +101,8 @@ final class PageSaver
     /**
      * Gemmer sitets globale blokke.
      *
-     * Browseren sender kun en slot og nogle værdier. HVILKEN bloktype
-     * slot'en indeholder, slås op i GlobalBlocks — ellers kunne et
+     * Browseren sender en slot, en ønsket bloktype og nogle værdier.
+     * GlobalBlocks afgør, om typen er tilladt i den slot — ellers kunne et
      * manipuleret kald gøre en vilkårlig blok global.
      *
      * En slot, der ikke er med i det browseren sendte, er en blok
@@ -120,7 +120,11 @@ final class PageSaver
             }
 
             $slot = (string) ($item['slot'] ?? '');
-            $type = GlobalBlocks::typeFor($slot);
+
+            // Browserens ønske om type godkendes af slot'en. Er den ikke på
+            // slot'ens liste, bruges standarden — browseren kan altså vælge
+            // mellem temaernes navbars, men ikke pege på en vilkårlig blok.
+            $type = GlobalBlocks::typeFor($slot, (string) ($item['block_type'] ?? ''));
 
             if ($type === null) {
                 continue;

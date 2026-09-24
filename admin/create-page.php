@@ -13,7 +13,12 @@ require_once __DIR__ . '/../bootstrap.php';
 $pdo       = Database::getConnection();
 // Skabelonerne findes i /templates/ og opdages automatisk. En ny
 // skabelon er derfor én ny mappe — ingen ændring her.
-$templates = TemplateRegistry::all();
+//
+// grouped() deler dem op efter temamappen, så brugeren kan se, hvilket tema
+// en skabelon hører til. all() bruges kun til at svare på, om der findes
+// nogen skabeloner overhovedet.
+$templateThemes = TemplateRegistry::grouped();
+$templates      = TemplateRegistry::all();
 
 // Alle eksisterende sider kan vælges som forælder. En ny side har endnu
 // ingen undersider, så der er intet at sortere fra.
@@ -38,7 +43,7 @@ $error    = $_GET['fejl'] ?? null;
         opdateret — det er dét, der gav den ustylede forhåndsvisning.
         Sæt tallet én op, hver gang admin.css ændres.
     -->
-    <link rel="stylesheet" href="admin.css?v=3">
+    <link rel="stylesheet" href="admin.css?v=4">
 </head>
 <body class="admin">
 
@@ -104,7 +109,13 @@ $error    = $_GET['fejl'] ?? null;
                 </span>
             </label>
 
-            <?php foreach ($templates as $slug => $template): ?>
+            <?php /*
+                Skabelonerne står i grupper efter tema. Overskriften fylder
+                hele griddets bredde, så hvert tema begynder på en ny række.
+            */ ?>
+            <?php foreach ($templateThemes as $theme => $themeTemplates): ?>
+            <h3 class="choices__group"><?= e($theme) ?></h3>
+            <?php foreach ($themeTemplates as $slug => $template): ?>
                 <?php
                     $thumbnail = $template::thumbnail();
                     $hasThumb  = $thumbnail !== ''
@@ -151,6 +162,7 @@ $error    = $_GET['fejl'] ?? null;
                         </span>
                     </span>
                 </label>
+            <?php endforeach; ?>
             <?php endforeach; ?>
         </div>
 
