@@ -34,8 +34,9 @@ final class Tema2Theme extends AbstractTheme
     public static function blocks(): array
     {
         return [
-            'tema2-navbar' => Tema2NavbarBlock::class,
-            'tema2-hero'   => Tema2HeroBlock::class,
+            'tema2-navbar'    => Tema2NavbarBlock::class,
+            'tema2-hero'      => Tema2HeroBlock::class,
+            'tema2-textimage' => Tema2TextImageBlock::class,
         ];
     }
 

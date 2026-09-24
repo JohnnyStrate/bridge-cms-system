@@ -38,6 +38,7 @@ final class Tema2ForsideTemplate extends AbstractTemplate
             // Felter, der ikke nævnes, får blokkens egen standardværdi
             // (dummy-teksten og billedet i themes/tema2/assets/).
             static::block('tema2-hero'),
+            static::block('tema2-textimage'),
         ];
     }
 }
