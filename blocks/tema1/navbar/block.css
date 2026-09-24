@@ -9,12 +9,12 @@
    style-attributten, og den vinder. Derfor staar alle vaerdier her og
    ingen af dem laengere nede i filen.
    ===================================================================== */
-s
-.block--tema1-navbar {
+
+block-.-tema1-navbar {
     --background-color: #f6f1e8;
-    --text-color: #f25d00;
+    --text-color: #241f1c;
     --accent-color: #e2574c;
-    --accent-text-color: #823939;
+    --accent-text-color: #ffffff;
     --link-size: 16px;
     --slant: 28px;
     --bar-radius: 999px;
