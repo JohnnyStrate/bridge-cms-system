@@ -1,0 +1,211 @@
+/* =====================================================================
+   Hero — tema 2
+
+   Foto med blaat filter, stor overskrift, tekst + knap paa én linje og en
+   boelget underkant.
+
+   KOLONNERNE ER DELT MED NAVBAREN
+   Samme tre kolonner og samme sidemargen som tema 2's navbar, saa
+   overskriften starter lige under pillens venstre kant. Aendres
+   --t2-container, --t2-side eller --t2-gutter, skal navbaren have det samme.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema2-hero {
+    --overlay-color: #174765;
+    --overlay-opacity: 40%;
+    --wave-color: #ffffff;
+    --text-color: #ffffff;
+    --title-size: 96px;
+    --font-family: 'Jost';
+    --button-start: #192e3c;
+    --button-end: #457ba2;
+    --button-opacity: 72%;
+    --radius: 12px;
+
+    --t2-container: 72rem;
+    --t2-side: 8rem;
+    --t2-gutter: clamp(1.25rem, 4.8vw, 6rem);
+    --wave-height: clamp(2.5rem, 6vw, 6rem);
+
+    display: grid;
+    grid-template-columns:
+        minmax(var(--t2-side), 1fr)
+        minmax(0, var(--t2-container))
+        minmax(var(--t2-side), 1fr);
+    align-content: center;
+    min-height: clamp(34rem, 88vh, 54rem);
+    padding: 5rem var(--t2-gutter) calc(var(--wave-height) + 3rem);
+    overflow: hidden;
+    isolation: isolate;
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* Ligger navbaren oven paa hero'en, skal der vaere plads til den. */
+.block--tema2-navbar + .block--tema2-hero {
+    padding-top: clamp(8rem, 14vw, 12rem);
+}
+
+/* --- Billede og filter --------------------------------------------- */
+
+/* Mangler billedet, staar filterfarven tilbage som en moerk flade, saa
+   den hvide tekst stadig kan laeses. */
+.t2hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-color: var(--overlay-color);
+    background-position: center;
+    background-size: cover;
+    transform: scale(1.04);
+    animation: t2hero-settle 1.4s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes t2hero-settle {
+    from { transform: scale(1.12); }
+    to   { transform: scale(1.04); }
+}
+
+.t2hero__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--overlay-color);
+    opacity: var(--overlay-opacity);
+    pointer-events: none;
+}
+
+/* --- Tekst ----------------------------------------------------------- */
+
+.t2hero__content {
+    grid-column: 2;
+    animation: t2hero-rise 0.8s 0.15s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@keyframes t2hero-rise {
+    from { opacity: 0; transform: translateY(1.25rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.t2hero__title {
+    max-width: 8em;
+    margin: 0 0 clamp(1.5rem, 3vw, 2.75rem);
+    font-size: clamp(2.75rem, 7vw, var(--title-size));
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-shadow: 0 4px 24px rgb(0 0 0 / 0.25);
+}
+
+.t2hero__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem clamp(2rem, 5vw, 4.5rem);
+}
+
+.t2hero__text {
+    max-width: 15em;
+    margin: 0;
+    font-size: clamp(1.1rem, 1.3vw, 1.4rem);
+    font-weight: 500;
+    line-height: 1.45;
+    text-shadow: 0 2px 12px rgb(0 0 0 / 0.3);
+}
+
+/* --- Knappen --------------------------------------------------------- */
+
+/*
+ * Bredden foelger teksten, men stopper ved max-width. En for lang tekst
+ * afkortes med "…" i stedet for at sprænge knappen. Farverne blandes med
+ * gennemsigtighed, saa billedet anes igennem (72 % i Figma).
+ */
+.t2hero__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.6rem;
+    max-width: min(20rem, 100%);
+    padding: 0.7rem 1rem 0.7rem 1.1rem;
+    border-radius: var(--radius);
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--button-start) var(--button-opacity), transparent),
+        color-mix(in srgb, var(--button-end) var(--button-opacity), transparent)
+    );
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 20px rgb(10 25 40 / 0.2);
+    color: inherit;
+    font-size: clamp(1rem, 1.05vw, 1.15rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.t2hero__button-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.t2hero__arrow {
+    flex: none;
+    width: 2.1rem;
+    height: auto;
+    overflow: visible;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2hero__button:hover,
+.t2hero__button:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgb(10 25 40 / 0.3);
+}
+
+/* Pilen glider frem, naar man peger paa knappen. */
+.t2hero__button:hover .t2hero__arrow,
+.t2hero__button:focus-visible .t2hero__arrow {
+    transform: translateX(0.45rem);
+}
+
+/* --- Boelgen --------------------------------------------------------- */
+
+.t2hero__wave {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;          /* ingen haarfin streg mellem boelge og naeste blok */
+    width: 100%;
+    height: var(--wave-height);
+    fill: var(--wave-color);
+    pointer-events: none;
+}
+
+/* --- Smalle skaerme -------------------------------------------------- */
+
+@media (max-width: 64rem) {
+    .block--tema2-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2hero__content {
+        grid-column: 1;
+    }
+
+    .block--tema2-navbar + .block--tema2-hero {
+        padding-top: 8rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block--tema2-hero,
+    .block--tema2-hero * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

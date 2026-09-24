@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 128" width="240" height="128">
+  <!-- Pladsholder-logo til tema 2. Skift det ud i editoren: klik på logoet. -->
+  <rect width="240" height="128" fill="#ffffff"/>
+  <rect x="8" y="8" width="224" height="112" rx="10" fill="none" stroke="#457ba2" stroke-width="3" stroke-dasharray="10 7"/>
+  <g transform="translate(34 40)" fill="#457ba2">
+    <path d="M24 2 C24 2 4 18 4 30 C4 38 11 42 17 38 C19 37 21 35 22 33 L20 46 H28 L26 33 C27 35 29 37 31 38 C37 42 44 38 44 30 C44 18 24 2 24 2 Z"/>
+  </g>
+  <text x="152" y="62" text-anchor="middle" font-family="Jost, Arial, sans-serif" font-size="26" font-weight="700" fill="#192e3c">DIT</text>
+  <text x="152" y="92" text-anchor="middle" font-family="Jost, Arial, sans-serif" font-size="26" font-weight="700" fill="#192e3c">LOGO</text>
+</svg>

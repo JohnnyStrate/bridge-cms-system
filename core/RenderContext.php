@@ -22,7 +22,8 @@ final class RenderContext
         private readonly int $depth,
         private readonly ?SiteMap $siteMap,
         private readonly ?GalleryMap $galleries = null,
-        private readonly bool $inlineEditing = false
+        private readonly bool $inlineEditing = false,
+        private readonly int $currentPageId = 0
     ) {
     }
 public function withInlineEditing(): self {
@@ -32,9 +33,32 @@ public function withInlineEditing(): self {
         $this->depth,
         $this->siteMap,
         $this->galleries,
-        true
+        true,
+        $this->currentPageId
     );
 }
+
+    /**
+     * Den side, der tegnes lige nu. Bruges af navbarer til at markere det
+     * aktive menupunkt. 0 = ingen side (fx en skabelon-forhåndsvisning).
+     */
+    public function withCurrentPage(int $pageId): self
+    {
+        return new self(
+            $this->mode,
+            $this->basePath,
+            $this->depth,
+            $this->siteMap,
+            $this->galleries,
+            $this->inlineEditing,
+            $pageId
+        );
+    }
+
+    public function currentPageId(): int
+    {
+        return $this->currentPageId;
+    }
 public function isInlineEditing(): bool //retunerer en sandt eller falsk 
 {
     return $this->inlineEditing;

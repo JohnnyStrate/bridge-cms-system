@@ -39,9 +39,11 @@ $swatch = static function (string $theme): array {
     $footer = GlobalBlocks::typeFor('footer', $slug);
 
     return [
-        'top'    => $colorOf($header, 'background_color', '#d5dae0'),
+        // Temaer med en gradient-navbar har ingen background_color, så
+        // gradientens første farve bruges i stedet.
+        'top'    => $colorOf($header, 'background_color', $colorOf($header, 'gradient_start', '#d5dae0')),
         'bottom' => $colorOf($footer, 'background_color', '#d5dae0'),
-        'accent' => $colorOf($header, 'accent_color', $colorOf($header, 'text_color', '#8a94a0')),
+        'accent' => $colorOf($header, 'accent_color', $colorOf($header, 'gradient_end', $colorOf($header, 'text_color', '#8a94a0'))),
     ];
 };
 ?>

@@ -62,7 +62,9 @@ $parentChoices = PageTree::choices(
 // kan tegne billederne) og til feltrendereren (så dropdownen har dem).
 $galleryMap = GalleryMap::fromGalleries((new GalleryRepository($pdo))->all());
 
-$context = RenderContext::editor($basePath, $siteMap, $galleryMap)->withInlineEditing();
+$context = RenderContext::editor($basePath, $siteMap, $galleryMap)
+    ->withInlineEditing()
+    ->withCurrentPage($pageId);
 $fields = new FieldRenderer($siteMap->choices(), $basePath, $galleryMap->choices());
 
 // "+"-menuens grupper: det aktive temas blokke og de fælles, uden de

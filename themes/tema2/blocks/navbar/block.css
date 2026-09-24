@@ -1,0 +1,272 @@
+/* =====================================================================
+   Navbar — tema 2
+
+   Logo til venstre, menuen i en gradient-pille midt paa siden. Det aktive
+   menupunkt er fedt og har en lille afrundet streg under sig.
+
+   KOLONNERNE ER DELT MED HERO'EN
+   Navbaren og tema 2's hero bruger praecis samme tre kolonner og samme
+   sidemargen. Derfor starter hero-overskriften altid lige under pillens
+   venstre kant, uanset skaermbredde — uden faste pixelvaerdier.
+   Aendrer du --t2-container, --t2-side eller --t2-gutter her, skal hero'en
+   have det samme.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema2-navbar {
+    --gradient-start: #192e3c;
+    --gradient-end: #457ba2;
+    --text-color: #ffffff;
+    --indicator-color: #ffffff;
+    --link-size: 20px;
+    --radius: 12px;
+    --font-family: 'Jost';
+
+    --t2-container: 72rem;                  /* pillens og indholdets bredde */
+    --t2-side: 8rem;                        /* mindst plads til logoet */
+    --t2-gutter: clamp(1.25rem, 4.8vw, 6rem);
+
+    display: grid;
+    grid-template-columns:
+        minmax(var(--t2-side), 1fr)
+        minmax(0, var(--t2-container))
+        minmax(var(--t2-side), 1fr);
+    align-items: center;
+    padding: clamp(1.25rem, 2.6vw, 3rem) var(--t2-gutter) 1.25rem;
+    z-index: 20;
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/*
+ * Ligger navbaren lige over en tema 2-hero, laegger den sig OVEN PAA
+ * hero-billedet. :has() kigger paa naeste blok, saa navbaren fylder sin
+ * egen plads alle andre steder — fx over en side, der starter med tekst.
+ */
+.block--tema2-navbar:has(+ .block--tema2-hero) {
+    position: absolute;
+    inset: 0 0 auto;
+}
+
+/* Afkrydsningsfeltet styrer mobilmenuen. Det skal ikke ses, men skal
+   kunne naas med tastaturet — derfor ikke display:none. */
+.t2nav__toggle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- Logo ----------------------------------------------------------- */
+
+.t2nav__logo {
+    grid-column: 1;
+    justify-self: start;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+.t2nav__logo:hover {
+    transform: translateY(-2px);
+}
+
+.t2nav__logo img {
+    max-width: 7.5rem;
+    max-height: 4.25rem;
+    width: auto;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.18);
+}
+
+/* Kun i editoren, naar logoet er fjernet: en flade man kan klikke paa. */
+.t2nav__logo-empty {
+    display: grid;
+    place-items: center;
+    width: 7.5rem;
+    height: 4rem;
+    border: 2px dashed currentColor;
+    border-radius: var(--radius);
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+/* --- Pillen --------------------------------------------------------- */
+
+.t2nav__bar {
+    grid-column: 2;
+    border-radius: var(--radius);
+    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    box-shadow: 0 10px 30px rgb(10 25 40 / 0.25);
+}
+
+.t2nav__links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.55rem clamp(1rem, 2.2vw, 2.25rem);
+    list-style: none;
+}
+
+.t2nav__links a {
+    position: relative;
+    display: block;
+    padding: 0.75rem 0.25rem 1rem;
+    color: inherit;
+    font-size: var(--link-size);
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.t2nav__links a.is-active {
+    font-weight: 700;
+}
+
+/*
+ * Stregen under menupunktet. Den findes paa alle punkter, men er foldet
+ * sammen til ingenting. Den aktive side har den fuldt ud; ved hover
+ * kommer en smallere, svagere udgave frem.
+ */
+.t2nav__links a::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.2rem;
+    width: 1.3rem;
+    height: 0.4rem;
+    border-radius: 16px;
+    background: var(--indicator-color);
+    opacity: 0;
+    transform: translateX(-50%) scaleX(0);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.2s ease;
+}
+
+.t2nav__links a:hover::after,
+.t2nav__links a:focus-visible::after {
+    opacity: 0.55;
+    transform: translateX(-50%) scaleX(0.6);
+}
+
+.t2nav__links a.is-active::after {
+    opacity: 1;
+    transform: translateX(-50%) scaleX(1);
+}
+
+/* --- Burgeren (kun paa smalle skaerme) ------------------------------ */
+
+.t2nav__burger {
+    display: none;
+    grid-column: 3;
+    justify-self: end;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 3rem;
+    height: 3rem;
+    padding: 0.8rem;
+    border-radius: var(--radius);
+    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    cursor: pointer;
+}
+
+.t2nav__burger span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--text-color);
+    transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 64rem) {
+    .block--tema2-navbar {
+        grid-template-columns: auto 1fr auto;
+    }
+
+    .t2nav__burger {
+        display: flex;
+    }
+
+    .t2nav__logo img {
+        max-height: 3.25rem;
+    }
+
+    /* Pillen bliver til en menu, der folder sig ud under bjaelken. Den
+       ligger oven paa indholdet, saa den aldrig skubber siden ned. */
+    .t2nav__bar {
+        /* Uden gitterplacering maales inset fra hele navbaren. */
+        grid-column: auto;
+        position: absolute;
+        inset-inline: var(--t2-gutter);
+        top: calc(100% - 0.5rem);
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-0.5rem);
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+    }
+
+    .t2nav__links {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .t2nav__links a {
+        padding-block: 0.7rem;
+    }
+
+    /* Stregen staar til venstre i den lodrette liste. */
+    .t2nav__links a::after {
+        left: 0;
+        bottom: 0.35rem;
+        transform-origin: left center;
+        transform: scaleX(0);
+    }
+
+    .t2nav__links a:hover::after,
+    .t2nav__links a:focus-visible::after {
+        transform: scaleX(0.6);
+    }
+
+    .t2nav__links a.is-active::after {
+        transform: scaleX(1);
+    }
+
+    .t2nav__toggle:checked ~ .t2nav__bar {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .t2nav__toggle:checked ~ .t2nav__burger span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    .t2nav__toggle:checked ~ .t2nav__burger span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .t2nav__toggle:checked ~ .t2nav__burger span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+.t2nav__toggle:focus-visible ~ .t2nav__burger {
+    outline: 3px solid var(--text-color);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block--tema2-navbar,
+    .block--tema2-navbar * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

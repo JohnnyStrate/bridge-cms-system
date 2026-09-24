@@ -113,7 +113,8 @@ final class SiteExporter
         // Strukturen sendes med, så links mellem sider bliver til relative
         // stier ud fra netop denne sides placering i mappetræet.
         // $context = RenderContext::export($depth, $siteMap); //gammel, nu er galleries tilføjes
-                $context = RenderContext::export($depth, $siteMap, $this->galleries);
+                $context = RenderContext::export($depth, $siteMap, $this->galleries)
+            ->withCurrentPage($pageId);
         $html    = PageRenderer::renderDocument($page, $blocks, $context);
 
         // Stylesheets og billeder noteres, mens vi er her, så vi bagefter

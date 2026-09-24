@@ -117,6 +117,7 @@ $html = PageRenderer::renderDocument(
     $page,
     $blocks,
     RenderContext::editor($basePath, SiteMap::fromPages($pageRepository->findAll()), $galleryMap)
+        ->withCurrentPage((int) $page['id'])
 );
 
 /*
