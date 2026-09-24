@@ -13,6 +13,11 @@ declare(strict_types=1);
  * kort. Det holder dem i samme stil og farve som resten af temaet, de kan
  * aldrig mangle som fil, og farven kan ændres for alle på én gang under
  * Udseende. Et nyt ikon er én linje mere i ICONS.
+ *
+ * GENBRUG
+ * Samme blok bruges flere gange på forsiden: "Bridge i jeres by" (grå,
+ * fire kort) og "Spil bridge" (hvid, tre kort med tider og steder, og
+ * kortikoner efter overskriften). Forskellen er kun indhold og Udseende.
  */
 final class Tema2CardsBlock extends AbstractBlock
 {
@@ -38,6 +43,12 @@ final class Tema2CardsBlock extends AbstractBlock
             . '<path d="M6.8 11h10.4M9.6 6.3v2.6M14.4 6.3v2.6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>',
         'Hjerter' => '<circle cx="12" cy="12" r="11" fill="currentColor"/>'
             . '<path d="M12 17.3s-5.2-3.2-5.2-6.6a2.8 2.8 0 0 1 5.2-1.5 2.8 2.8 0 0 1 5.2 1.5c0 3.4-5.2 6.6-5.2 6.6z" fill="#fff"/>',
+        'Ur' => '<circle cx="12" cy="12" r="11" fill="currentColor"/>'
+            . '<circle cx="12" cy="12" r="5.8" fill="none" stroke="#fff" stroke-width="1.5"/>'
+            . '<path d="M12 8.8V12l2.2 1.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+        'Sted' => '<circle cx="12" cy="12" r="11" fill="currentColor"/>'
+            . '<path d="M12 18.2s-4.3-4.4-4.3-7.6a4.3 4.3 0 0 1 8.6 0c0 3.2-4.3 7.6-4.3 7.6z" fill="#fff"/>'
+            . '<circle cx="12" cy="10.6" r="1.6" fill="currentColor"/>',
         'Spar' => '<circle cx="12" cy="12" r="11" fill="currentColor"/>'
             . '<path d="M12 5.8s-5 3.6-5 6.9a2.6 2.6 0 0 0 4.3 2l-.8 2.9h3l-.8-2.9a2.6 2.6 0 0 0 4.3-2c0-3.3-5-6.9-5-6.9z" fill="#fff"/>',
         'Ingen' => '',
@@ -200,6 +211,13 @@ final class Tema2CardsBlock extends AbstractBlock
                 'options' => FieldValidator::ALLOWED_FONTS,
                 'group'   => 'Tekst',
             ],
+            'title_suits' => [
+                'type'    => 'select',
+                'label'   => 'Spar og hjerter efter overskriften',
+                'default' => 'Skjul',
+                'options' => ['Skjul', 'Vis'],
+                'group'   => 'Tekst',
+            ],
             'shadow_color' => [
                 'type'    => 'color',
                 'label'   => 'Kortenes kant/skygge',
@@ -281,6 +299,7 @@ final class Tema2CardsBlock extends AbstractBlock
             'eyebrow' => trim((string) ($settings['eyebrow'] ?? '')),
             'title'   => (string) ($settings['title'] ?? ''),
             'cards'   => $cards,
+            'suits'   => ($styles['title_suits'] ?? 'Skjul') === 'Vis',
             'cssVars' => static::cssVariables($styles),
             'context' => $context,
         ]);

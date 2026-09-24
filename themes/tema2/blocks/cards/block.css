@@ -71,6 +71,36 @@
     text-transform: uppercase;
 }
 
+/* Spar og hjerter efter overskriften (slaas til under Udseende). */
+.t2c__suits {
+    display: inline-flex;
+    gap: 0.12em;
+    margin-left: 0.45em;
+    vertical-align: 0.02em;
+}
+
+.t2c__suit {
+    width: 0.62em;
+    height: 0.62em;
+    animation: t2c-suit 4s ease-in-out infinite alternate;
+}
+
+.t2c__suit--spade {
+    fill: #232323;
+    transform: rotate(-8deg);
+}
+
+.t2c__suit--heart {
+    fill: #e0342f;
+    transform: rotate(10deg);
+    animation-delay: -2s;
+}
+
+@keyframes t2c-suit {
+    from { translate: 0 0; }
+    to   { translate: 0 -4px; }
+}
+
 /* --- Kortene --------------------------------------------------------- */
 
 .t2c__grid {

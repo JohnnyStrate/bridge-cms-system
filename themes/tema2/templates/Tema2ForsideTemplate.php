@@ -41,6 +41,43 @@ final class Tema2ForsideTemplate extends AbstractTemplate
             static::block('tema2-textimage'),
             static::block('tema2-cards'),
             static::block('tema2-callout'),
+
+            // Samme kort-blok igen, nu hvid og med tider og steder.
+            static::block('tema2-cards', [
+                'eyebrow' => 'Tider og steder',
+                'title'   => 'Spil bridge',
+                'cards'   => [
+                    [
+                        'icon'         => 'Ur',
+                        'title'        => 'Klubaften',
+                        'text'         => 'Skriv hvilken ugedag og hvilket klokkeslæt I spiller, fx mandag kl. 18.45.',
+                        'button_label' => 'Se program',
+                        'page'         => 0,
+                        'url'          => '#',
+                    ],
+                    [
+                        'icon'         => 'Sted',
+                        'title'        => 'Åbent hus',
+                        'text'         => 'Fortæl hvor I mødes — adresse, lokale og hvordan man finder vej.',
+                        'button_label' => 'Se adresse',
+                        'page'         => 0,
+                        'url'          => '#',
+                    ],
+                    [
+                        'icon'         => 'Kalender',
+                        'title'        => 'Sommer- og sølvturneringer',
+                        'text'         => 'Skriv om sæsonens turneringer, og hvornår man skal tilmelde sig.',
+                        'button_label' => 'Se turneringer',
+                        'page'         => 0,
+                        'url'          => '#',
+                    ],
+                ],
+            ], [
+                'background_color' => '#ffffff',
+                'title_suits'      => 'Vis',
+            ]),
+
+            static::block('tema2-quote'),
         ];
     }
 }

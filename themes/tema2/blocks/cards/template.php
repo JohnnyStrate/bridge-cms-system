@@ -5,6 +5,7 @@
  * @var string                           $eyebrow
  * @var string                           $title
  * @var array<int, array<string, mixed>> $cards  index, icon (SVG fra ICONS), title, text, buttonLabel, href
+ * @var bool                             $suits   Spar og hjerter efter overskriften.
  * @var string                           $cssVars
  * @var RenderContext                    $context
  */
@@ -17,7 +18,7 @@ $editing = $context->isInlineEditing();
             <?php if ($eyebrow !== '' || $editing): ?>
                 <p class="t2c__eyebrow"<?= $context->inline('eyebrow', 'Overlinje') ?>><?= e($eyebrow) ?></p>
             <?php endif; ?>
-            <h2 class="t2c__title"<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></h2>
+            <h2 class="t2c__title"><span<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></span><?php if ($suits): ?>&#8288;<span class="t2c__suits" aria-hidden="true"><svg viewBox="0 0 24 24" class="t2c__suit t2c__suit--spade" focusable="false"><path d="M12 2.5s-8 5.8-8 11.1a4.2 4.2 0 0 0 7 3.1L9.8 21.5h4.4L13 16.7a4.2 4.2 0 0 0 7-3.1c0-5.3-8-11.1-8-11.1z"/></svg><svg viewBox="0 0 24 24" class="t2c__suit t2c__suit--heart" focusable="false"><path d="M12 21s-8.5-5.3-8.5-11.1A4.7 4.7 0 0 1 12 7.3a4.7 4.7 0 0 1 8.5 2.6C20.5 15.7 12 21 12 21z"/></svg></span><?php endif; ?></h2>
         </header>
 
         <?php if ($cards !== []): ?>

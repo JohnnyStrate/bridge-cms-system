@@ -1,0 +1,324 @@
+/* =====================================================================
+   Citat med billede — tema 2
+
+   Et stort lyst kort, der staar 60 % over og 40 % ned i en moerk flade.
+   Samme tre kolonner og sidemargen som resten af tema 2.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema2-quote {
+    --top-color: #ffffff;
+    --background-color: #1d3444;
+    --card-color: #fafafa;
+    --text-color: #111111;
+    --shadow-color: #817474;
+    --quote-size: 28px;
+    --font-family: 'Jost';
+    --radius: 25px;
+    --button-start: #192e3c;
+    --button-end: #457ba2;
+    --button-opacity: 72%;
+
+    --t2-container: 72rem;
+    --t2-side: 8rem;
+    --t2-gutter: clamp(1.25rem, 4.8vw, 6rem);
+
+    display: grid;
+    grid-template-columns:
+        minmax(var(--t2-side), 1fr)
+        minmax(0, var(--t2-container))
+        minmax(var(--t2-side), 1fr);
+    /*
+     * 60 / 40 OVER KANTEN
+     * Kortet spaender over raekke 1 (3fr) og 2 (2fr). Gitteret deler
+     * kortets hoejde 3:2 mellem dem, og den moerke flade starter i
+     * raekke 2 — altsaa 60 % nede ad kortet, uanset hvor hoejt det er.
+     * Raekke 3 er luften under kortet.
+     */
+    grid-template-rows: 3fr 2fr auto;
+    padding: clamp(3rem, 6vw, 6rem) var(--t2-gutter) 0;
+    overflow: hidden;
+    background: var(--top-color);
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.t2q__bg {
+    grid-column: 1 / -1;
+    grid-row: 2 / -1;
+    margin-inline: calc(var(--t2-gutter) * -1);
+    background: var(--background-color);
+}
+
+.t2q__spacer {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    height: clamp(3rem, 6vw, 5.5rem);
+}
+
+/* --- Kortet ---------------------------------------------------------- */
+
+.t2q__card {
+    position: relative;
+    z-index: 1;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 6.5rem);
+    padding: clamp(2.5rem, 5.5vw, 5.5rem) clamp(1.5rem, 4.5vw, 4.5rem);
+    border-radius: var(--radius);
+    background: var(--card-color);
+    /* Samme tynde skygge som kortene i "Bridge i jeres by". */
+    box-shadow: 0 1px 13px color-mix(in srgb, var(--shadow-color) 45%, transparent);
+}
+
+.t2q--image-right .t2q__card {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+}
+
+.t2q--image-right .t2q__media {
+    order: 1;
+}
+
+.t2q__media {
+    overflow: hidden;
+    aspect-ratio: 1 / 0.95;
+    border-radius: var(--radius);
+    background: #e9edf1;
+    box-shadow: 0 8px 22px rgb(0 0 0 / 0.16);
+}
+
+.t2q__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2q__card:hover .t2q__media img {
+    transform: scale(1.04);
+}
+
+.t2q__media-empty {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    color: #6b7684;
+    cursor: pointer;
+}
+
+/* --- Citat og tekst -------------------------------------------------- */
+
+.t2q__text {
+    max-width: 26rem;
+}
+
+.t2q__quote {
+    margin: 0 0 1.75rem;
+}
+
+.t2q__quote p {
+    margin: 0;
+    font-size: clamp(1.3rem, 2vw, var(--quote-size));
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+/* Kun for skaermlaesere: hele citatet i ét stykke. */
+.t2q__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.t2q__word {
+    display: inline-block;
+}
+
+.t2q__body {
+    margin: 0 0 2rem;
+    font-size: 1.05rem;
+    font-weight: 300;
+    line-height: 1.7;
+}
+
+/* --- Knappen (samme lille knap som i kortene) ------------------------ */
+
+.t2q__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    max-width: 100%;
+    padding: 0.4rem 0.65rem 0.4rem 0.6rem;
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--button-start) var(--button-opacity), transparent),
+        color-mix(in srgb, var(--button-end) var(--button-opacity), transparent)
+    );
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.t2q__button-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.t2q__arrow {
+    flex: none;
+    width: 1.4rem;
+    height: auto;
+    overflow: visible;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2q__button:hover,
+.t2q__button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgb(10 25 40 / 0.2);
+}
+
+.t2q__button:hover .t2q__arrow,
+.t2q__button:focus-visible .t2q__arrow {
+    transform: translateX(0.35rem);
+}
+
+/* --- Spar i hjoernet ------------------------------------------------- */
+
+.t2q__suit {
+    position: absolute;
+    right: clamp(1.25rem, 3vw, 2.5rem);
+    bottom: clamp(1.25rem, 3vw, 2.5rem);
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: #232323;
+    transition: transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.t2q__card:hover .t2q__suit {
+    transform: rotate(-15deg) scale(1.15);
+}
+
+/* --- Animation ------------------------------------------------------- */
+
+/*
+ * Scriptet i templaten saetter .t2q--armed (skjult) og .is-visible.
+ *   1. Kortet glider op og toner ind.
+ *   2. Billedet afdaekkes nedefra og op.
+ *   3. Citatet toner ind ord for ord (--w er ordets nummer).
+ *   4. Tekst og knap, og til sidst spar'en, der drejer ind.
+ * Uden JavaScript er alt bare synligt.
+ */
+@keyframes t2q-rise {
+    from { opacity: 0; transform: translateY(3rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes t2q-uncover {
+    from { clip-path: inset(100% 0 0 0 round var(--radius)); }
+    to   { clip-path: inset(0 0 0 0 round var(--radius)); }
+}
+
+@keyframes t2q-word {
+    from { opacity: 0; transform: translateY(0.4em); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes t2q-spin {
+    from { opacity: 0; transform: rotate(-200deg) scale(0.2); }
+    to   { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+.t2q--armed .t2q__card,
+.t2q--armed .t2q__word,
+.t2q--armed .t2q__body,
+.t2q--armed .t2q__button,
+.t2q--armed .t2q__suit {
+    opacity: 0;
+}
+
+.t2q--armed .t2q__media {
+    clip-path: inset(100% 0 0 0 round var(--radius));
+}
+
+.t2q--armed.is-visible .t2q__card {
+    animation: t2q-rise 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.t2q--armed.is-visible .t2q__media {
+    animation: t2q-uncover 1s 0.35s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.t2q--armed.is-visible .t2q__word {
+    animation: t2q-word 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.8s + var(--w, 0) * 0.06s);
+}
+
+.t2q--armed.is-visible .t2q__body {
+    animation: t2q-rise 0.7s 1.3s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.t2q--armed.is-visible .t2q__button {
+    animation: t2q-rise 0.7s 1.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.t2q--armed.is-visible .t2q__suit {
+    animation: t2q-spin 0.8s 1.7s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+
+/* --- Smalle skaerme -------------------------------------------------- */
+
+@media (max-width: 64rem) {
+    .block--tema2-quote {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2q__card,
+    .t2q--image-right .t2q__card {
+        grid-column: 1;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2q--image-right .t2q__media {
+        order: 0;
+    }
+
+    .t2q__text {
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t2q--armed .t2q__card,
+    .t2q--armed .t2q__word,
+    .t2q--armed .t2q__body,
+    .t2q--armed .t2q__button,
+    .t2q--armed .t2q__suit {
+        opacity: 1;
+    }
+
+    .t2q--armed .t2q__media {
+        clip-path: none;
+    }
+
+    .block--tema2-quote,
+    .block--tema2-quote * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

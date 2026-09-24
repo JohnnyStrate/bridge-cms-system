@@ -39,6 +39,7 @@ final class Tema2Theme extends AbstractTheme
             'tema2-textimage' => Tema2TextImageBlock::class,
             'tema2-cards'     => Tema2CardsBlock::class,
             'tema2-callout'   => Tema2CalloutBlock::class,
+            'tema2-quote'     => Tema2QuoteBlock::class,
         ];
     }
 
