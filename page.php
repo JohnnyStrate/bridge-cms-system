@@ -18,7 +18,7 @@ $pageId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
 $pdo     = Database::getConnection();
 $pages   = new PageRepository($pdo);
 $blocks  = new BlockRepository($pdo);
-$globals = new GlobalBlocks(new GlobalBlockRepository($pdo));
+$globals = new GlobalBlocks(new GlobalBlockRepository($pdo), ThemeRegistry::active($pdo));
 
 $page = $pages->find($pageId);
 

@@ -1,0 +1,105 @@
+/* =====================================================================
+   Hero
+   Variablerne herunder er standardværdier. Har brugeren valgt noget i
+   editoren, skriver blokken en style-attribut på .block--hero, som
+   overskriver dem. Værdierne dér er allerede valideret af FieldValidator,
+   så de kan ikke indeholde andet end tal og hex-farver.
+   ===================================================================== */
+
+.block--hero {
+    --title-size: 48px;
+    --font-family: 'Jost';
+    --text-color: #ffffff;
+    --box-color: #8a291e;
+
+    display: grid;
+    place-items: center;
+
+    /* Brugerens valgte højde, ellers standardhøjden. Det er min-height
+       og ikke height, så en lang titel aldrig bliver skåret af. */
+    min-height: var(--box-height, 380px);
+    padding: var(--space-lg) var(--space-md);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.hero__background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Mørkt lag over billedet, så teksten er læsbar uanset hvilket
+   baggrundsbillede redaktøren vælger. */
+.hero__background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.35);
+}
+
+/* Uden valgt bredde tilpasser boksen sig titlen, som før. Med valgt
+   bredde får den præcis den bredde — dog aldrig bredere end skærmen. */
+.hero__panel {
+    text-align: center;
+    width: var(--box-width, auto);
+    max-width: min(100%, var(--box-width, var(--measure)));
+}
+
+.hero__title {
+    margin: 0;
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--box-color);
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+    font-size: var(--title-size);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+    margin: 2px 0 0;
+}
+
+.hero__title,
+.hero__address,
+.hero__phone {
+    border-radius: var(--box-radius, 0);
+}
+
+.hero__address,
+.hero__phone {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--box-color);
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.hero__phone {
+    text-decoration: none;
+}
+
+.hero__phone:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 40rem) {
+    /* På små skærme bliver en høj hero skåret ned til 260px, så den
+       ikke fylder hele telefonen. En lavere valgt højde respekteres. */
+    .block--hero {
+        min-height: min(var(--box-height, 260px), 260px);
+    }
+
+    /* Brugerens skriftstørrelse skaleres ned på små skærme i stedet for
+       at blive ignoreret, så valget stadig har effekt. */
+    .hero__title {
+        font-size: clamp(1.5rem, 7vw, var(--title-size));
+        padding: var(--space-sm) var(--space-md);
+    }
+}

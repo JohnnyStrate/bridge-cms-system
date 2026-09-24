@@ -1,0 +1,333 @@
+/* =====================================================================
+   Navbar — tema 1
+
+   Helt sit eget udseende, uafhaengigt af det blaa temas navbar:
+   lys bjaelke, skraa underkant, links som piller og en fremhaevet knap.
+
+   Variablerne nedenfor er STANDARDVAERDIER. Naar brugeren aendrer en farve
+   eller en stoerrelse i editoren, skriver blokken den samme variabel i
+   style-attributten, og den vinder. Derfor staar alle vaerdier her og
+   ingen af dem laengere nede i filen.
+   ===================================================================== */
+
+.block--tema1-navbar {
+    --background-color: #f6f1e8;
+    --text-color: #241f1c;
+    --accent-color: #e2574c;
+    --accent-text-color: #ffffff;
+    --link-size: 16px;
+    --slant: 28px;
+    --bar-radius: 999px;
+    --font-family: 'Jost';
+
+    position: relative;
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+    padding-bottom: var(--slant);
+
+    /* z-index goer to ting paa én gang: den loefter navbaren op over det,
+       der kommer efter den paa siden — ellers ville mobilmenuen folde sig
+       ud BAG hero-billedet — og den laver et stablingslag, saa
+       baggrundslaget nedenfor (z-index:-1) bliver inde i navbaren i
+       stedet for at havne bag hele sidens baggrund. */
+    z-index: 10;
+
+    /* Bjaelken glider paa plads, foerste gang siden vises. */
+    animation: t1nav-drop 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/*
+ * Den skraa underkant ligger i et baggrundslag for sig, ikke paa selve
+ * navbaren. clip-path klipper nemlig ogsaa alt indhold, og saa ville
+ * mobilmenuen blive skaaret af, i det oejeblik den foldes ud.
+ */
+.block--tema1-navbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--background-color);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--slant)), 0 100%);
+}
+
+@keyframes t1nav-drop {
+    from { transform: translateY(-100%); }
+    to   { transform: translateY(0); }
+}
+
+/* Selve afkrydsningsfeltet skal ikke ses — kun burgeren, der styrer det.
+   Det fjernes IKKE med display:none, for saa kan man ikke naa det med
+   tastaturet. */
+.t1nav__toggle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.t1nav__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 1rem 1.5rem;
+}
+
+/* --- Logo / navn --------------------------------------------------- */
+
+.t1nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: inherit;
+    text-decoration: none;
+    margin-right: auto;
+    transition: transform 0.25s ease;
+}
+
+.t1nav__brand:hover {
+    transform: translateY(-2px);
+}
+
+.t1nav__logo {
+    max-height: 3.25rem;
+    width: auto;
+    display: block;
+}
+
+/* Foerste bogstav i klubnavnet som et farvet maerke. Bruges kun, naar
+   der ikke er valgt et logo. */
+.t1nav__mark {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 35% 65% 60% 40% / 45% 40% 60% 55%;
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+    transition: border-radius 0.6s ease, transform 0.4s ease;
+}
+
+.t1nav__brand:hover .t1nav__mark {
+    border-radius: 60% 40% 40% 60% / 55% 60% 40% 45%;
+    transform: rotate(-8deg);
+}
+
+.t1nav__name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* --- Menupunkter ---------------------------------------------------- */
+
+.t1nav__panel {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.t1nav__links {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.t1nav__links li {
+    /* --i saettes i templaten, saa punkterne toner ind efter hinanden
+       i stedet for alle paa én gang. */
+    animation: t1nav-fade 0.45s ease both;
+    animation-delay: calc(0.18s + var(--i, 0) * 0.06s);
+}
+
+@keyframes t1nav-fade {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.t1nav__links a {
+    position: relative;
+    display: block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--bar-radius);
+    color: inherit;
+    text-decoration: none;
+    font-size: var(--link-size);
+    font-weight: 500;
+    line-height: 1.4;
+    z-index: 0;
+    transition: color 0.25s ease;
+}
+
+/* Pillen bag teksten. Den er der hele tiden, men foldet sammen til
+   ingenting — saa er der noget at animere, og ingen ryk i layoutet. */
+.t1nav__links a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--accent-color);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t1nav__links a:hover,
+.t1nav__links a:focus-visible {
+    color: var(--accent-text-color);
+}
+
+.t1nav__links a:hover::before,
+.t1nav__links a:focus-visible::before {
+    transform: scaleX(1);
+}
+
+/* Doede links — dem uden valgt side eller adresse — daempes, saa det er
+   synligt i editoren, at de endnu ikke foerer nogen steder hen. */
+.t1nav__links a[href='#'] {
+    opacity: 0.55;
+}
+
+/* Ved hover skal pillen have sin fulde farve, ogsaa paa et doedt link —
+   ellers ser animationen blegere ud, end den er. */
+.t1nav__links a[href='#']:hover,
+.t1nav__links a[href='#']:focus-visible {
+    opacity: 1;
+}
+
+/* --- Knappen -------------------------------------------------------- */
+
+.t1nav__cta {
+    padding: 0.6rem 1.35rem;
+    border-radius: var(--bar-radius);
+    background: var(--text-color);
+    color: var(--background-color);
+    font-size: var(--link-size);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 0 0 var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.t1nav__cta:hover,
+.t1nav__cta:focus-visible {
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 0 rgb(0 0 0 / 0.18);
+}
+
+.t1nav__cta:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 0 rgb(0 0 0 / 0.18);
+}
+
+/* --- Burgeren ------------------------------------------------------- */
+
+.t1nav__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0.6rem;
+    border-radius: var(--bar-radius);
+    cursor: pointer;
+}
+
+.t1nav__burger span {
+    display: block;
+    height: 2px;
+    background: var(--text-color);
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 52rem) {
+    .t1nav__burger {
+        display: flex;
+    }
+
+    .t1nav__panel {
+        position: absolute;
+        inset-inline: 0;
+        top: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem 1.5rem;
+        background: var(--background-color);
+        box-shadow: 0 12px 24px rgb(0 0 0 / 0.12);
+
+        /* Skjult, men stadig i layoutet, saa den kan foldes ud bloedt.
+           visibility slaar klik fra, mens den er lukket. */
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-0.75rem);
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+    }
+
+    .t1nav__links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.15rem;
+    }
+
+    .t1nav__links a {
+        padding-block: 0.7rem;
+    }
+
+    .t1nav__cta {
+        text-align: center;
+    }
+
+    /* Menuen er aaben, naar afkrydsningsfeltet er sat. */
+    .t1nav__toggle:checked ~ .t1nav__inner .t1nav__panel {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Burgeren bliver til et kryds. */
+    .t1nav__toggle:checked ~ .t1nav__inner .t1nav__burger span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    .t1nav__toggle:checked ~ .t1nav__inner .t1nav__burger span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .t1nav__toggle:checked ~ .t1nav__inner .t1nav__burger span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+/* Tastaturbrugere skal kunne se, hvor de er — ogsaa paa burgeren, hvor
+   det er afkrydsningsfeltet der har fokus. */
+.t1nav__toggle:focus-visible ~ .t1nav__inner .t1nav__burger {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Har brugeren slaaet bevaegelse fra i sit styresystem, staar alt stille.
+   Menuen kan stadig aabnes og lukkes — den gaar bare direkte. */
+@media (prefers-reduced-motion: reduce) {
+    .block--tema1-navbar,
+    .block--tema1-navbar * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

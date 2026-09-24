@@ -44,7 +44,8 @@ $saver = new PageSaver(
     $pdo,
     new PageRepository($pdo),
     new BlockRepository($pdo),
-    new GlobalBlockRepository($pdo)
+    // Navbar og footer gemmes på det aktive tema.
+    new GlobalBlocks(new GlobalBlockRepository($pdo), ThemeRegistry::active($pdo))
 );
 
 try {

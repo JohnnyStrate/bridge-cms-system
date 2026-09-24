@@ -11,7 +11,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/../bootstrap.php';
 
 $pdo       = Database::getConnection();
-$templates = (new TemplateRepository($pdo))->findActive();
+// Kun det aktive temas skabeloner. Sitet har ét tema ad gangen, og en side
+// fra et andet tema ville få en navbar og footer, der ikke passer til den.
+// Skabelonerne findes i themes/<tema>/templates/ og opdages automatisk.
+$theme      = ThemeRegistry::active($pdo);
+$themeClass = ThemeRegistry::get($theme);
+$templates  = TemplateRegistry::forTheme($theme);
 
 // Alle eksisterende sider kan vælges som forælder. En ny side har endnu
 // ingen undersider, så der er intet at sortere fra.
@@ -36,7 +41,7 @@ $error    = $_GET['fejl'] ?? null;
         opdateret — det er dét, der gav den ustylede forhåndsvisning.
         Sæt tallet én op, hver gang admin.css ændres.
     -->
-    <link rel="stylesheet" href="admin.css?v=3">
+    <link rel="stylesheet" href="admin.css?v=5">
 </head>
 <body class="admin">
 
@@ -46,7 +51,8 @@ $error    = $_GET['fejl'] ?? null;
         <li><a href="index.php">Dine sider</a></li>
         <li><a href="create-page.php" aria-current="page">Opret side</a></li>
         <li><a href="export.php">Udgiv</a></li>
-        <li><a href="#">Galleri</a></li>
+        <li><a href="galleries.php">Galleri</a></li>
+        <li><a href="themes.php">Tema</a></li>
         <li><a href="#">Indstillinger</a></li>
     </ul>
 </nav>
@@ -92,7 +98,7 @@ $error    = $_GET['fejl'] ?? null;
         <div class="choices">
 
             <label class="choice">
-                <input type="radio" name="template_id" value="0" checked>
+                <input type="radio" name="template" value="" checked>
                 <span class="choice__body">
                     <span class="choice__thumb choice__thumb--blank" aria-hidden="true">+</span>
                     <span class="choice__title">Blank side</span>
@@ -102,15 +108,21 @@ $error    = $_GET['fejl'] ?? null;
                 </span>
             </label>
 
-            <?php foreach ($templates as $template): ?>
+            <?php if ($themeClass !== null && $templates !== []): ?>
+            <h3 class="choices__group">
+                <?= e($themeClass::name()) ?>
+                <a class="choices__group-link" href="themes.php">skift tema</a>
+            </h3>
+            <?php endif; ?>
+            <?php foreach ($templates as $slug => $template): ?>
                 <?php
-                    $thumbnail = (string) ($template['thumbnail'] ?? '');
+                    $thumbnail = $template::thumbnail();
                     $hasThumb  = $thumbnail !== ''
                         && is_file(APP_ROOT . '/' . ltrim($thumbnail, '/'));
                 ?>
                 <label class="choice">
-                    <input type="radio" name="template_id"
-                           value="<?= (int) $template['id'] ?>">
+                    <input type="radio" name="template"
+                           value="<?= e($slug) ?>">
                     <span class="choice__body">
                         <?php if ($hasThumb): ?>
                             <img class="choice__thumb"
@@ -123,7 +135,7 @@ $error    = $_GET['fejl'] ?? null;
                         <?php endif; ?>
 
                         <span class="choice__title-row">
-                            <span class="choice__title"><?= e($template['name']) ?></span>
+                            <span class="choice__title"><?= e($template::name()) ?></span>
                             <!--
                                 Knappen er en <button> inde i <label>. Uden
                                 preventDefault() i JavaScript ville browseren
@@ -132,9 +144,9 @@ $error    = $_GET['fejl'] ?? null;
                                 normalt opfører sig.
                             -->
                             <button type="button" class="choice__preview"
-                                    data-preview-template="<?= (int) $template['id'] ?>"
-                                    data-preview-name="<?= e($template['name']) ?>"
-                                    aria-label="Forhåndsvis <?= e($template['name']) ?>"
+                                    data-preview-template="<?= e($slug) ?>"
+                                    data-preview-name="<?= e($template::name()) ?>"
+                                    aria-label="Forhåndsvis <?= e($template::name()) ?>"
                                     title="Forhåndsvis">
                                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
                                      fill="none" stroke="currentColor" stroke-width="2"
@@ -145,7 +157,7 @@ $error    = $_GET['fejl'] ?? null;
                             </button>
                         </span>
                         <span class="choice__text">
-                            <?= e((string) ($template['description'] ?? '')) ?>
+                            <?= e($template::description()) ?>
                         </span>
                     </span>
                 </label>
@@ -154,7 +166,7 @@ $error    = $_GET['fejl'] ?? null;
 
         <?php if ($templates === []): ?>
             <p class="field__hint">
-                Der er ingen skabeloner endnu. Du kan stadig oprette en blank side.
+                Det aktive tema har ingen skabeloner endnu. Du kan stadig oprette en blank side.
             </p>
         <?php endif; ?>
 

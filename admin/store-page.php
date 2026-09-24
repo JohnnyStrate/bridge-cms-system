@@ -24,9 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$title      = (string) ($_POST['title'] ?? '');
-$templateId = filter_input(INPUT_POST, 'template_id', FILTER_VALIDATE_INT) ?: 0;
-$parentId   = filter_input(INPUT_POST, 'parent_id', FILTER_VALIDATE_INT) ?: 0;
+$title    = (string) ($_POST['title'] ?? '');
+$parentId = filter_input(INPUT_POST, 'parent_id', FILTER_VALIDATE_INT) ?: 0;
+
+// Skabelonen sendes som sin slug. Tom betyder "blank side".
+// Værdien slås op i TemplateRegistry, så den kan ikke pege andre steder hen.
+$templateSlug = trim((string) ($_POST['template'] ?? ''));
 
 // 0 fra dropdownen betyder "ingen forælder" — siden ligger i roden.
 $parent = $parentId > 0 ? $parentId : null;
@@ -36,15 +39,14 @@ $pdo = Database::getConnection();
 $builder = new PageBuilder(
     $pdo,
     new PageRepository($pdo),
-    new BlockRepository($pdo),
-    new TemplateRepository($pdo)
+    new BlockRepository($pdo)
 );
 
 try {
-    // 0 er den blanke side. Alt andet slås op som skabelon-id, og
-    // findes det ikke, kaster PageBuilder en fejl.
-    $pageId = $templateId > 0
-        ? $builder->createFromTemplate($templateId, $title, $parent)
+    // Tom er den blanke side. Alt andet slås op som skabelon, og findes
+    // den ikke, kaster PageBuilder en fejl.
+    $pageId = $templateSlug !== ''
+        ? $builder->createFromTemplate($templateSlug, $title, $parent)
         : $builder->createBlank($title, $parent);
 
     header('Location: editor.php?page_id=' . $pageId);

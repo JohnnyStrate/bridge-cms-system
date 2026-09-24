@@ -34,8 +34,16 @@ spl_autoload_register(static function (string $class): void {
         return;
     }
 
-    // Mapper der gennemsøges. Blokke ligger i hver sin undermappe
-    // (blocks/hero/, blocks/welcome/ ...), så dem finder vi med glob.
+    // Mapper der gennemsøges.
+    //
+    // Hvert tema har sin egen mappe med sine blokke og skabeloner:
+    //
+    //     themes/tema1/Tema1Theme.php
+    //     themes/tema1/blocks/navbar/Tema1Navbar.php
+    //     themes/tema1/templates/Tema1ForsideTemplate.php
+    //
+    // De fælles værktøjsblokke ligger i blocks/faelles/. Et nyt tema er
+    // kun en ny mappe — der skal ikke rettes noget her.
     static $directories = null;
 
     if ($directories === null) {
@@ -43,10 +51,21 @@ spl_autoload_register(static function (string $class): void {
             APP_ROOT . '/core/',
             APP_ROOT . '/repositories/',
             APP_ROOT . '/blocks/',
+            APP_ROOT . '/themes/',
         ];
 
-        foreach (glob(APP_ROOT . '/blocks/*', GLOB_ONLYDIR) ?: [] as $dir) {
-            $directories[] = $dir . '/';
+        $patterns = [
+            '/blocks/*/*',              // blocks/faelles/image/
+            '/themes/*',                // themes/tema1/
+            '/themes/*/blocks/*',       // themes/tema1/blocks/navbar/
+            '/themes/*/templates',      // themes/tema1/templates/
+            '/themes/*/templates/*',    // en skabelon med sin egen mappe
+        ];
+
+        foreach ($patterns as $pattern) {
+            foreach (glob(APP_ROOT . $pattern, GLOB_ONLYDIR) ?: [] as $dir) {
+                $directories[] = $dir . '/';
+            }
         }
     }
 

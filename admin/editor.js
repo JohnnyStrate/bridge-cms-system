@@ -115,8 +115,9 @@
             };
         });
 
-        // Globale blokke sendes i deres eget felt. Serveren bruger kun
-        // slot'en — bloktypen bestemmes paa serveren, ikke her.
+        // Globale blokke sendes i deres eget felt. Typen sendes med, fordi
+        // en slot kan rumme flere (fx en navbar pr. tema), men det er
+        // serveren der afgoer, om typen er tilladt i den slot.
         const globals = Array.from(
             canvas.querySelectorAll('.ed-block[data-global-slot]')
         ).map(function (block) {
@@ -124,6 +125,7 @@
 
             return {
                 slot: block.dataset.globalSlot,
+                block_type: block.dataset.blockType,
                 settings: fields.settings,
                 styles: fields.styles
             };
@@ -275,9 +277,12 @@
 
         const isGlobal = Boolean(choice.dataset.addGlobal);
 
+        // En global slot kan rumme flere typer (fx en navbar pr. tema), saa
+        // skabelonen slaas op paa "slot:type".
         const template = isGlobal
             ? document.querySelector(
-                '[data-global-template-for="' + choice.dataset.addGlobal + '"]'
+                '[data-global-template-for="'
+                + choice.dataset.addGlobal + ':' + choice.dataset.globalType + '"]'
             )
             : document.querySelector(
                 '[data-template-for="' + choice.dataset.addType + '"]'

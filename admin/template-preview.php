@@ -13,40 +13,54 @@ declare(strict_types=1);
  * PageRenderer validerer værdierne mod blokkenes nuværende skema, så
  * forhåndsvisningen viser det, brugeren faktisk ville få.
  *
- *   template-preview.php?template_id=1
+ *   template-preview.php?template=klubforside
  */
 
 require_once __DIR__ . '/../bootstrap.php';
 
-$templateId = filter_input(INPUT_GET, 'template_id', FILTER_VALIDATE_INT) ?: 0;
+$slug = trim((string) filter_input(INPUT_GET, 'template'));
 
 $pdo       = Database::getConnection();
-$templates = new TemplateRepository($pdo);
 
-// find() returnerer kun aktive skabeloner, så en deaktiveret skabelon
-// kan heller ikke forhåndsvises ved at gætte dens id.
-$template = $templates->find($templateId);
+
+// Slug'en slås op blandt de skabeloner, der faktisk findes i temaernes
+// templates-mapper. En gættet værdi rammer derfor ingenting.
+$template = TemplateRegistry::get($slug);
 
 if ($template === null) {
     http_response_code(404);
     exit('Skabelonen blev ikke fundet.');
 }
 
-// Sitets navbar og footer lægges omkring, så brugeren ser skabelonen,
-// som den kommer til at stå på sitet — ikke som løsrevne sektioner.
-$globals = new GlobalBlocks(new GlobalBlockRepository($pdo));
-$blocks  = $globals->wrap($templates->findBlocks($templateId));
+// SKABELONENS temas navbar og footer lægges omkring — ikke nødvendigvis det
+// aktive temas. Så kan "Tema"-siden vise et tema, før man skifter til det.
+// Har temaet aldrig været brugt, vises dets dummy-navbar og -footer.
+$globals = new GlobalBlocks(
+    new GlobalBlockRepository($pdo),
+    TemplateRegistry::themeOf($slug)
+);
+// Skabelonens blokke tegnes direkte fra koden. Værdierne valideres af
+// PageRenderer mod blokkenes skemaer, præcis som når siden er oprettet.
+$blocks = $globals->wrap(array_map(
+    static fn (array $block): array => [
+        'block_type' => (string) ($block['type'] ?? ''),
+        'settings'   => is_array($block['settings'] ?? null) ? $block['settings'] : [],
+        'styles'     => is_array($block['styles'] ?? null) ? $block['styles'] : [],
+    ],
+    $template::blocks()
+));
 
 $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 $context  = RenderContext::editor(
     $basePath,
-    SiteMap::fromPages((new PageRepository($pdo))->findAll())
+    SiteMap::fromPages((new PageRepository($pdo))->findAll()),
+    GalleryMap::fromGalleries((new GalleryRepository($pdo))->all())
 );
 
 // renderDocument() forventer en side. Skabelonen har ingen, så vi giver
 // den det eneste, den bruger: en titel.
 $html = PageRenderer::renderDocument(
-    ['title' => 'Skabelon: ' . (string) $template['name']],
+    ['title' => 'Skabelon: ' . $template::name()],
     $blocks,
     $context
 );

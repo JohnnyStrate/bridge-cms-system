@@ -251,6 +251,22 @@
     gap: 1rem;
 }
 
+/*
+ * Temaoverskrift mellem skabelonkortene.
+ *
+ * grid-column: 1 / -1 lader den fylde alle kolonner, så den bryder rækken
+ * i stedet for at optage pladsen for ét kort.
+ */
+.choices__group {
+    grid-column: 1 / -1;
+    margin: 0.9rem 0 0;
+    color: var(--admin-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .choice {
     display: block;
     cursor: pointer;
@@ -853,4 +869,198 @@
         left: 0.75rem;
         width: auto;
     }
+}
+/* --- Forhaandsvisning af skabeloner og temaer ----------------------- */
+
+/* Titel og oeje-knap paa samme linje i kortet. */
+.choice__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.choice__preview {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid #c7ccd3;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--admin-blue);
+    cursor: pointer;
+}
+
+.choice__preview:hover,
+.choice__preview:focus-visible {
+    background: var(--admin-blue);
+    border-color: var(--admin-blue);
+    color: #fff;
+}
+
+.preview-dialog {
+    width: min(72rem, calc(100vw - 2rem));
+    height: min(48rem, calc(100vh - 2rem));
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgb(0 0 0 / 0.35);
+}
+
+/* Flex saettes kun, naar den er aaben. Ellers ville display:flex
+   overskrive browserens display:none paa en lukket <dialog>. */
+.preview-dialog[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-dialog::backdrop {
+    background: rgb(20 28 38 / 0.6);
+}
+
+.preview-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    background: var(--admin-blue);
+    color: #fff;
+}
+
+.preview-dialog__title {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.preview-dialog__close {
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* --- Tema ------------------------------------------------------------ */
+
+.intro {
+    max-width: 44rem;
+    margin: -1rem auto 1.5rem;
+    text-align: center;
+    color: var(--admin-muted);
+}
+
+.alert--ok {
+    background: #e8f4ec;
+    border-left-color: var(--admin-success);
+}
+
+/* "skift tema" ved siden af temaets navn i "Opret side". */
+.choices__group-link {
+    margin-left: 0.5rem;
+    color: var(--admin-blue);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.choice__title .badge {
+    margin-left: 0.35rem;
+    background: var(--admin-success);
+    font-weight: 600;
+    vertical-align: 0.1em;
+}
+
+/* Miniature af et tema uden billede: navbar, indhold og footer i
+   temaets egne standardfarver. Farverne saettes i themes.php. */
+.theme-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #dde1e6;
+}
+
+.theme-swatch__bar {
+    display: flex;
+    align-items: center;
+    gap: 6%;
+    height: 20%;
+    padding: 0 8%;
+    background: var(--top);
+}
+
+.theme-swatch__bar i {
+    width: 9%;
+    aspect-ratio: 1;
+    margin-right: auto;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.theme-swatch__bar b {
+    width: 12%;
+    height: 14%;
+    border-radius: 99px;
+    background: var(--accent);
+    opacity: 0.55;
+}
+
+.theme-swatch__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8%;
+    padding: 0 12%;
+}
+
+.theme-swatch__body b {
+    height: 7%;
+    border-radius: 99px;
+    background: #e3e7ec;
+}
+
+.theme-swatch__body b:first-child {
+    width: 60%;
+    height: 11%;
+    background: var(--accent);
+    opacity: 0.8;
+}
+
+.theme-swatch__body b:last-child {
+    width: 75%;
+}
+
+.theme-swatch__foot {
+    height: 18%;
+    background: var(--bottom);
+}
+
+.notice {
+    margin-top: 1.5rem;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid var(--admin-orange);
+    border-radius: var(--radius);
+    background: rgb(232 161 93 / 0.1);
+}
+
+.notice__title {
+    margin: 0 0 0.4rem;
+    font-weight: 700;
+}
+
+.notice ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.notice li + li {
+    margin-top: 0.25rem;
 }

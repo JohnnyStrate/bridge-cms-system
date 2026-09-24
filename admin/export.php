@@ -25,17 +25,12 @@ $error  = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        //        $exporter = new SiteExporter(
-        //     $pageRepository,
-        //     new BlockRepository($pdo),
-        //     APP_ROOT . '/export',
-        //     new GlobalBlocks(new GlobalBlockRepository($pdo))
-        // );
         $exporter = new SiteExporter(
             $pageRepository,
             new BlockRepository($pdo),
             APP_ROOT . '/export',
-            new GlobalBlocks(new GlobalBlockRepository($pdo)),
+            // Det aktive temas navbar og footer kommer med på hver side.
+            new GlobalBlocks(new GlobalBlockRepository($pdo), ThemeRegistry::active($pdo)),
             GalleryMap::fromGalleries((new GalleryRepository($pdo))->all())
         );
         $result = $exporter->export();
@@ -70,7 +65,8 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
         <li><a href="index.php">Dine sider</a></li>
         <li><a href="create-page.php">Opret side</a></li>
         <li><a href="export.php" aria-current="page">Udgiv</a></li>
-        <li><a href="#">Galleri</a></li>
+        <li><a href="galleries.php">Galleri</a></li>
+        <li><a href="themes.php">Tema</a></li>
         <li><a href="#">Indstillinger</a></li>
     </ul>
 </nav>

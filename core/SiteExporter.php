@@ -22,7 +22,7 @@ declare(strict_types=1);
  *     export/kontakt/index.html
  *     export/om-os/bestyrelse/index.html
  *     export/assets/css/base.css
- *     export/blocks/hero/block.css
+ *     export/themes/blaa-tema/blocks/hero/block.css
  *
  * Adressen bliver dermed /kontakt/ frem for /kontakt.html.
  */

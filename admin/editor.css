@@ -41,6 +41,24 @@
     font-size: 1.5rem;
 }
 
+/* Hvilket tema sitet bruger. Linker til "Tema", hvor det kan skiftes. */
+.ed-theme {
+    margin-left: auto;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    color: var(--admin-blue);
+    font-size: 0.9rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ed-theme:hover {
+    background: var(--admin-blue);
+    border-color: var(--admin-blue);
+    color: #fff;
+}
+
 /* --- Sidens indstillinger ------------------------------------------ */
 
 .ed-settings {
@@ -238,6 +256,28 @@
     font: inherit;
     font-weight: 600;
     cursor: pointer;
+}
+
+/*
+ * Temaoverskrift i "+"-menuen.
+ *
+ * flex-basis: 100% tvinger et linjeskift i den flex-wrap, knapperne ligger i,
+ * så hvert tema starter på sin egen række. Den første overskrift får ingen
+ * luft over, da menuen selv har padding.
+ */
+.ed-add__group {
+    flex: 0 0 100%;
+    margin: 0.75rem 0 0;
+    color: var(--admin-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.ed-add__group:first-child {
+    margin-top: 0;
 }
 
 /* --- Fast footer --------------------------------------------------- */
