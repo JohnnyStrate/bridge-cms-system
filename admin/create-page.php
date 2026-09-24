@@ -11,7 +11,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/../bootstrap.php';
 
 $pdo       = Database::getConnection();
-$templates = (new TemplateRepository($pdo))->findActive();
+// Skabelonerne findes i /templates/ og opdages automatisk. En ny
+// skabelon er derfor én ny mappe — ingen ændring her.
+$templates = TemplateRegistry::all();
 
 // Alle eksisterende sider kan vælges som forælder. En ny side har endnu
 // ingen undersider, så der er intet at sortere fra.
@@ -92,7 +94,7 @@ $error    = $_GET['fejl'] ?? null;
         <div class="choices">
 
             <label class="choice">
-                <input type="radio" name="template_id" value="0" checked>
+                <input type="radio" name="template" value="" checked>
                 <span class="choice__body">
                     <span class="choice__thumb choice__thumb--blank" aria-hidden="true">+</span>
                     <span class="choice__title">Blank side</span>
@@ -102,15 +104,15 @@ $error    = $_GET['fejl'] ?? null;
                 </span>
             </label>
 
-            <?php foreach ($templates as $template): ?>
+            <?php foreach ($templates as $slug => $template): ?>
                 <?php
-                    $thumbnail = (string) ($template['thumbnail'] ?? '');
+                    $thumbnail = $template::thumbnail();
                     $hasThumb  = $thumbnail !== ''
                         && is_file(APP_ROOT . '/' . ltrim($thumbnail, '/'));
                 ?>
                 <label class="choice">
-                    <input type="radio" name="template_id"
-                           value="<?= (int) $template['id'] ?>">
+                    <input type="radio" name="template"
+                           value="<?= e($slug) ?>">
                     <span class="choice__body">
                         <?php if ($hasThumb): ?>
                             <img class="choice__thumb"
@@ -123,7 +125,7 @@ $error    = $_GET['fejl'] ?? null;
                         <?php endif; ?>
 
                         <span class="choice__title-row">
-                            <span class="choice__title"><?= e($template['name']) ?></span>
+                            <span class="choice__title"><?= e($template::name()) ?></span>
                             <!--
                                 Knappen er en <button> inde i <label>. Uden
                                 preventDefault() i JavaScript ville browseren
@@ -132,9 +134,9 @@ $error    = $_GET['fejl'] ?? null;
                                 normalt opfører sig.
                             -->
                             <button type="button" class="choice__preview"
-                                    data-preview-template="<?= (int) $template['id'] ?>"
-                                    data-preview-name="<?= e($template['name']) ?>"
-                                    aria-label="Forhåndsvis <?= e($template['name']) ?>"
+                                    data-preview-template="<?= e($slug) ?>"
+                                    data-preview-name="<?= e($template::name()) ?>"
+                                    aria-label="Forhåndsvis <?= e($template::name()) ?>"
                                     title="Forhåndsvis">
                                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
                                      fill="none" stroke="currentColor" stroke-width="2"
@@ -145,7 +147,7 @@ $error    = $_GET['fejl'] ?? null;
                             </button>
                         </span>
                         <span class="choice__text">
-                            <?= e((string) ($template['description'] ?? '')) ?>
+                            <?= e($template::description()) ?>
                         </span>
                     </span>
                 </label>

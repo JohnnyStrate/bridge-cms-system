@@ -43,7 +43,7 @@
         const id = button.dataset.previewTemplate;
 
         title.textContent = 'Forhåndsvisning: ' + (button.dataset.previewName || '');
-        frame.src = 'template-preview.php?template_id=' + encodeURIComponent(id);
+        frame.src = 'template-preview.php?template=' + encodeURIComponent(id);
 
         dialog.showModal();
     });

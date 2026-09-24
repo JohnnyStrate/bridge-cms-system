@@ -15,8 +15,10 @@ Projektet skulle nu kunne åbnes på `admin/index.php`.
 Kør filerne i `migrations/` i stedet — én ad gangen, ældste først.
 De ændrer en eksisterende database uden at slette indhold.
 
-**Alle skal køre `2026-09-23_global_blocks_keys.sql`.** Uden den kan
-navbar og footer ikke gemmes rigtigt.
+**Alle skal køre begge migrationer fra 23. september**, i den rækkefølge
+filnavnene står. Uden `global_blocks_keys` kan navbar og footer ikke
+gemmes rigtigt, og uden `templates_i_kode` kan der ikke oprettes sider
+fra en skabelon.
 
 ## Når I ændrer strukturen
 
@@ -34,9 +36,11 @@ Tre ting i samme commit, ellers går det galt for de andre:
 | `pages`           | Siderne og deres placering i sidetræet           |
 | `page_blocks`     | Blokkene på hver side                            |
 | `global_blocks`   | Navbar og footer — fælles for alle sider         |
-| `page_templates`  | Skabelonerne i "Opret side"                      |
-| `template_blocks` | Blokkene i en skabelon                           |
 | `galleries`       | Billedgallerier, som galleri-blokken peger på    |
+
+Skabelonerne ligger ikke i databasen. De er kode i `templates/`, én mappe
+pr. skabelon, og opdages automatisk — en ny skabelon kræver derfor ingen
+SQL og ingen ændring i fælles filer.
 
 Indholdet i `settings` og `styles` er JSON og skal matche blokkenes
 skemaer i `blocks/`. Passer et feltnavn ikke, bruges blokkens

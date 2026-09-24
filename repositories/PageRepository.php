@@ -64,7 +64,7 @@ final class PageRepository
         string $slug,
         ?int $parentId = null,
         string $status = 'draft',
-        ?int $templateId = null
+        ?string $template = null
     ): int {
         if (!Slug::isValid($slug)) {
             throw new InvalidArgumentException(
@@ -74,7 +74,7 @@ final class PageRepository
 
         $stmt = $this->pdo->prepare(
             'INSERT INTO pages (title, slug, parent_id, status, sort_order,
-                                created_from_template_id)
+                                created_from_template)
              VALUES (:title, :slug, :parent, :status, :sort_order, :template)'
         );
 
@@ -84,7 +84,7 @@ final class PageRepository
             'parent'     => $parentId,
             'status'     => $status,
             'sort_order' => $this->nextSortOrder($parentId),
-            'template'   => $templateId,
+            'template'   => $template,
         ]);
 
         return (int) $this->pdo->lastInsertId();

@@ -43,9 +43,17 @@ spl_autoload_register(static function (string $class): void {
             APP_ROOT . '/core/',
             APP_ROOT . '/repositories/',
             APP_ROOT . '/blocks/',
+            APP_ROOT . '/templates/',
         ];
 
+        // Blokke og skabeloner ligger i hver sin undermappe
+        // (blocks/hero/, templates/klubforside/ ...), så dem finder vi
+        // med glob.
         foreach (glob(APP_ROOT . '/blocks/*', GLOB_ONLYDIR) ?: [] as $dir) {
+            $directories[] = $dir . '/';
+        }
+
+        foreach (glob(APP_ROOT . '/templates/*', GLOB_ONLYDIR) ?: [] as $dir) {
             $directories[] = $dir . '/';
         }
     }

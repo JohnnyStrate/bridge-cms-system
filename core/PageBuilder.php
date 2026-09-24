@@ -22,8 +22,7 @@ final class PageBuilder
     public function __construct(
         private readonly PDO $pdo,
         private readonly PageRepository $pages,
-        private readonly BlockRepository $blocks,
-        private readonly TemplateRepository $templates
+        private readonly BlockRepository $blocks
     ) {
     }
 
@@ -44,14 +43,16 @@ final class PageBuilder
     /**
      * Opretter en side og kopierer skabelonens blokke ned på den.
      *
+     * @param string $templateSlug Skabelonens slug, fx 'klubforside'.
+     *
      * @throws InvalidArgumentException hvis skabelonen ikke findes.
      */
     public function createFromTemplate(
-        int $templateId,
+        string $templateSlug,
         string $title,
         ?int $parentId = null
     ): int {
-        $template = $this->templates->find($templateId);
+        $template = TemplateRegistry::get($templateSlug);
 
         if ($template === null) {
             throw new InvalidArgumentException('Skabelonen findes ikke.');
@@ -71,42 +72,42 @@ final class PageBuilder
                 $slug,
                 $parentId,
                 'draft',
-                $templateId
+                $template::slug()
             );
 
-            foreach ($this->templates->findBlocks($templateId) as $blockData) {
-                $type  = (string) $blockData['block_type'];
+            $position = 0;
+
+            foreach ($template::blocks() as $blockData) {
+                $type  = (string) ($blockData['type'] ?? '');
                 $class = BlockRegistry::get($type);
 
-                // Skabelonen kan referere til en bloktype, der siden er
-                // fjernet fra registryet. Spring den over frem for at
-                // afvise hele oprettelsen.
+                // Skabelonen kan nævne en bloktype, der siden er fjernet
+                // fra registryet. Spring den over frem for at afvise hele
+                // oprettelsen.
                 if ($class === null) {
-                    error_log("Skabelon {$templateId}: ukendt bloktype '{$type}' sprunget over.");
+                    error_log("Skabelon '{$templateSlug}': ukendt bloktype '{$type}' sprunget over.");
                     continue;
                 }
 
                 // Skabelondata valideres på præcis samme måde som
                 // brugerinput. Så er data i page_blocks garanteret
                 // ensartet, uanset om det kom fra en redaktør eller fra
-                // en seed-fil skrevet for et år siden.
+                // en skabelon skrevet for et år siden. Felter, skabelonen
+                // ikke nævner, får blokkens standardværdi.
                 $settings = FieldValidator::validateAll(
                     $class::getSchema(),
-                    $blockData['settings']
+                    is_array($blockData['settings'] ?? null) ? $blockData['settings'] : []
                 );
 
                 $styles = FieldValidator::validateAll(
                     $class::getStyleSchema(),
-                    $blockData['styles']
+                    is_array($blockData['styles'] ?? null) ? $blockData['styles'] : []
                 );
 
-                $this->blocks->insert(
-                    $pageId,
-                    $type,
-                    $settings,
-                    $styles,
-                    $blockData['sort_order']
-                );
+                // Rækkefølgen er den, blokkene står i i skabelonen.
+                $position += 10;
+
+                $this->blocks->insert($pageId, $type, $settings, $styles, $position);
             }
 
             $this->pdo->commit();
