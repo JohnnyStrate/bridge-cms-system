@@ -70,7 +70,7 @@ $diamond = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
             <div class="t2ti__media">
                 <div class="t2ti__blob">
                     <?php if ($image !== ''): ?>
-                        <img src="<?= e($image) ?>" alt="<?= e($imageAlt) ?>" loading="lazy"<?= $context->inlineImage('image') ?>>
+                        <img src="<?= e($image) ?>" alt="<?= e($imageAlt) ?>" decoding="async"<?= $context->inlineImage('image') ?>>
                     <?php else: ?>
                         <span class="t2ti__blob-empty"<?= $context->inlineImage('image') ?>>Vælg billede</span>
                     <?php endif; ?>
@@ -92,6 +92,9 @@ $diamond = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
     kører, før siden tegnes første gang — ellers ville den blinke.
     Ikke i editoren: dér skal alt kunne ses og klikkes på med det samme.
     Virker også i den eksporterede statiske side.
+
+    Wipen venter på, at billedet er hentet og klar (højst 2 sekunder), så
+    man aldrig ser den tomme grå cirkel komme ind før billedet.
 */ ?>
 <script>
 (function () {
@@ -101,11 +104,25 @@ $diamond = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
         return;
     }
     section.classList.add('t2ti--armed');
+    var image = section.querySelector('.t2ti__blob img');
+    var ready = new Promise(function (resolve) {
+        if (!image) {
+            resolve();
+            return;
+        }
+        // decode() venter, til billedet er hentet OG klar til at blive vist.
+        var done = image.decode ? image.decode() : Promise.resolve();
+        done.then(resolve, resolve);
+        setTimeout(resolve, 2000);
+    });
+
     new IntersectionObserver(function (entries, observer) {
         entries.forEach(function (entry) {
             if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
                 observer.unobserve(entry.target);
+                ready.then(function () {
+                    entry.target.classList.add('is-visible');
+                });
             }
         });
     // Starter først, når sektionens top er nået 30 % op over bunden af

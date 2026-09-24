@@ -1,0 +1,298 @@
+/* =====================================================================
+   Moerk sektion med svaevende overskrift — tema 2
+
+   Overskriftsboksen haenger halvt over den moerke flades oeverste kant.
+   Samme tre kolonner og sidemargen som resten af tema 2.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema2-callout {
+    --top-color: #fafafa;
+    --background-color: #16242f;
+    --title-start: #152b3a;
+    --title-end: #153348;
+    --text-color: #ffffff;
+    --title-size: 60px;
+    --text-size: 19px;
+    --font-family: 'Jost';
+    --radius: 22px;
+    --button-start: #192e3c;
+    --button-end: #457ba2;
+    --button-opacity: 72%;
+
+    --t2-container: 72rem;
+    --t2-side: 8rem;
+    --t2-gutter: clamp(1.25rem, 4.8vw, 6rem);
+
+    display: grid;
+    grid-template-columns:
+        minmax(var(--t2-side), 1fr)
+        minmax(0, var(--t2-container))
+        minmax(var(--t2-side), 1fr);
+    /*
+     * BOKSEN HALVT OVER KANTEN
+     * Overskriften spaender over raekke 1 og 2. Begge er "auto", og da
+     * intet andet giver dem hoejde, deler gitteret overskriftens hoejde
+     * ligeligt mellem dem. Den moerke flade starter i raekke 2 — altsaa
+     * praecis midt paa boksen, uanset hvor hoej den bliver.
+     */
+    grid-template-rows: auto auto auto;
+    padding: clamp(2rem, 4vw, 3.5rem) var(--t2-gutter) 0;
+    overflow: hidden;
+    background: var(--top-color);
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.t2co__bg {
+    grid-column: 1 / -1;
+    grid-row: 2 / -1;
+    /* Ud over sidemargenen, saa fladen gaar kant til kant. */
+    margin-inline: calc(var(--t2-gutter) * -1);
+    background: var(--background-color);
+}
+
+/* --- Overskriftsboksen ---------------------------------------------- */
+
+.t2co__title {
+    grid-column: 1 / -1;
+    grid-row: 1 / 3;
+    z-index: 1;
+    justify-self: center;
+    width: min(100%, 88rem);
+    margin: 0;
+    padding: clamp(0.9rem, 1.8vw, 1.4rem) 2rem;
+    border-radius: var(--radius);
+    background: linear-gradient(90deg, var(--title-start), var(--title-end));
+    /* Figma: x 0, y 22, blur 34,4, spread 15, 25 %. */
+    box-shadow: 0 22px 34.4px 15px rgb(0 0 0 / 0.25);
+    color: var(--text-color);
+    font-size: clamp(2rem, 4.2vw, var(--title-size));
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: center;
+}
+
+/* --- Tekst og knap -------------------------------------------------- */
+
+.t2co__content {
+    position: relative;
+    grid-column: 2;
+    grid-row: 3;
+    padding: clamp(3rem, 7vw, 6.5rem) clamp(0rem, 11%, 10rem) clamp(4rem, 9vw, 8rem);
+}
+
+.t2co__text {
+    max-width: 62rem;
+    margin: 0 0 1.6em;
+    font-size: clamp(1rem, 1.2vw, var(--text-size));
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+}
+
+.t2co__text strong {
+    font-style: italic;
+    font-weight: 700;
+}
+
+/* Knappen: bredden foelger teksten, men stopper ved max-width, hvor en for
+   lang tekst afkortes med "…". Teksten er kursiv. */
+.t2co__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.75rem;
+    max-width: min(32rem, 100%);
+    margin-top: 0.25rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.55rem;
+    border-radius: 8px;
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--button-start) var(--button-opacity), transparent),
+        color-mix(in srgb, var(--button-end) var(--button-opacity), transparent)
+    );
+    color: #ffffff;
+    font-size: clamp(1rem, 1.2vw, 1.25rem);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.t2co__button-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.t2co__arrow {
+    flex: none;
+    width: 1.7rem;
+    height: auto;
+    overflow: visible;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.t2co__button:hover,
+.t2co__button:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.35);
+}
+
+.t2co__button:hover .t2co__arrow,
+.t2co__button:focus-visible .t2co__arrow {
+    transform: translateX(0.45rem);
+}
+
+/* --- Kortikoner ------------------------------------------------------ */
+
+.t2co__suit {
+    position: absolute;
+    line-height: 0;
+    animation: t2co-float 5s ease-in-out infinite alternate;
+}
+
+.t2co__suit svg {
+    width: 100%;
+    height: auto;
+    fill: currentColor;
+}
+
+.t2co__suit--heart {
+    top: clamp(2.5rem, 6vw, 5.5rem);
+    right: 2%;
+    width: 1.6rem;
+    color: #e0342f;
+    --tilt: 14deg;
+}
+
+.t2co__suit--spade {
+    right: 9%;
+    bottom: clamp(3rem, 8vw, 7rem);
+    width: 2.1rem;
+    color: var(--text-color);
+    --o: 0.18;
+    opacity: var(--o);
+    --tilt: -10deg;
+    animation-delay: -2.5s;
+}
+
+@keyframes t2co-float {
+    from { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+    to   { transform: translateY(-7px) rotate(calc(var(--tilt, 0deg) + 6deg)); }
+}
+
+/* --- Animation ------------------------------------------------------- */
+
+/*
+ * Scriptet i templaten saetter .t2co--armed (skjult) og .is-visible.
+ *   1. Den moerke flade wipes ind fra venstre.
+ *   2. Overskriftsboksen aabner sig fra midten og ud.
+ *   3. Teksten "fokuserer" ind: hvert afsnit glider op fra en let
+ *      sloering, ét ad gangen, og knappen kommer til sidst.
+ * Uden JavaScript er alt bare synligt.
+ */
+@keyframes t2co-wipe {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes t2co-open {
+    from { clip-path: inset(-3rem 50% -5rem 50% round var(--radius)); }
+    to   { clip-path: inset(-3rem -3rem -5rem -3rem round var(--radius)); }
+}
+
+@keyframes t2co-focus {
+    from { opacity: 0; transform: translateY(1.1rem); filter: blur(6px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes t2co-pop {
+    from { opacity: 0; transform: scale(0.3) rotate(-40deg); }
+    to   { opacity: var(--o, 1); transform: scale(1) rotate(var(--tilt, 0deg)); }
+}
+
+.t2co--armed .t2co__bg {
+    clip-path: inset(0 100% 0 0);
+}
+
+.t2co--armed .t2co__title {
+    clip-path: inset(-3rem 50% -5rem 50% round var(--radius));
+}
+
+.t2co--armed .t2co__text,
+.t2co--armed .t2co__button,
+.t2co--armed .t2co__suit {
+    opacity: 0;
+}
+
+.t2co--armed.is-visible .t2co__bg {
+    animation: t2co-wipe 1s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.t2co--armed.is-visible .t2co__title {
+    animation: t2co-open 0.9s 0.3s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.t2co--armed.is-visible .t2co__text,
+.t2co--armed.is-visible .t2co__button {
+    animation: t2co-focus 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.9s + var(--i, 0) * 0.15s);
+}
+
+.t2co--armed.is-visible .t2co__suit {
+    opacity: var(--o, 1);
+    animation:
+        t2co-pop 0.6s 1.5s cubic-bezier(0.3, 1.6, 0.5, 1) both,
+        t2co-float 5s 2.1s ease-in-out infinite alternate;
+}
+
+/* --- Smalle skaerme -------------------------------------------------- */
+
+@media (max-width: 64rem) {
+    .block--tema2-callout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .t2co__content {
+        grid-column: 1;
+        padding-inline: 0;
+    }
+
+    .t2co__title {
+        padding-inline: 1.25rem;
+    }
+
+    .t2co__suit--heart {
+        top: 1.25rem;
+    }
+
+    /* Ingen plads til sparen ved siden af knappen paa mobil. */
+    .t2co__suit--spade {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t2co--armed .t2co__bg,
+    .t2co--armed .t2co__title {
+        clip-path: none;
+    }
+
+    .t2co--armed .t2co__text,
+    .t2co--armed .t2co__button,
+    .t2co--armed .t2co__suit {
+        opacity: var(--o, 1);
+    }
+
+    .block--tema2-callout,
+    .block--tema2-callout * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

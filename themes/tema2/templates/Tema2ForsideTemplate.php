@@ -40,6 +40,7 @@ final class Tema2ForsideTemplate extends AbstractTemplate
             static::block('tema2-hero'),
             static::block('tema2-textimage'),
             static::block('tema2-cards'),
+            static::block('tema2-callout'),
         ];
     }
 }
