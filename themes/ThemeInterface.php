@@ -38,6 +38,15 @@ interface ThemeInterface
     public static function sortOrder(): int;
 
     /**
+     * Er temaet færdigt nok til at kunne vælges?
+     *
+     * false skjuler det under "Tema", så et halvfærdigt tema ikke ser
+     * færdigt ud. Koden bliver liggende og virker stadig — er temaet
+     * allerede aktivt, bliver det ved med at være det og vises på listen.
+     */
+    public static function isReady(): bool;
+
+    /**
      * Temaets blokke: bloktype => klasse.
      *
      * Bloktypen er en databasenøgle (page_blocks.block_type) og må ikke

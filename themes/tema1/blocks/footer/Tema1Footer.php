@@ -29,32 +29,10 @@ final class Tema1FooterBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'club_name' => [
-                'type'    => 'text',
-                'label'   => 'Klubbens navn',
-                'default' => 'Bridgeklubben',
-            ],
             'tagline' => [
                 'type'    => 'text',
                 'label'   => 'Kort tekst under navnet',
                 'default' => 'Spil, hygge og turneringer hele året.',
-            ],
-            'address' => [
-                'type'    => 'text',
-                'label'   => 'Adresse',
-                'default' => 'Vejnavn 1, 1234 By',
-            ],
-            'email' => [
-                'type'    => 'text',
-                'label'   => 'E-mail',
-                'default' => 'info@klub.dk',
-                'max'     => 254,
-            ],
-            'phone' => [
-                'type'    => 'text',
-                'label'   => 'Telefon',
-                'default' => '+45 00 00 00 00',
-                'max'     => 40,
             ],
             'links' => [
                 'type'     => 'repeater',
@@ -85,8 +63,8 @@ final class Tema1FooterBlock extends AbstractBlock
             ],
             'copyright' => [
                 'type'    => 'text',
-                'label'   => 'Bundtekst (skriv {år} for årstallet)',
-                'default' => '© {år} Bridgeklubben',
+                'label'   => 'Bundtekst ({år} = årstal, {klub} = klubnavn)',
+                'default' => '© {år} {klub}',
             ],
         ];
     }
@@ -176,23 +154,25 @@ final class Tema1FooterBlock extends AbstractBlock
             ];
         }
 
-        $email = trim((string) ($settings['email'] ?? ''));
-        $phone = trim((string) ($settings['phone'] ?? ''));
+        // Navn og kontakt er klubbens og står under Indstillinger (SiteInfo).
+        $email = trim(SiteInfo::get('email'));
+        $phone = trim(SiteInfo::get('phone'));
         $digits = preg_replace('/[^0-9+]/', '', $phone) ?? '';
 
-        $clubName = trim((string) ($settings['club_name'] ?? ''));
+        $clubName = trim(SiteInfo::get('club_name'));
 
         return static::renderTemplate([
             'clubName'  => $clubName,
             'mark'      => $clubName !== '' ? mb_substr($clubName, 0, 1) : '',
             'tagline'   => (string) ($settings['tagline'] ?? ''),
-            'address'   => (string) ($settings['address'] ?? ''),
+            'address'   => SiteInfo::get('address'),
             'email'     => $email,
             'emailHref' => filter_var($email, FILTER_VALIDATE_EMAIL) !== false ? 'mailto:' . $email : '',
             'phone'     => $phone,
             'phoneHref' => $digits !== '' ? 'tel:' . $digits : '',
             'links'     => $links,
-            'copyright' => str_replace('{år}', date('Y'), (string) ($settings['copyright'] ?? '')),
+            'copyright' => SiteInfo::expand((string) ($settings['copyright'] ?? '')),
+            'copyrightRaw' => (string) ($settings['copyright'] ?? ''),
             'cssVars'   => static::cssVariables($styles),
             'context'   => $context,
         ]);

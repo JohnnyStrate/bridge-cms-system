@@ -20,9 +20,9 @@ $editing = $context->isInlineEditing();
     <?php if ($logo !== '' || $editing): ?>
         <a class="t2nav__logo" href="<?= e($homeHref) ?>">
             <?php if ($logo !== ''): ?>
-                <img src="<?= e($logo) ?>" alt="<?= e($logoAlt) ?>"<?= $context->inlineImage('logo') ?>>
+                <img src="<?= e($logo) ?>" alt="<?= e($logoAlt) ?>"<?= $editing ? ' title="Logoet skiftes under Indstillinger"' : '' ?>>
             <?php else: ?>
-                <span class="t2nav__logo-empty"<?= $context->inlineImage('logo') ?>>Logo</span>
+                <span class="t2nav__logo-empty">Logo</span>
             <?php endif; ?>
         </a>
     <?php endif; ?>

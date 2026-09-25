@@ -65,6 +65,22 @@ final class ThemeRegistry
         return self::$themes = $found;
     }
 
+    /**
+     * De temaer, der kan vælges under "Tema": de færdige, plus det aktive,
+     * selv hvis det ikke er markeret som færdigt.
+     *
+     * @return array<string, class-string<ThemeInterface>>
+     */
+    public static function selectable(string $activeSlug): array
+    {
+        return array_filter(
+            self::all(),
+            static fn (string $theme, string $slug): bool
+                => $theme::isReady() || $slug === $activeSlug,
+            ARRAY_FILTER_USE_BOTH
+        );
+    }
+
     /** @return class-string<ThemeInterface>|null */
     public static function get(string $slug): ?string
     {

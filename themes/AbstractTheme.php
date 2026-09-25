@@ -30,4 +30,9 @@ abstract class AbstractTheme implements ThemeInterface
     {
         return 100;
     }
+
+    public static function isReady(): bool
+    {
+        return true;
+    }
 }

@@ -29,16 +29,6 @@ final class NavbarBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'logo' => [
-                'type'    => 'image',
-                'label'   => 'Logo',
-                'default' => '',
-            ],
-            'logo_alt' => [
-                'type'    => 'text',
-                'label'   => 'Beskrivelse af logo',
-                'default' => '',
-            ],
             'links' => [
                 'type'     => 'repeater',
                 'label'    => 'Menupunkter',
@@ -134,11 +124,12 @@ final class NavbarBlock extends AbstractBlock
             ];
         }
 
-        $logo = (string) ($settings['logo'] ?? '');
+        // Logoet er klubbens og står under Indstillinger (SiteInfo).
+        $logo = SiteInfo::get('logo');
 
         return static::renderTemplate([
             'logo'     => $logo !== '' ? $context->asset($logo) : '',
-            'logoAlt'  => (string) ($settings['logo_alt'] ?? ''),
+            'logoAlt'  => SiteInfo::get('club_name'),
             'links'    => $links,
             'cssVars'  => static::cssVariables($styles),
         ]);

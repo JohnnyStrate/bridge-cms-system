@@ -15,7 +15,8 @@
  * @var string                            $cssVars
  * @var RenderContext                     $context
  *
- * Adresserne er regnet ud i Tema1FooterBlock::render().
+ * Adresserne er regnet ud i Tema1FooterBlock::render(). Navn og kontakt
+ * kommer fra Indstillinger (SiteInfo) og redigeres ikke her.
  */
 $hasContact = $address !== '' || $phone !== '' || $email !== '';
 ?>
@@ -28,7 +29,7 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
             <?php endif; ?>
             <div>
                 <?php if ($clubName !== ''): ?>
-                    <p class="t1foot__name"<?= $context->inline('club_name', 'Klubbens navn') ?>><?= e($clubName) ?></p>
+                    <p class="t1foot__name"><?= e($clubName) ?></p>
                 <?php endif; ?>
                 <?php if ($tagline !== ''): ?>
                     <p class="t1foot__tagline"<?= $context->inline('tagline', 'Kort tekst') ?>><?= e($tagline) ?></p>
@@ -40,12 +41,12 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
             <div class="t1foot__col">
                 <p class="t1foot__heading">Kontakt</p>
                 <?php if ($address !== ''): ?>
-                    <p class="t1foot__line"<?= $context->inline('address', 'Adresse') ?>><?= e($address) ?></p>
+                    <p class="t1foot__line"><?= nl2br(e($address)) ?></p>
                 <?php endif; ?>
                 <?php if ($phone !== ''): ?>
                     <p class="t1foot__line">
                         <?php if ($phoneHref !== ''): ?>
-                            <a href="<?= e($phoneHref) ?>"<?= $context->inline('phone', 'Telefon') ?>><?= e($phone) ?></a>
+                            <a href="<?= e($phoneHref) ?>"><?= e($phone) ?></a>
                         <?php else: ?>
                             <?= e($phone) ?>
                         <?php endif; ?>
@@ -54,7 +55,7 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
                 <?php if ($email !== ''): ?>
                     <p class="t1foot__line">
                         <?php if ($emailHref !== ''): ?>
-                            <a href="<?= e($emailHref) ?>"<?= $context->inline('email', 'E-mail') ?>><?= e($email) ?></a>
+                            <a href="<?= e($emailHref) ?>"><?= e($email) ?></a>
                         <?php else: ?>
                             <?= e($email) ?>
                         <?php endif; ?>
@@ -77,6 +78,6 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
     </div>
 
     <?php if ($copyright !== ''): ?>
-        <p class="t1foot__bottom"<?= $context->inline('copyright', 'Bundtekst') ?>><?= e($copyright) ?></p>
+        <p class="t1foot__bottom"<?= $context->inline('copyright', 'Bundtekst') ?>><?= e($context->isInlineEditing() ? $copyrightRaw : $copyright) ?></p>
     <?php endif; ?>
 </footer>

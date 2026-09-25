@@ -32,16 +32,6 @@ final class Tema2FooterBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'logo' => [
-                'type'    => 'image',
-                'label'   => 'Logo',
-                'default' => 'themes/tema2/assets/logo-placeholder.svg',
-            ],
-            'logo_alt' => [
-                'type'    => 'text',
-                'label'   => 'Beskrivelse af logo',
-                'default' => 'Klubbens logo',
-            ],
             'tagline' => [
                 'type'    => 'textarea',
                 'label'   => 'Kort tekst om klubben',
@@ -65,24 +55,6 @@ final class Tema2FooterBlock extends AbstractBlock
                 'label'       => 'Knap: ekstern adresse',
                 'placeholder' => 'Indsæt link',
                 'default'     => '',
-            ],
-            'address' => [
-                'type'    => 'textarea',
-                'label'   => 'Adresse',
-                'default' => "Klubhuset\nVejnavn 1, 1234 By",
-                'max'     => 200,
-            ],
-            'phone' => [
-                'type'    => 'text',
-                'label'   => 'Telefon',
-                'default' => '+45 00 00 00 00',
-                'max'     => 40,
-            ],
-            'email' => [
-                'type'    => 'text',
-                'label'   => 'E-mail',
-                'default' => 'info@dinklub.dk',
-                'max'     => 254,
             ],
             'hours' => [
                 'type'     => 'repeater',
@@ -139,8 +111,8 @@ final class Tema2FooterBlock extends AbstractBlock
             ],
             'copyright' => [
                 'type'    => 'text',
-                'label'   => 'Bundtekst (skriv {år} for årstallet)',
-                'default' => '© {år} Din Bridgeklub',
+                'label'   => 'Bundtekst ({år} = årstal, {klub} = klubnavn)',
+                'default' => '© {år} {klub}',
             ],
         ];
     }
@@ -230,15 +202,17 @@ final class Tema2FooterBlock extends AbstractBlock
             }
         }
 
-        $email  = trim((string) ($settings['email'] ?? ''));
-        $phone  = trim((string) ($settings['phone'] ?? ''));
+        // Logo og kontakt er klubbens og står under Indstillinger (SiteInfo).
+        $email  = trim(SiteInfo::get('email'));
+        $phone  = trim(SiteInfo::get('phone'));
         $digits = preg_replace('/[^0-9+]/', '', $phone) ?? '';
-        $logo   = (string) ($settings['logo'] ?? '');
+        $logo   = SiteInfo::get('logo');
+        $logo   = $logo !== '' ? $logo : 'themes/tema2/assets/logo-placeholder.svg';
         $label  = trim((string) ($settings['button_label'] ?? ''));
 
         return static::renderTemplate([
             'logo'        => $logo !== '' ? $context->asset($logo) : '',
-            'logoAlt'     => (string) ($settings['logo_alt'] ?? ''),
+            'logoAlt'     => SiteInfo::get('club_name'),
             'tagline'     => (string) ($settings['tagline'] ?? ''),
             'buttonLabel' => $label,
             'buttonHref'  => self::hrefFor(
@@ -246,14 +220,15 @@ final class Tema2FooterBlock extends AbstractBlock
                 (string) ($settings['button_url'] ?? ''),
                 $context
             ),
-            'address'     => trim((string) ($settings['address'] ?? '')),
+            'address'     => trim(SiteInfo::get('address')),
             'phone'       => $phone,
             'phoneHref'   => $digits !== '' ? 'tel:' . $digits : '',
             'email'       => $email,
             'emailHref'   => filter_var($email, FILTER_VALIDATE_EMAIL) !== false ? 'mailto:' . $email : '',
             'hours'       => $hours,
             'links'       => $links,
-            'copyright'   => str_replace('{år}', date('Y'), (string) ($settings['copyright'] ?? '')),
+            'copyright'   => SiteInfo::expand((string) ($settings['copyright'] ?? '')),
+            'copyrightRaw' => (string) ($settings['copyright'] ?? ''),
             'cssVars'     => static::cssVariables($styles),
             'context'     => $context,
         ]);

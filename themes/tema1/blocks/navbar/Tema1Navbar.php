@@ -30,24 +30,6 @@ final class Tema1NavbarBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'logo' => [
-                'type'    => 'image',
-                'label'   => 'Logo',
-                'default' => '',
-            ],
-            'logo_alt' => [
-                'type'    => 'text',
-                'label'   => 'Beskrivelse af logo',
-                'default' => '',
-            ],
-            // Vises kun, når der ikke er valgt et logo. Så står der aldrig
-            // et tomt hul i venstre side, mens man bygger siden.
-            'brand_text' => [
-                'type'        => 'text',
-                'label'       => 'Navn (bruges uden logo)',
-                'placeholder' => 'Fx Bridgeklubben',
-                'default'     => 'Bridgeklubben',
-            ],
             'links' => [
                 'type'     => 'repeater',
                 'label'    => 'Menupunkter',
@@ -192,13 +174,15 @@ final class Tema1NavbarBlock extends AbstractBlock
             ];
         }
 
-        $logo      = (string) ($settings['logo'] ?? '');
+        // Logo og klubnavn står under Indstillinger (SiteInfo). Uden logo
+        // vises navnet med første bogstav som mærke.
+        $logo      = SiteInfo::get('logo');
         $ctaLabel  = trim((string) ($settings['cta_label'] ?? ''));
 
         return static::renderTemplate([
             'logo'      => $logo !== '' ? $context->asset($logo) : '',
-            'logoAlt'   => (string) ($settings['logo_alt'] ?? ''),
-            'brandText' => trim((string) ($settings['brand_text'] ?? '')),
+            'logoAlt'   => SiteInfo::get('club_name'),
+            'brandText' => trim(SiteInfo::get('club_name')),
             'links'     => $links,
             'ctaLabel'  => $ctaLabel,
             'ctaHref'   => $ctaLabel === '' ? '' : self::hrefFor(

@@ -52,17 +52,7 @@ $list = $galleries->all();
 </head>
 <body class="admin">
 
-<nav class="sidebar">
-    <p class="sidebar__brand">Adminpanel</p>
-    <ul class="sidebar__nav">
-        <li><a href="index.php">Dine sider</a></li>
-        <li><a href="create-page.php">Opret side</a></li>
-        <li><a href="export.php">Udgiv</a></li>
-        <li><a href="galleries.php" aria-current="page">Galleri</a></li>
-        <li><a href="themes.php">Tema</a></li>
-        <li><a href="#">Indstillinger</a></li>
-    </ul>
-</nav>
+<?php $activeMenu = 'gallery'; require __DIR__ . '/sidebar.php'; ?>
 
 <main class="content">
     <h1 class="content__title">Gallerier</h1>

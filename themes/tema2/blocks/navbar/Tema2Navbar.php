@@ -30,16 +30,6 @@ final class Tema2NavbarBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'logo' => [
-                'type'    => 'image',
-                'label'   => 'Logo',
-                'default' => 'themes/tema2/assets/logo-placeholder.svg',
-            ],
-            'logo_alt' => [
-                'type'    => 'text',
-                'label'   => 'Beskrivelse af logo',
-                'default' => 'Klubbens logo',
-            ],
             'links' => [
                 'type'     => 'repeater',
                 'label'    => 'Menupunkter',
@@ -167,11 +157,14 @@ final class Tema2NavbarBlock extends AbstractBlock
             $links[0]['active'] = true;
         }
 
-        $logo = (string) ($settings['logo'] ?? '');
+        // Klubbens logo fra Indstillinger. Er der intet, vises temaets
+        // pladsholder, så man kan se, hvor logoet kommer til at stå.
+        $logo = SiteInfo::get('logo');
+        $logo = $logo !== '' ? $logo : 'themes/tema2/assets/logo-placeholder.svg';
 
         return static::renderTemplate([
             'logo'     => $logo !== '' ? $context->asset($logo) : '',
-            'logoAlt'  => (string) ($settings['logo_alt'] ?? ''),
+            'logoAlt'  => SiteInfo::get('club_name'),
             'homeHref' => $links[0]['href'] ?? '#',
             'links'    => $links,
             'cssVars'  => static::cssVariables($styles),

@@ -35,9 +35,7 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
     <div class="t2f__inner">
         <div class="t2f__brand t2f__reveal" style="--i:0">
             <?php if ($logo !== ''): ?>
-                <img class="t2f__logo" src="<?= e($logo) ?>" alt="<?= e($logoAlt) ?>"<?= $context->inlineImage('logo') ?>>
-            <?php elseif ($editing): ?>
-                <span class="t2f__logo t2f__logo--empty"<?= $context->inlineImage('logo') ?>>Logo</span>
+                <img class="t2f__logo" src="<?= e($logo) ?>" alt="<?= e($logoAlt) ?>"<?= $editing ? ' title="Logoet skiftes under Indstillinger"' : '' ?>>
             <?php endif; ?>
 
             <?php if ($tagline !== '' || $editing): ?>
@@ -55,27 +53,28 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
             <?php endif; ?>
         </div>
 
-        <?php if ($hasContact || $editing): ?>
+        <?php if ($hasContact): ?>
             <div class="t2f__col t2f__reveal" style="--i:1">
                 <p class="t2f__heading">Kontakt</p>
-                <?php if ($address !== '' || $editing): ?>
-                    <p class="t2f__line"<?= $context->inline('address', 'Adresse', true) ?>><?= $editing ? e($address) : nl2br(e($address)) ?></p>
+                <?php /* Kontakt kommer fra Indstillinger (SiteInfo). */ ?>
+                <?php if ($address !== ''): ?>
+                    <p class="t2f__line"><?= nl2br(e($address)) ?></p>
                 <?php endif; ?>
-                <?php if ($phone !== '' || $editing): ?>
+                <?php if ($phone !== ''): ?>
                     <p class="t2f__line">
-                        <?php if ($phoneHref !== '' && !$editing): ?>
+                        <?php if ($phoneHref !== ''): ?>
                             <a href="<?= e($phoneHref) ?>"><?= e($phone) ?></a>
                         <?php else: ?>
-                            <span<?= $context->inline('phone', 'Telefon') ?>><?= e($phone) ?></span>
+                            <?= e($phone) ?>
                         <?php endif; ?>
                     </p>
                 <?php endif; ?>
-                <?php if ($email !== '' || $editing): ?>
+                <?php if ($email !== ''): ?>
                     <p class="t2f__line">
-                        <?php if ($emailHref !== '' && !$editing): ?>
+                        <?php if ($emailHref !== ''): ?>
                             <a href="<?= e($emailHref) ?>"><?= e($email) ?></a>
                         <?php else: ?>
-                            <span<?= $context->inline('email', 'E-mail') ?>><?= e($email) ?></span>
+                            <?= e($email) ?>
                         <?php endif; ?>
                     </p>
                 <?php endif; ?>
@@ -109,7 +108,7 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
     </div>
 
     <div class="t2f__bottom">
-        <p class="t2f__copy"<?= $context->inline('copyright', 'Bundtekst') ?>><?= e($copyright) ?></p>
+        <p class="t2f__copy"<?= $context->inline('copyright', 'Bundtekst') ?>><?= e($editing ? $copyrightRaw : $copyright) ?></p>
 
         <span class="t2f__suits" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="t2f__suit"><path d="M12 2.5s-8 5.8-8 11.1a4.2 4.2 0 0 0 7 3.1L9.8 21.5h4.4L13 16.7a4.2 4.2 0 0 0 7-3.1c0-5.3-8-11.1-8-11.1z"/></svg>

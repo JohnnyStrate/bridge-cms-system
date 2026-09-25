@@ -18,23 +18,26 @@
  * FooterBlock::render() allerede har regnet ud.
  */
 $context->isInlineEditing();
+
+// Klubnavn, adresse, telefon og e-mail kommer fra Indstillinger (SiteInfo)
+// og kan derfor ikke redigeres direkte her.
 ?>
 <footer class="block block--footer"<?= eAttr(['style' => $cssVars]) ?>>
     <div class="footer__inner">
 
         <div class="footer__col">
             <?php if ($clubName !== ''): ?>
-                <p class="footer__name" <?= $context->inline('club_name', 'Klubbens navn') ?>><?= e($clubName) ?></p>
+                <p class="footer__name"><?= e($clubName) ?></p>
             <?php endif; ?>
 
             <?php if ($address !== ''): ?>
-                <p class="footer__line" <?= $context->inline('address', 'Adresse') ?>><?= e($address) ?></p>
+                <p class="footer__line"><?= nl2br(e($address)) ?></p>
             <?php endif; ?>
 
             <?php if ($phone !== ''): ?>
                 <p class="footer__line">
                     <?php if ($phoneHref !== ''): ?>
-                        <a href="<?= e($phoneHref) ?>" <?= $context->inline('phone', 'Telefon') ?>><?= e($phone) ?></a>
+                        <a href="<?= e($phoneHref) ?>"><?= e($phone) ?></a>
                     <?php else: ?>
                         <?= e($phone) ?>
                     <?php endif; ?>
@@ -44,7 +47,7 @@ $context->isInlineEditing();
             <?php if ($email !== ''): ?>
                 <p class="footer__line">
                     <?php if ($emailHref !== ''): ?>
-                        <a <?= $context->inline('email', 'E-mail') ?> href="<?= e($emailHref) ?>"><?= e($email) ?></a>
+                        <a href="<?= e($emailHref) ?>"><?= e($email) ?></a>
                     <?php else: ?>
                         <?= e($email) ?>
                     <?php endif; ?>
@@ -67,6 +70,6 @@ $context->isInlineEditing();
     </div>
 
     <?php if ($copyright !== ''): ?>
-        <p  <?= $context->inline('copyright', 'Bundtekst (skriv {år} for årstallet)') ?> class="footer__bottom"><?= e($copyright) ?></p>
+        <p<?= $context->inline('copyright', 'Bundtekst ({år} og {klub} udfyldes)') ?> class="footer__bottom"><?= e($context->isInlineEditing() ? $copyrightRaw : $copyright) ?></p>
     <?php endif; ?>
 </footer>

@@ -82,6 +82,13 @@ final class SiteExporter
             $exported++;
         }
 
+        // Klubbens logo står i Indstillinger, ikke i en blok, så det findes
+        // ikke af collectImages(). Det skal med, fordi navbar og footer
+        // bruger det på hver side.
+        if (SiteInfo::get('logo') !== '') {
+            $this->noteAsset(SiteInfo::get('logo'));
+        }
+
         $this->copyAssets();
 
         return [

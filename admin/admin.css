@@ -1064,3 +1064,85 @@
 .notice li + li {
     margin-top: 0.25rem;
 }
+
+/* --- Indstillinger --------------------------------------------------- */
+
+.settings-form {
+    max-width: 44rem;
+    margin-inline: auto;
+}
+
+.settings-form .field {
+    margin-bottom: 1.6rem;
+}
+
+.field__label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+
+.field textarea {
+    width: 100%;
+    padding: 0.65rem 0.8rem;
+    font: inherit;
+    border: 1px solid #c7ccd3;
+    border-radius: var(--radius);
+    resize: vertical;
+}
+
+.settings-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0 1.25rem;
+}
+
+.settings-logo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.settings-logo__img {
+    display: grid;
+    place-items: center;
+    width: 8.5rem;
+    height: 5rem;
+    object-fit: contain;
+    padding: 0.5rem;
+    border: 1px solid #d5dae0;
+    border-radius: var(--radius);
+    background: #fff;
+}
+
+.settings-logo__img--empty {
+    color: var(--admin-muted);
+    font-size: 0.85rem;
+}
+
+/* Det rigtige filfelt skjules; knappen er dets label. */
+.settings-logo__file {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.settings-logo__file:focus-visible + .settings-logo__remove,
+.settings-logo__pick:focus-within {
+    outline: 2px solid var(--admin-blue);
+}
+
+.field .settings-logo__pick {
+    display: inline-block;
+    margin: 0;
+    cursor: pointer;
+}
+
+.field .settings-logo__remove {
+    display: block;
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+    font-weight: 400;
+}

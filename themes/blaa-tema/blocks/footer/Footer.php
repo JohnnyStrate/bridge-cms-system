@@ -29,28 +29,6 @@ final class FooterBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'club_name' => [
-                'type'    => 'text',
-                'label'   => 'Klubbens navn',
-                'default' => 'Din klubs navn',
-            ],
-            'address' => [
-                'type'    => 'text',
-                'label'   => 'Adresse',
-                'default' => 'Vejnavn 1, 1234 By',
-            ],
-            'email' => [
-                'type'    => 'text',
-                'label'   => 'E-mail',
-                'default' => '',
-                'max'     => 254,
-            ],
-            'phone' => [
-                'type'    => 'text',
-                'label'   => 'Telefon',
-                'default' => '',
-                'max'     => 40,
-            ],
             // Samme mønster som navbarens links: en side vælges ved id,
             // så linket overlever, at målsiden får en ny slug.
             'links' => [
@@ -80,8 +58,8 @@ final class FooterBlock extends AbstractBlock
             ],
             'copyright' => [
                 'type'    => 'text',
-                'label'   => 'Bundtekst (skriv {år} for årstallet)',
-                'default' => '© {år} Din klub',
+                'label'   => 'Bundtekst ({år} = årstal, {klub} = klubnavn)',
+                'default' => '© {år} {klub}',
             ],
         ];
     }
@@ -155,8 +133,9 @@ final class FooterBlock extends AbstractBlock
             ];
         }
 
-        $email = trim((string) ($settings['email'] ?? ''));
-        $phone = trim((string) ($settings['phone'] ?? ''));
+        // Navn og kontakt er klubbens og står under Indstillinger.
+        $email = trim(SiteInfo::get('email'));
+        $phone = trim(SiteInfo::get('phone'));
 
         // Kun en adresse, PHP selv anerkender som e-mail, bliver til et
         // mailto-link. Alt andet vises som ren tekst.
@@ -171,21 +150,19 @@ final class FooterBlock extends AbstractBlock
 
         // {år} erstattes ved rendering. Ved eksport fryses årstallet i
         // HTML-filen — det opdateres altså, næste gang sitet bygges.
-        $copyright = str_replace(
-            '{år}',
-            date('Y'),
-            (string) ($settings['copyright'] ?? '')
-        );
+        $copyright = SiteInfo::expand((string) ($settings['copyright'] ?? ''));
 
         return static::renderTemplate([
-            'clubName'  => (string) ($settings['club_name'] ?? ''),
-            'address'   => (string) ($settings['address'] ?? ''),
+            'clubName'  => SiteInfo::get('club_name'),
+            'address'   => SiteInfo::get('address'),
             'email'     => $email,
             'emailHref' => $emailHref,
             'phone'     => $phone,
             'phoneHref' => $phoneHref,
             'links'     => $links,
             'copyright' => $copyright,
+            // I editoren redigeres teksten med {år} og {klub} synlige.
+            'copyrightRaw' => (string) ($settings['copyright'] ?? ''),
             'cssVars'   => static::cssVariables($styles),
             'context' => $context,
         ]);

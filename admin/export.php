@@ -59,17 +59,7 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 </head>
 <body class="admin">
 
-<nav class="sidebar">
-    <p class="sidebar__brand">Adminpanel</p>
-    <ul class="sidebar__nav">
-        <li><a href="index.php">Dine sider</a></li>
-        <li><a href="create-page.php">Opret side</a></li>
-        <li><a href="export.php" aria-current="page">Udgiv</a></li>
-        <li><a href="galleries.php">Galleri</a></li>
-        <li><a href="themes.php">Tema</a></li>
-        <li><a href="#">Indstillinger</a></li>
-    </ul>
-</nav>
+<?php $activeMenu = 'export'; require __DIR__ . '/sidebar.php'; ?>
 
 <main class="content">
     <h1 class="content__title">Udgiv website</h1>

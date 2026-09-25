@@ -14,7 +14,8 @@ require_once __DIR__ . '/../bootstrap.php';
 
 $pdo    = Database::getConnection();
 $active = ThemeRegistry::active($pdo);
-$themes = ThemeRegistry::all();
+// Ufærdige temaer (isReady() = false) vises ikke — medmindre de er aktive.
+$themes = ThemeRegistry::selectable($active);
 
 $switched = isset($_GET['skiftet']);
 $error    = $_GET['fejl'] ?? null;
@@ -60,17 +61,7 @@ $swatch = static function (string $theme): array {
 </head>
 <body class="admin">
 
-<nav class="sidebar">
-    <p class="sidebar__brand">Adminpanel</p>
-    <ul class="sidebar__nav">
-        <li><a href="index.php">Dine sider</a></li>
-        <li><a href="create-page.php">Opret side</a></li>
-        <li><a href="export.php">Udgiv</a></li>
-        <li><a href="galleries.php">Galleri</a></li>
-        <li><a href="themes.php" aria-current="page">Tema</a></li>
-        <li><a href="#">Indstillinger</a></li>
-    </ul>
-</nav>
+<?php $activeMenu = 'themes'; require __DIR__ . '/sidebar.php'; ?>
 
 <main class="content">
     <h1 class="content__title">Tema</h1>

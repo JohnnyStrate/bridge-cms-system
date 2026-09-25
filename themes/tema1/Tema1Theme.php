@@ -25,6 +25,15 @@ final class Tema1Theme extends AbstractTheme
         return 20;
     }
 
+    /**
+     * Skjult under "Tema", indtil Figma-sektionerne er bygget. Sæt til
+     * true (eller slet metoden), når temaet er klar.
+     */
+    public static function isReady(): bool
+    {
+        return false;
+    }
+
     public static function blocks(): array
     {
         return [

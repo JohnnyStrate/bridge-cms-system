@@ -21,7 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $slug = trim((string) ($_POST['theme'] ?? ''));
 
 try {
-    ThemeRegistry::setActive(Database::getConnection(), $slug);
+    $pdo = Database::getConnection();
+
+    // Et skjult (ufærdigt) tema kan ikke vælges ved at sende dets navn.
+    if (!array_key_exists($slug, ThemeRegistry::selectable(ThemeRegistry::active($pdo)))) {
+        throw new InvalidArgumentException('Temaet kan ikke vælges.');
+    }
+
+    ThemeRegistry::setActive($pdo, $slug);
 
     header('Location: themes.php?skiftet=1');
     exit;
