@@ -1,21 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Oleo+Script:wght@400;700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Oleo+Script:wght@400;700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="style.css">
+<?php
+declare(strict_types=1);
 
-</head>
-<body>
-   <header>
- <?php    include('../components/Navbar.php'); ?>
-   </header>    
-          
-</body>
-</html>
+/**
+ * Projektets rod sender videre til adminpanelet.
+ *
+ * Det offentlige site er den statiske eksport i /export/ — ikke PHP-filer
+ * her. Den gamle prototype, der lå her, brugte ikke længere noget af
+ * systemet.
+ */
+header('Location: admin/index.php');
+exit;
