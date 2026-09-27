@@ -1,0 +1,46 @@
+.block--bridgecardtheme-hero {
+    --text-color: #de0202;
+    --title-size: 64px;
+    --font-family: 'Jost';
+
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: var(--hero-height, 480px);
+    padding: var(--space-lg) var(--space-md);
+    overflow: hidden;
+    isolation: isolate;
+    text-align: center;
+    color: var(--text-color);
+}
+
+.bchero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+}
+
+.bchero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.4);
+}
+
+.bchero__content {
+    max-width: var(--measure);
+}
+
+.bchero__title {
+    margin: 0;
+    font-family: var(--font-family), var(--font-body);
+    font-size: clamp(2rem, 8vw, var(--title-size));
+    line-height: 1.1;
+}
+
+.bchero__text {
+    margin: var(--space-sm) 0 0;
+    font-size: 1.15rem;
+}
