@@ -1,0 +1,292 @@
+/* =====================================================================
+   Linkkort — tema 3
+
+   +------------------------------------------------------------------+
+   | >  TITEL  M I N I T I T E L  <          (hvid titel i boksen)    |
+   |                                                                  |
+   |     +--------+   +--------+   +--------+   +--------+            |
+   |     | Titel  |   | Titel  |   | Titel  |   | Titel  |            |
+   |     | • tekst|   | • tekst|   | • tekst|   | • tekst|            |
+   |     | [knap] |   | [knap] |   | [knap] |   | [knap] |            |
+   |     +--------+   +--------+   +--------+   +--------+            |
+   +------------------------------------------------------------------+
+
+   Ingen luft over sektionen: den sidder lige under billedkarrusellen.
+   Titellinjen er den samme som i "Info med billede" og "Tider og steder"
+   — den staar i alle tre filer, fordi hver blok kun henter sin egen CSS.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema3-links {
+    --arrow-color: #733c34;
+    --title-start: #ffffff;
+    --title-end: #e8e8e8;
+    --eyebrow-color: #e6e6e6;
+    --title-size: 64px;
+    --box-start: #c26c6c;
+    --box-end: #d48989;
+    --card-color: #ffffff;
+    --card-title-color: #3b3b3b;
+    --card-text-color: #464343;
+    --bullet-color: #d86f6f;
+    --radius: 6px;
+    --button-color: #8d8d8d;
+    --button-hover: #e36d6d;
+    --button-text: #ffffff;
+    --font-family: 'Jost';
+
+    --t3-gutter: clamp(1rem, 4vw, 4rem);
+    --t3-calm: cubic-bezier(0.16, 1, 0.3, 1);
+    --t3-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    margin-top: 0;                          /* klistret til sektionen over */
+    padding: clamp(2rem, 3.5vw, 3rem) 0 clamp(4rem, 8vw, 7rem);
+    overflow-x: clip;
+    background: linear-gradient(100deg, var(--box-start), var(--box-end));
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* --- Titellinjen ---------------------------------------------------- */
+
+.t3lk__heading {
+    position: relative;                     /* pilene maales herfra */
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1.4vw, 1.25rem);
+    width: fit-content;
+    max-width: 100%;
+    padding: 0 var(--t3-gutter) 0 clamp(0.75rem, 1.6vw, 1.5rem);
+    font-size: clamp(2rem, 4.8vw, var(--title-size));
+}
+
+.t3lk__arrow {
+    flex: none;
+    display: block;
+    width: 0.58em;
+    height: 0.78em;
+    color: var(--arrow-color);
+}
+
+.t3lk__arrow svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.t3lk__arrow--right svg {
+    transform: scaleX(-1);
+}
+
+.t3lk__words {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 0.25em;
+    min-width: 0;
+}
+
+.t3lk__title {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--title-start), var(--title-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.t3lk__eyebrow {
+    font-size: clamp(0.55rem, 0.8vw, 0.72rem);
+    font-weight: 800;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--eyebrow-color);
+    white-space: nowrap;
+}
+
+/* --- Kortene -------------------------------------------------------- */
+
+.t3lk__cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 18.5rem));
+    justify-content: center;
+    gap: clamp(1.25rem, 2.2vw, 2.25rem);
+    margin: clamp(3rem, 7vw, 7rem) 0 0;
+    padding: 0 var(--t3-gutter);
+    list-style: none;
+}
+
+.t3lk__card {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.75rem, 2.4vw, 2.5rem) clamp(1.5rem, 2.4vw, 2.75rem) clamp(1.5rem, 2vw, 2rem);
+    border-radius: var(--radius);
+    background: var(--card-color);
+    box-shadow: 0 10px 28px rgb(90 30 30 / 0.12);
+}
+
+.t3lk__card-title {
+    margin: 0;
+    color: var(--card-title-color);
+    font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+/* Teksten med en lille prik foran, som et punkt i en liste. */
+.t3lk__card-text {
+    position: relative;
+    margin: clamp(2rem, 4vw, 3.75rem) 0 clamp(2rem, 3.5vw, 3rem);
+    color: var(--card-text-color);
+    font-size: clamp(1rem, 1.2vw, 1.12rem);
+    font-weight: 300;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+.t3lk__card-text::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 0.85em;
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    background: var(--bullet-color);
+}
+
+/* --- Knappen (samme hover som hero'en) ------------------------------ */
+
+.t3lk__button {
+    position: relative;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 8rem;
+    max-width: 100%;
+    margin-top: auto;                       /* knapperne flugter paa tvaers */
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    background: var(--button-color);
+    color: var(--button-text);
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.3;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+        width 0.6s var(--t3-bounce),
+        background-color 0.3s ease,
+        box-shadow 0.4s ease,
+        font-weight 0.2s ease;
+}
+
+/* Cirklen venter midt bag knappen og swoosher ud under dens nederste
+   venstre hjoerne ved hover. Kortet (isolation) holder den bag knappen. */
+.t3lk__card {
+    isolation: isolate;
+}
+
+.t3lk__button::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    bottom: 50%;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--button-hover);
+    opacity: 0;
+    transform: scale(0.3);
+    transition:
+        left 0.6s var(--t3-bounce),
+        bottom 0.6s var(--t3-bounce),
+        opacity 0.25s ease,
+        transform 0.6s var(--t3-bounce);
+}
+
+.t3lk__button:hover,
+.t3lk__button:focus-visible {
+    width: 100%;
+    background: var(--button-hover);
+    box-shadow: 0 8px 18px rgb(200 60 60 / 0.25);
+    font-weight: 800;
+}
+
+.t3lk__button:hover::before,
+.t3lk__button:focus-visible::before {
+    left: -0.85rem;
+    bottom: 0;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.t3lk__button:focus-visible {
+    outline: 2px solid var(--button-hover);
+    outline-offset: 3px;
+}
+
+/* --- Indgangen (se scriptet i template.php) ------------------------- */
+
+.t3lk--armed .t3lk__arrow {
+    opacity: 0;
+    translate: var(--t3l-shift, 0) 0;
+}
+
+.t3lk--armed .t3lk__words {
+    clip-path: inset(0 50% 0 50%);
+}
+
+.t3lk--armed .t3lk__card {
+    opacity: 0;
+    translate: 0 2.5rem;
+}
+
+.t3lk--armed.is-visible .t3lk__arrow {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+        opacity 0.35s ease,
+        translate 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.4s;
+}
+
+.t3lk--armed.is-visible .t3lk__words {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.4s;
+}
+
+.t3lk--armed.is-visible .t3lk__card {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+        opacity 1s ease calc(0.8s + var(--i) * 0.15s),
+        translate 1.2s var(--t3-calm) calc(0.8s + var(--i) * 0.15s);
+}
+
+/* --- Mindre skaerme ------------------------------------------------- */
+
+@media (max-width: 75rem) {
+    .t3lk__cards {
+        grid-template-columns: repeat(2, minmax(0, 20rem));
+    }
+}
+
+@media (max-width: 40rem) {
+    .t3lk__cards {
+        grid-template-columns: minmax(0, 22rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block--tema3-links *,
+    .block--tema3-links *::before {
+        transition: none !important;
+    }
+}

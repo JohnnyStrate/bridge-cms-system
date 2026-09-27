@@ -134,6 +134,11 @@ final class SiteExporter
             $this->collectImages($block);
         }
 
+        // Filer, som en blok selv skriver ind i HTML'en uden at de står i
+        // et billedfelt — fx temaets logo-pladsholder, når klubben ikke har
+        // valgt et logo endnu.
+        $this->collectReferencedFiles($html);
+
         $directory = $this->exportDir . ($segments === [] ? '' : '/' . implode('/', $segments));
 
         if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
@@ -194,6 +199,29 @@ final class SiteExporter
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Finder henvisninger til temaernes og uploads' filer i den færdige
+     * HTML (src, href og url(...)) og noterer dem, hvis filen findes.
+     */
+    private function collectReferencedFiles(string $html): void
+    {
+        $pattern = '~(?:src|href)="(?:\./|\.\./)*((?:themes|uploads)/[^"?#]+)"'
+            . '|url\(\s*[\'"]?(?:\./|\.\./)*((?:themes|uploads)/[^\'")?#]+)~';
+
+        if (!preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
+            return;
+        }
+
+        foreach ($matches as $match) {
+            $path = html_entity_decode((($match[2] ?? '') !== '' ? $match[2] : $match[1]), ENT_QUOTES);
+
+            // Kun rigtige filer i projektet — aldrig ".." ud af det.
+            if (!str_contains($path, '..') && is_file(APP_ROOT . '/' . $path)) {
+                $this->noteAsset($path);
             }
         }
     }

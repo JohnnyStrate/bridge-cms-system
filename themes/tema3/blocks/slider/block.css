@@ -1,0 +1,414 @@
+/* =====================================================================
+   Billedkarrusel — tema 3
+
+   +------------------------------+
+   |                           2  |        Tekst til billedet, der
+   |            /\                |        glider ind, naar man
+   |          / .. \  (diamant)   |        skifter billede.
+   |          \ .. /              |
+   |            \/                |
+   |     <   o  O  o  o   >       |
+   +------------------------------+
+   ^ fra skaermens venstre kant til midten
+
+   Alle billeder ligger oven i hinanden i samme gittercelle. Kun det
+   aktive er synligt. Det samme gaelder teksterne til hoejre.
+
+   Variablerne oeverst er STANDARDVAERDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--tema3-slider {
+    --box-color: #eeeeee;
+    --radius: 16px;
+    --counter-color: #cc7c7c;
+    --stroke-color: #ffffff;
+    --stroke-width: 12px;
+    --dot-color: #e5e5e5;
+    --dot-active: #e36d6d;
+    --arrow-color: #e36d6d;
+    --caption-color: #000000;
+    --caption-size: 22px;
+    --font-family: 'Jost';
+
+    --t3-gutter: clamp(1rem, 4vw, 4rem);
+    --t3-calm: cubic-bezier(0.16, 1, 0.3, 1);
+    --side: clamp(11rem, 21vw, 19rem);      /* diamantens sidelaengde */
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    margin-top: clamp(2.5rem, 6vw, 5rem);   /* god, men ikke stor, afstand */
+    overflow-x: clip;                       /* indgangen maa ikke give vandret scroll */
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* --- Boksen --------------------------------------------------------- */
+
+.t3sl__box {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    justify-items: center;
+    min-height: clamp(28rem, 54vw, 50rem);
+    padding: clamp(3rem, 5vw, 4.5rem) 1.5rem clamp(2.5rem, 5vw, 4.5rem);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    background: var(--box-color);
+}
+
+.t3sl__counter {
+    position: absolute;
+    top: clamp(1.25rem, 2.2vw, 2rem);
+    right: clamp(1.5rem, 2.4vw, 2.25rem);
+    color: var(--counter-color);
+    font-size: 1.2rem;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.t3sl__counter.is-ticking {
+    animation: t3sl-tick 0.5s var(--t3-calm);
+}
+
+@keyframes t3sl-tick {
+    from { opacity: 0; transform: translateY(0.5rem); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* --- Billederne ----------------------------------------------------- */
+
+.t3sl__stage {
+    display: grid;
+    place-items: center;
+    align-self: center;
+    width: 100%;
+    /* Diamanten er bredere end sin side (diagonalen) — plads til den. */
+    padding-block: calc(var(--side) * 0.25);
+}
+
+.t3sl__slide {
+    grid-area: 1 / 1;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.82) rotate(-18deg);
+    transition: opacity 0.55s ease, transform 0.9s var(--t3-calm);
+}
+
+.t3sl__slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+}
+
+.t3sl__slide.is-leaving {
+    transform: scale(0.82) rotate(18deg);
+}
+
+/* Baglaens: omvendt drejning. */
+.t3sl--back .t3sl__slide:not(.is-active):not(.is-leaving) {
+    transform: scale(0.82) rotate(18deg);
+}
+
+.t3sl--back .t3sl__slide.is-leaving {
+    transform: scale(0.82) rotate(-18deg);
+}
+
+/*
+ * Diamanten: en firkant drejet 45 grader med tyk hvid kant. Billedet
+ * inde i den drejes tilbage, saa det staar lige, og goeres stort nok til
+ * at fylde hele diamanten.
+ */
+.t3sl__diamond {
+    position: relative;
+    width: var(--side);
+    height: var(--side);
+    overflow: hidden;
+    border: var(--stroke-width) solid var(--stroke-color);
+    border-radius: 14px;
+    background: #dcdcdc;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.06);
+    transform: rotate(45deg);
+}
+
+.t3sl__diamond img,
+.t3sl__empty {
+    position: absolute;
+    top: -21%;
+    left: -21%;
+    width: 142%;
+    height: 142%;
+    max-width: none;                        /* base.css saetter 100 % */
+    object-fit: cover;
+    transform: rotate(-45deg);
+}
+
+.t3sl__empty {
+    display: grid;
+    place-items: center;
+    color: #8a8a8a;
+    cursor: pointer;
+}
+
+/* --- Pile og prikker ------------------------------------------------ */
+
+.t3sl__nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 1.6rem);
+}
+
+.t3sl__arrow {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.35rem;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--arrow-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.35s var(--t3-calm);
+}
+
+.t3sl__arrow svg {
+    width: 100%;
+    height: 100%;
+}
+
+.t3sl__arrow:hover,
+.t3sl__arrow:focus-visible {
+    background: rgb(227 109 109 / 0.12);
+}
+
+.t3sl__arrow[data-dir="-1"]:hover {
+    transform: translateX(-3px);
+}
+
+.t3sl__arrow[data-dir="1"]:hover {
+    transform: translateX(3px);
+}
+
+.t3sl__dots {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.1rem, 2vw, 1.7rem);
+}
+
+.t3sl__dot {
+    position: relative;
+    width: 0.7rem;
+    height: 0.7rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--dot-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.35s var(--t3-calm);
+}
+
+/* Stor, usynlig klikflade rundt om den lille prik. */
+.t3sl__dot::before {
+    content: '';
+    position: absolute;
+    inset: -0.6rem;
+}
+
+/* Den lille streg under den aktive prik — glider ind fra midten. */
+.t3sl__dot::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -0.6rem;
+    width: 1rem;
+    height: 2px;
+    margin-left: -0.5rem;
+    border-radius: 2px;
+    background: var(--dot-active);
+    transform: scaleX(0);
+    transition: transform 0.45s var(--t3-calm);
+}
+
+.t3sl__dot:not(.is-active):hover,
+.t3sl__dot:not(.is-active):focus-visible {
+    background: #d2c4c4;
+    transform: scale(1.25);
+}
+
+.t3sl__dot.is-active {
+    background: var(--dot-active);
+    cursor: default;
+}
+
+.t3sl__dot.is-active::after {
+    transform: scaleX(1);
+    transition-delay: 0.1s;
+}
+
+.t3sl__arrow:focus-visible,
+.t3sl__dot:focus-visible {
+    outline: 2px solid var(--dot-active);
+    outline-offset: 3px;
+}
+
+/* --- Teksten til hoejre --------------------------------------------- */
+
+.t3sl__captions {
+    display: grid;
+    align-content: center;
+    padding: 2rem var(--t3-gutter) 2rem clamp(2rem, 11vw, 12rem);
+}
+
+.t3sl__caption {
+    grid-area: 1 / 1;
+    max-width: 22rem;
+    margin: 0;
+    color: var(--caption-color);
+    font-size: clamp(1.1rem, 1.6vw, var(--caption-size));
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+/* Med script: alle tekster ligger oven i hinanden, kun den aktive ses. */
+.t3sl--ready .t3sl__caption {
+    opacity: 0;
+    translate: 2.5rem 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease, translate 0.45s ease;
+}
+
+.t3sl--ready .t3sl__caption.is-leaving {
+    translate: -1.5rem 0;
+}
+
+.t3sl--ready.t3sl--back .t3sl__caption:not(.is-active):not(.is-leaving) {
+    translate: -2.5rem 0;
+}
+
+.t3sl--ready.t3sl--back .t3sl__caption.is-leaving {
+    translate: 1.5rem 0;
+}
+
+.t3sl--ready .t3sl__caption.is-active {
+    opacity: 1;
+    translate: 0 0;
+    pointer-events: auto;
+    transition: opacity 0.7s ease 0.2s, translate 0.9s var(--t3-calm) 0.2s;
+}
+
+/* --- Indgangen (se scriptet i template.php) ------------------------- */
+
+.t3sl--armed .t3sl__box {
+    opacity: 0;
+    translate: -3rem 0;
+}
+
+.t3sl--armed .t3sl__stage {
+    opacity: 0;
+    scale: 0.85;
+    rotate: -12deg;
+}
+
+.t3sl--armed .t3sl__nav,
+.t3sl--armed .t3sl__captions {
+    opacity: 0;
+}
+
+.t3sl--armed .t3sl__captions {
+    translate: 2.5rem 0;
+}
+
+.t3sl--armed.is-visible .t3sl__box {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 0.9s ease, translate 1.2s var(--t3-calm);
+}
+
+.t3sl--armed.is-visible .t3sl__stage {
+    opacity: 1;
+    scale: 1;
+    rotate: 0deg;
+    transition: opacity 0.9s ease 0.35s, scale 1.3s var(--t3-calm) 0.35s, rotate 1.3s var(--t3-calm) 0.35s;
+}
+
+.t3sl--armed.is-visible .t3sl__nav {
+    opacity: 1;
+    transition: opacity 0.8s ease 0.8s;
+}
+
+.t3sl--armed.is-visible .t3sl__captions {
+    opacity: 1;
+    translate: 0 0;
+    transition: opacity 0.9s ease 0.6s, translate 1.2s var(--t3-calm) 0.6s;
+}
+
+/* --- Editoren: alle billeder og tekster paa én gang ----------------- */
+
+.t3sl--editing {
+    --side: 7.5rem;
+}
+
+.t3sl--editing .t3sl__box {
+    min-height: 0;
+}
+
+.t3sl--editing .t3sl__stage {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3rem 4rem;
+}
+
+.t3sl--editing .t3sl__slide {
+    display: grid;
+    justify-items: center;
+    gap: 2.5rem;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+}
+
+.t3sl--editing .t3sl__captions {
+    gap: 1.25rem;
+}
+
+.t3sl--editing .t3sl__caption {
+    grid-area: auto;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.t3sl__edit-number {
+    flex: none;
+    color: var(--counter-color);
+    font-style: normal;
+    font-weight: 300;
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 52rem) {
+    .block--tema3-slider {
+        grid-template-columns: minmax(0, 1fr);
+        --side: clamp(10rem, 48vw, 15rem);
+    }
+
+    .t3sl__box {
+        min-height: 0;
+        margin-right: var(--t3-gutter);
+    }
+
+    .t3sl__captions {
+        padding: 2rem var(--t3-gutter) 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .block--tema3-slider *,
+    .block--tema3-slider *::before,
+    .block--tema3-slider *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+}
