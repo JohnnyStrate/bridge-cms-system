@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap');
+
+.block--bridgecardtheme-cards {
+    --bg-top: #ffffff;
+    --bg-bottom: #ffffff;
+    --eyebrow-color: #111111;
+    --title-color: #1f4497;
+    --title-size: 36px;
+    --text-color: #1f4497;
+    --card-color: #ffffff;
+    --icon-color: #1f4497;
+    --card-text: #7a7a7a;
+    --button-color: #e8483f;
+
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
+}
+
+/* Pynt i hjørnerne, bag indholdet. */
+.bccards__decor {
+    position: absolute;
+    top: 0;
+    z-index: -1;
+    width: clamp(8rem, 28vw, 22rem);
+    min-height: 4rem;
+    pointer-events: none;
+}
+
+.bccards__decor--left {
+    left: 0;
+}
+
+.bccards__decor--right {
+    right: 0;
+}
+
+.bccards__decor img {
+    width: 100%;
+    height: auto;
+}
+
+.bccards__inner {
+    max-width: 75rem;
+    margin: 0 auto;
+    padding: clamp(4rem, 10vw, 7rem) clamp(1rem, 5vw, 4rem) clamp(3rem, 7vw, 5rem);
+}
+
+.bccards__head {
+    max-width: 38rem;
+}
+
+.bccards--right .bccards__head {
+    margin-left: auto;
+    text-align: right;
+}
+
+.bccards__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    color: var(--eyebrow-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bccards--right .bccards__eyebrow {
+    flex-direction: row-reverse;
+}
+
+.bccards__eyebrow svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.bccards__title {
+    margin: 0.25rem 0 0;
+    font-family: 'Crimson Text', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4.5vw, var(--title-size));
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--title-color);
+}
+
+.bccards__text {
+    max-width: 28rem;
+    margin: 1rem 0 0;
+    color: var(--text-color);
+    line-height: 1.4;
+}
+
+.bccards--right .bccards__text {
+    margin-left: auto;
+}
+
+.bccards__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.75rem;
+}
+
+/* Tre kort bliver ikke strakt ud over hele bredden, som i designet. */
+.block--bridgecardtheme-cards:not(.bccards--right) .bccards__grid {
+    max-width: 48rem;
+}
+
+.bccards__card {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 0.75rem 1rem;
+    background: var(--card-color);
+    border: 1px solid rgb(0 0 0 / 0.08);
+    border-radius: var(--card-radius, 4px);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+}
+
+.bccards__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--icon-color);
+}
+
+.bccards__card-title {
+    margin: 1rem 0 0;
+    color: var(--icon-color);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.bccards--right .bccards__card-title {
+    text-transform: uppercase;
+}
+
+.bccards__card-text {
+    flex: 1;
+    margin: 0.35rem 0 1.5rem;
+    color: var(--card-text);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.bccards__button {
+    display: block;
+    padding: 0.35rem 0.5rem;
+    background: var(--button-color);
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: filter 0.2s;
+}
+
+.bccards__button:hover {
+    filter: brightness(1.1);
+}

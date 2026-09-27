@@ -2,10 +2,15 @@
 declare(strict_types=1);
 
 /**
- * Bridge Card-tema.
+ * Bridge Card-tema: turkis og blå med spillekort, Crimson Text i
+ * overskrifterne og røde knapper.
  *
- * Indtil videre kun en hero. Navbar og footer kommer senere og skrives
- * ind i blocks() og globals(), når de er bygget.
+ * Farverne:
+ *     #88E1D1 → #70C3B4   turkis gradient (spilletider)
+ *     #1F4497             blå (overskrifter og CTA-sektion)
+ *     #E8483F             røde knapper og kanter
+ *
+ * Temaets billeder lægges i themes/bridgecardtheme/assets/.
  */
 final class BridgeCardTheme extends AbstractTheme
 {
@@ -16,7 +21,7 @@ final class BridgeCardTheme extends AbstractTheme
 
     public static function description(): string
     {
-        return 'Nyt tema — under opbygning.';
+        return 'Turkis og blå med spillekort, Crimson Text og røde knapper.';
     }
 
     public static function sortOrder(): int
@@ -27,15 +32,20 @@ final class BridgeCardTheme extends AbstractTheme
     public static function blocks(): array
     {
         return [
-            'bridgecardtheme-hero' => BridgeCardHeroBlock::class,
-            'bridgecardtheme-hero' => Bridge3CardsBlock::class,
-
+            'bridgecardtheme-navbar' => BridgeCardNavbarBlock::class,
+            'bridgecardtheme-hero'   => BridgeCardHeroBlock::class,
+            'bridgecardtheme-times'  => BridgeCardTimesBlock::class,
+            'bridgecardtheme-cards'  => BridgeCardCardsBlock::class,
+            'bridgecardtheme-cta'    => BridgeCardCtaBlock::class,
+            'bridgecardtheme-footer' => BridgeCardFooterBlock::class,
         ];
     }
 
     public static function globals(): array
     {
-        // Ingen navbar/footer endnu.
-        return [];
+        return [
+            'header' => 'bridgecardtheme-navbar',
+            'footer' => 'bridgecardtheme-footer',
+        ];
     }
 }
