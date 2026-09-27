@@ -7,42 +7,40 @@
  * @var string        $text
  * @var string        $buttonLabel
  * @var string        $buttonHref
- * @var string        $imageLeft   Færdig URL eller ''.
- * @var string        $imageRight
+ * @var string        $bgImage   Færdig URL eller ''.
+ * @var string        $shape     Formen, billedet ses igennem.
+ * @var string        $suit      Kuløren ved overlinjen.
  * @var string        $cssVars
  * @var RenderContext $context
+ *
+ * Billedet er ÉN flade med billedet som baggrund, klippet til to kopier af
+ * formen (se block.css). Så skifter editoren billede og form live på ét
+ * element, og browseren henter billedet én gang.
  */
 $editing = $context->isInlineEditing();
 ?>
+<?= BridgeCardKit::stylesheet($context) ?>
 <section class="block block--bridgecardtheme-cta"<?= eAttr(['style' => $cssVars]) ?>>
-    <?php if ($imageLeft !== '' || $editing): ?>
-        <div class="bccta__image bccta__image--left"<?= $context->inlineImage('image_left') ?>>
-            <?php if ($imageLeft !== ''): ?><img src="<?= e($imageLeft) ?>" alt=""><?php endif; ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($imageRight !== '' || $editing): ?>
-        <div class="bccta__image bccta__image--right"<?= $context->inlineImage('image_right') ?>>
-            <?php if ($imageRight !== ''): ?><img src="<?= e($imageRight) ?>" alt=""><?php endif; ?>
-        </div>
-    <?php endif; ?>
+    <div class="bccta__photo bc-mask" role="presentation" data-bc-reveal="center"
+         <?= $bgImage !== '' ? 'style="background-image:url(\'' . e($bgImage) . '\')"' : '' ?><?= BridgeCardKit::live($context, 'shape', $shape) ?><?= $context->inlineImage('bg_image') ?>></div>
 
     <div class="bccta__content">
         <?php if ($eyebrow !== '' || $editing): ?>
-            <p class="bccta__eyebrow">
+            <p class="bccta__eyebrow" data-bc-reveal="left" style="--i:2">
                 <span<?= $context->inline('eyebrow', 'Overlinje') ?>><?= e($eyebrow) ?></span>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><?= BridgeCardKit::CLUB ?></svg>
+                <span class="bc-icon bc-mask" aria-hidden="true"<?= BridgeCardKit::live($context, 'suit', $suit) ?>></span>
             </p>
         <?php endif; ?>
 
-        <h2 class="bccta__title"<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></h2>
+        <h2 class="bccta__title" data-bc-reveal="left" style="--i:3"<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></h2>
 
         <?php if ($text !== '' || $editing): ?>
-            <p class="bccta__text"<?= $context->inline('text', 'Tekst', true) ?>><?= e($text) ?></p>
+            <p class="bccta__text" data-bc-reveal="left" style="--i:4"<?= $context->inline('text', 'Tekst', true) ?>><?= e($text) ?></p>
         <?php endif; ?>
 
         <?php if ($buttonLabel !== '' || $editing): ?>
-            <a class="bccta__button" href="<?= e($buttonHref) ?>"<?= $context->inline('button_label', 'Knaptekst') ?>><?= e($buttonLabel) ?></a>
+            <a class="bccta__button" href="<?= e($buttonHref) ?>" data-bc-reveal="bottom" style="--i:5"<?= $context->inline('button_label', 'Knaptekst') ?>><?= e($buttonLabel) ?></a>
         <?php endif; ?>
     </div>
 </section>
+<?= BridgeCardKit::revealScript($context) ?>

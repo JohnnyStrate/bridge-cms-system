@@ -2,10 +2,11 @@
 declare(strict_types=1);
 
 /**
- * Forside til Bridge Card, bygget som mockuppen.
+ * Forside til Bridge Card, bygget som designet i Figma.
  *
  * Navbar og footer er IKKE med. De er temaets globale blokke og ligger på
- * alle sider i forvejen.
+ * alle sider i forvejen. Felter, der ikke nævnes, får blokkens egen
+ * standardværdi.
  */
 final class BridgeCardForsideTemplate extends AbstractTemplate
 {
@@ -21,7 +22,7 @@ final class BridgeCardForsideTemplate extends AbstractTemplate
 
     public static function description(): string
     {
-        return 'Hero, spilletider, spillehold, point og en blå sektion. Alt indhold kan overskrives.';
+        return 'Hero, spilletider, spillehold, mesterpoint og en blå sektion. Alt indhold kan overskrives.';
     }
 
     public static function sortOrder(): int
@@ -31,7 +32,8 @@ final class BridgeCardForsideTemplate extends AbstractTemplate
 
     public static function blocks(): array
     {
-        $text = 'It is a long established fact that a reader will be distracted by the readable content of';
+        $c    = BridgeCardKit::COLORS;
+        $text = 'It is a long established fact that a reader will be distracted by the readable content of It is a long established fact that a reader will be distracted by the readable content of';
         $card = static fn (string $icon, string $title, string $cardText = ''): array => [
             'icon'         => $icon,
             'title'        => $title,
@@ -45,10 +47,10 @@ final class BridgeCardForsideTemplate extends AbstractTemplate
             static::block('bridgecardtheme-hero'),
             static::block('bridgecardtheme-times'),
 
-            // Hvid, tre kort, venstrestillet.
+            // Hvid, tre kort, venstrestillet, turkis pynt.
             static::block('bridgecardtheme-cards'),
 
-            // Turkis, fire kort, højrestillet.
+            // Turkis, fire kort, højrestillet, blå pynt.
             static::block('bridgecardtheme-cards', [
                 'title' => 'Mesterpoint og point',
                 'cards' => [
@@ -59,10 +61,12 @@ final class BridgeCardForsideTemplate extends AbstractTemplate
                 ],
             ], [
                 'align'         => 'Højre',
-                'bg_top'        => '#70c3b4',
-                'bg_bottom'     => '#70c3b4',
-                'eyebrow_color' => '#ffffff',
-                'text_color'    => '#1f4497',
+                'bg_top'        => $c['teal'],
+                'bg_bottom'     => $c['teal'],
+                'decor_color'   => $c['blue'],
+                'eyebrow_color' => $c['white'],
+                'text_color'    => $c['white'],
+                'title_size'    => 48,
             ]),
 
             static::block('bridgecardtheme-cta'),

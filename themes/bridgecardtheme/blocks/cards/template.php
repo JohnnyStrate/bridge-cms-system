@@ -7,49 +7,50 @@
  * @var string                           $text
  * @var array<int, array<string, mixed>> $cards  index, icon, title, text, buttonLabel, href
  * @var bool                             $alignRight
- * @var string                           $decorLeft   Færdig URL eller ''.
- * @var string                           $decorRight
+ * @var string                           $suit        Kuløren ved overlinjen.
+ * @var string                           $decorBig    Pyntens store former.
+ * @var string                           $decorSmall  Pyntens små former.
  * @var string                           $cssVars
  * @var RenderContext                    $context
  */
 $editing = $context->isInlineEditing();
-?>
-<section class="block block--bridgecardtheme-cards<?= $alignRight ? ' bccards--right' : '' ?>"<?= eAttr(['style' => $cssVars]) ?>>
-    <?php if ($decorLeft !== '' || $editing): ?>
-        <div class="bccards__decor bccards__decor--left"<?= $context->inlineImage('decor_left') ?>>
-            <?php if ($decorLeft !== ''): ?><img src="<?= e($decorLeft) ?>" alt=""><?php endif; ?>
-        </div>
-    <?php endif; ?>
+$side    = $alignRight ? 'right' : 'left';
 
-    <?php if ($decorRight !== '' || $editing): ?>
-        <div class="bccards__decor bccards__decor--right"<?= $context->inlineImage('decor_right') ?>>
-            <?php if ($decorRight !== ''): ?><img src="<?= e($decorRight) ?>" alt=""><?php endif; ?>
-        </div>
-    <?php endif; ?>
+// Pynten: [stor/lille, animationsretning]. Placeringen står i block.css.
+$decor = [
+    ['big', 'top'], ['big', 'top'], ['small', 'center'],
+    ['big', 'center'], ['big', 'right'], ['small', 'top'],
+];
+?>
+<?= BridgeCardKit::stylesheet($context) ?>
+<section class="block block--bridgecardtheme-cards<?= $alignRight ? ' bccards--right' : '' ?>"<?= eAttr(['style' => $cssVars]) ?>>
+    <div class="bccards__decor" aria-hidden="true">
+        <?php foreach ($decor as $n => [$size, $from]): ?>
+            <span class="bccards__shape bccards__shape--<?= $n + 1 ?> bc-mask" data-bc-reveal="<?= $from ?>" style="--i:<?= $n ?>"<?= BridgeCardKit::live($context, $size === 'big' ? 'decor_suit' : 'decor_suit_small', $size === 'big' ? $decorBig : $decorSmall) ?>></span>
+        <?php endforeach; ?>
+    </div>
 
     <div class="bccards__inner">
         <header class="bccards__head">
             <?php if ($eyebrow !== '' || $editing): ?>
-                <p class="bccards__eyebrow">
+                <p class="bccards__eyebrow" data-bc-reveal="top">
                     <span<?= $context->inline('eyebrow', 'Overlinje') ?>><?= e($eyebrow) ?></span>
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><?= BridgeCardKit::CLUB ?></svg>
+                    <span class="bc-icon bc-mask" aria-hidden="true"<?= BridgeCardKit::live($context, 'suit', $suit) ?>></span>
                 </p>
             <?php endif; ?>
 
-            <h2 class="bccards__title"<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></h2>
+            <h2 class="bccards__title" data-bc-reveal="<?= $side ?>" style="--i:1"<?= $context->inline('title', 'Overskrift') ?>><?= e($title) ?></h2>
 
             <?php if ($text !== '' || $editing): ?>
-                <p class="bccards__text"<?= $context->inline('text', 'Tekst', true) ?>><?= e($text) ?></p>
+                <p class="bccards__text" data-bc-reveal="<?= $side ?>" style="--i:2"<?= $context->inline('text', 'Tekst', true) ?>><?= e($text) ?></p>
             <?php endif; ?>
         </header>
 
         <?php if ($cards !== []): ?>
-            <div class="bccards__grid" style="--count:<?= count($cards) ?>">
-                <?php foreach ($cards as $card): ?>
-                    <article class="bccards__card">
-                        <?php if ($card['icon'] !== ''): ?>
-                            <svg class="bccards__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><?= $card['icon'] ?></svg>
-                        <?php endif; ?>
+            <div class="bccards__grid">
+                <?php foreach ($cards as $n => $card): ?>
+                    <article class="bccards__card" data-bc-reveal="bottom" style="--i:<?= 3 + (int) $n ?>">
+                        <span class="bccards__icon bc-icon bc-mask" aria-hidden="true"<?= BridgeCardKit::live($context, 'icon', $card['icon'], 'cards', (int) $card['index']) ?>></span>
 
                         <h3 class="bccards__card-title"<?= $context->inlineRow('cards', (int) $card['index'], 'title', 'Titel') ?>><?= e($card['title']) ?></h3>
                         <p class="bccards__card-text"<?= $context->inlineRow('cards', (int) $card['index'], 'text', 'Tekst') ?>><?= e($card['text']) ?></p>
@@ -63,3 +64,4 @@ $editing = $context->isInlineEditing();
         <?php endif; ?>
     </div>
 </section>
+<?= BridgeCardKit::revealScript($context) ?>

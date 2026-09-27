@@ -1,11 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap');
-
+/* Navbar — Bridge Card. Ligger oven på heroen. */
 .block--bridgecardtheme-navbar {
-    --text-color: #ffffff;
-    --bg-color: #000000;
-    --bg-opacity: 0%;
-    --link-size: 17px;
-
     /* Ligger oven på heroen. */
     position: absolute;
     top: 0;
@@ -17,6 +11,7 @@
     padding: 1.25rem clamp(1rem, 4vw, 3rem);
     background: color-mix(in srgb, var(--bg-color) var(--bg-opacity), transparent);
     font-family: 'Crimson Text', Georgia, serif;
+    overflow-x: clip;
 }
 
 .bcnav__toggle {
@@ -28,7 +23,7 @@
 .bcnav__links {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(1rem, 3.5vw, 3.5rem);
+    gap: clamp(1rem, 4.5vw, 4rem);
     margin: 0;
     padding: 0;
     list-style: none;

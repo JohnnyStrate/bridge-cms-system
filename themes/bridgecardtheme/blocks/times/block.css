@@ -1,15 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap');
+/* =====================================================================
+   Spilletider — Bridge Card
+   Farverne kommer fra Udseende (CSS-variabler på .block).
+   ===================================================================== */
 
 .block--bridgecardtheme-times {
-    --bg-top: #88e1d1;
-    --bg-bottom: #70c3b4;
-    --title-color: #ffffff;
-    --title-size: 40px;
-    --text-color: #1f4497;
-    --box-color: #ffffff;
-    --box-text: #1f4497;
-    --accent-color: #e8483f;
-
     overflow: hidden;
     background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
 }
@@ -19,79 +13,97 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
     gap: 2rem;
-    max-width: 75rem;
+    max-width: 82rem;
     margin: 0 auto;
-    padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 4rem);
+    padding: clamp(3rem, 7vw, 5rem) 0 clamp(3rem, 7vw, 5rem) clamp(1rem, 6vw, 5.5rem);
 }
 
-.bctimes__icon {
+.bctimes__suit {
     display: block;
-    width: 1.1rem;
-    height: 1.1rem;
+    font-size: 1.4rem;
     color: var(--title-color);
 }
 
 .bctimes__title {
-    max-width: 15ch;
-    margin: 0.5rem 0 0;
-    font-family: 'Crimson Text', Georgia, serif;
+    margin: 0.25rem 0 0;
     font-weight: 400;
-    font-size: clamp(1.8rem, 5vw, var(--title-size));
-    line-height: 1.15;
+    font-size: clamp(2rem, 5vw, var(--title-size));
+    line-height: 1.25;
     text-transform: uppercase;
+    white-space: pre-line;
     color: var(--title-color);
 }
 
 .bctimes__text {
-    max-width: 26rem;
-    margin: 0.5rem 0 0;
+    max-width: 30rem;
+    margin: 0.5rem 0 0 0.3rem;
     color: var(--text-color);
-    line-height: 1.4;
+    font-size: 1.15rem;
+    line-height: 1.5;
 }
 
 .bctimes__items {
     display: grid;
-    gap: 1.25rem;
-    max-width: 26rem;
-    margin: 1.75rem 0 0;
+    gap: 2.75rem;
+    max-width: 30rem;
+    margin: 2.75rem 0 0;
     padding: 0;
     list-style: none;
 }
 
 .bctimes__item {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
-    padding: 0.6rem 0.75rem;
+    gap: 0.35rem;
+    padding: 1.4rem 1rem 0.9rem;
     background: var(--box-color);
     color: var(--box-text);
-    border-left: 4px solid var(--accent-color);
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+    box-shadow: 0 3px 6px rgb(0 0 0 / 0.25);
+}
+
+/* Den røde kant er højere end boksen, som i designet. */
+.bctimes__item::before {
+    content: '';
+    position: absolute;
+    top: -0.9rem;
+    bottom: -0.9rem;
+    left: -0.35rem;
+    width: 0.35rem;
+    border-radius: 2px;
+    background: var(--accent-color);
 }
 
 .bctimes__label {
     font-size: 0.6rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
     color: #111111;
 }
 
 .bctimes__value {
-    font-size: 0.95rem;
+    font-size: 1.15rem;
 }
 
 .bctimes__media {
-    min-height: 12rem;
+    align-self: stretch;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 .bctimes__media img {
-    width: 100%;
+    width: min(100%, 32rem);
     height: auto;
 }
 
 @media (max-width: 48rem) {
     .bctimes__inner {
         grid-template-columns: 1fr;
+        padding-right: clamp(1rem, 6vw, 5.5rem);
+    }
+
+    .bctimes__media img {
+        width: min(80%, 22rem);
     }
 }

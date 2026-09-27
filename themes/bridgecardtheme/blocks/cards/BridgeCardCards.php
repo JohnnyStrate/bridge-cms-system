@@ -2,15 +2,19 @@
 declare(strict_types=1);
 
 /**
- * Kort med ikoner: overlinje, overskrift, tekst og en række hvide kort med
- * ikon, titel, tekst og en rød knap.
+ * Kort med ikoner: overlinje med kulør, overskrift, tekst og en række
+ * hvide kort med ikon, titel, tekst og en rød knap. Kulører er strøet ud
+ * som pynt bag indholdet.
  *
  * Bruges to gange på forsiden:
- *   - "Spil bridge i Charlottelund": hvid baggrund, tre kort, venstrestillet.
- *   - "Mesterpoint og point": turkis baggrund, fire kort, højrestillet.
+ *   - "Spil bridge i Charlottelund": hvid, tre kort, venstrestillet,
+ *     turkis pynt til højre.
+ *   - "Mesterpoint og point": turkis, fire kort, højrestillet, blå pynt
+ *     til venstre.
  * Forskellen er kun indhold og Udseende.
  *
- * De to pynte-billeder (fx kløvere) lægges i hjørnerne bag indholdet.
+ * Kortenes ikoner, overlinjens kulør og pyntens former skifter live i
+ * editoren (data-live, se BridgeCardKit::live()).
  */
 final class BridgeCardCardsBlock extends AbstractBlock
 {
@@ -26,10 +30,11 @@ final class BridgeCardCardsBlock extends AbstractBlock
 
     public static function getSchema(): array
     {
-        $card = static fn (string $icon, string $title): array => [
-            'icon'         => $icon,
-            'title'        => $title,
-            'text'         => 'It is a long established fact that a reader will be distracted by the readable content of',
+        $text = 'It is a long established fact that a reader will be distracted by the readable content of It is a long established fact that a reader will be distracted by the readable content of';
+        $card = static fn (): array => [
+            'icon'         => 'Kalender',
+            'title'        => 'Spil bridge i charlottelund',
+            'text'         => $text,
             'button_label' => 'Se turneringer',
             'page'         => 0,
             'url'          => '#',
@@ -62,7 +67,7 @@ final class BridgeCardCardsBlock extends AbstractBlock
                         'type'    => 'select',
                         'label'   => 'Ikon',
                         'default' => 'Kalender',
-                        'options' => array_keys(BridgeCardKit::ICONS),
+                        'options' => BridgeCardKit::ICONS,
                     ],
                     'title' => [
                         'type'    => 'text',
@@ -74,7 +79,7 @@ final class BridgeCardCardsBlock extends AbstractBlock
                         'type'    => 'textarea',
                         'label'   => 'Tekst',
                         'default' => '',
-                        'max'     => 200,
+                        'max'     => 260,
                     ],
                     'button_label' => [
                         'type'    => 'text',
@@ -93,27 +98,15 @@ final class BridgeCardCardsBlock extends AbstractBlock
                         'default' => '',
                     ],
                 ],
-                'default' => [
-                    $card('Kalender', 'Spil bridge i Charlottelund'),
-                    $card('Kalender', 'Spil bridge i Charlottelund'),
-                    $card('Kalender', 'Spil bridge i Charlottelund'),
-                ],
-            ],
-            'decor_left' => [
-                'type'    => 'image',
-                'label'   => 'Pynt: billede øverst til venstre',
-                'default' => '',
-            ],
-            'decor_right' => [
-                'type'    => 'image',
-                'label'   => 'Pynt: billede øverst til højre',
-                'default' => '',
+                'default' => [$card(), $card(), $card()],
             ],
         ];
     }
 
     public static function getStyleSchema(): array
     {
+        $c = BridgeCardKit::COLORS;
+
         return [
             'align' => [
                 'type'    => 'select',
@@ -122,7 +115,16 @@ final class BridgeCardCardsBlock extends AbstractBlock
                 'options' => ['Venstre', 'Højre'],
                 'group'   => 'Layout',
             ],
-            ...BridgeCardKit::backgroundFields('#ffffff', '#ffffff'),
+            ...BridgeCardKit::backgroundFields($c['white'], $c['white']),
+            'suit' => BridgeCardKit::suitField('Kulør ved overlinjen'),
+            'decor_suit' => BridgeCardKit::suitField('Pynt: store former', 'Kløver'),
+            'decor_suit_small' => BridgeCardKit::suitField('Pynt: små former', 'Spar'),
+            'decor_color' => [
+                'type'    => 'color',
+                'label'   => 'Pynt: farve',
+                'default' => $c['teal_text'],
+                'group'   => 'Form',
+            ],
             'eyebrow_color' => [
                 'type'    => 'color',
                 'label'   => 'Overlinje',
@@ -132,49 +134,44 @@ final class BridgeCardCardsBlock extends AbstractBlock
             'title_color' => [
                 'type'    => 'color',
                 'label'   => 'Overskrift',
-                'default' => '#1f4497',
+                'default' => $c['blue'],
                 'group'   => 'Tekst',
             ],
             'title_size' => [
                 'type'    => 'number',
                 'label'   => 'Overskriftens størrelse',
-                'default' => 36,
+                'default' => 48,
                 'min'     => 22,
-                'max'     => 80,
+                'max'     => 96,
                 'unit'    => 'px',
                 'group'   => 'Tekst',
             ],
             'text_color' => [
                 'type'    => 'color',
                 'label'   => 'Tekst',
-                'default' => '#1f4497',
+                'default' => '#444444',
                 'group'   => 'Tekst',
             ],
             'card_color' => [
                 'type'    => 'color',
                 'label'   => 'Kort: baggrund',
-                'default' => '#ffffff',
+                'default' => $c['white'],
                 'group'   => 'Kort',
             ],
             'icon_color' => [
                 'type'    => 'color',
                 'label'   => 'Kort: ikon og titel',
-                'default' => '#1f4497',
+                'default' => $c['blue'],
                 'group'   => 'Kort',
             ],
             'card_text' => [
                 'type'    => 'color',
                 'label'   => 'Kort: tekst',
-                'default' => '#7a7a7a',
+                'default' => $c['grey'],
                 'group'   => 'Kort',
             ],
-            'button_color' => [
-                'type'    => 'color',
-                'label'   => 'Knap',
-                'default' => '#e8483f',
-                'group'   => 'Kort',
-            ],
-            ...static::boxStyleFields('card', 'Kort', ['radius'], ['radius' => 4]),
+            'button_color' => BridgeCardKit::buttonColorField(),
+            ...static::boxStyleFields('card', 'Kort', ['radius'], ['radius' => 8]),
         ];
     }
 
@@ -185,15 +182,10 @@ final class BridgeCardCardsBlock extends AbstractBlock
     ): string {
         $cards = [];
 
-        foreach (array_values((array) ($settings['cards'] ?? [])) as $index => $card) {
-            if (!is_array($card)) {
-                continue;
-            }
-
+        foreach (BridgeCardKit::rows($settings['cards'] ?? []) as $card) {
             $cards[] = [
-                'index'       => $index,
-                // Ikonet slås op i temaets egen liste.
-                'icon'        => BridgeCardKit::ICONS[(string) ($card['icon'] ?? '')] ?? '',
+                'index'       => (int) $card['index'],
+                'icon'        => BridgeCardKit::pick($card['icon'] ?? '', BridgeCardKit::ICONS),
                 'title'       => (string) ($card['title'] ?? ''),
                 'text'        => (string) ($card['text'] ?? ''),
                 'buttonLabel' => trim((string) ($card['button_label'] ?? '')),
@@ -207,8 +199,9 @@ final class BridgeCardCardsBlock extends AbstractBlock
             'text'       => (string) ($settings['text'] ?? ''),
             'cards'      => $cards,
             'alignRight' => ($styles['align'] ?? 'Venstre') === 'Højre',
-            'decorLeft'  => $context->asset((string) ($settings['decor_left'] ?? '')),
-            'decorRight' => $context->asset((string) ($settings['decor_right'] ?? '')),
+            'suit'       => BridgeCardKit::pick($styles['suit'] ?? '', BridgeCardKit::SUITS),
+            'decorBig'   => BridgeCardKit::pick($styles['decor_suit'] ?? '', BridgeCardKit::SUITS),
+            'decorSmall' => BridgeCardKit::pick($styles['decor_suit_small'] ?? '', BridgeCardKit::SUITS),
             'cssVars'    => static::cssVariables($styles),
             'context'    => $context,
         ]);

@@ -1,10 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap');
-
+/* Footer — Bridge Card. Farverne kommer fra Udseende. */
 .block--bridgecardtheme-footer {
-    --bg-color: #1c1c1c;
-    --heading-color: #1f4497;
-    --text-color: #88e1d1;
-
+    overflow-x: clip;
     background: var(--bg-color);
     color: var(--text-color);
 }
@@ -26,13 +22,16 @@
     text-align: right;
 }
 
-.bcfoot__title {
+/* Footerens overskrifter er fede og uden fødder, ikke Crimson Text. */
+.block--bridgecardtheme-footer .bcfoot__title {
+    font-family: var(--font-body);
     margin: 0 0 1.25rem;
     color: var(--heading-color);
     font-size: clamp(1.4rem, 3vw, 2rem);
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+    line-height: 1.1;
 }
 
 .bcfoot__times {

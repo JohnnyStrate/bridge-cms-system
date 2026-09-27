@@ -2,8 +2,15 @@
 declare(strict_types=1);
 
 /**
- * Blå sektion med to billeder (øverst til venstre og til højre), overlinje,
- * turkis overskrift, tekst og en rød knap nederst til venstre.
+ * Den blå sektion: ét baggrundsbillede, der ses gennem to store kulører,
+ * og nederst til venstre overlinje, turkis overskrift, tekst og en rød knap.
+ *
+ * Billedet og formen vælges i editoren og skifter live:
+ *   - Billedet: klik på det, eller vælg under Indhold.
+ *   - Formen: "Billedets form" under Udseende (Kløver, Ruder, Hjerter, Spar).
+ *
+ * Standardbilledet er BridgeCardKit::PHOTO. Skift det dér, når det
+ * endelige billede er klar.
  */
 final class BridgeCardCtaBlock extends AbstractBlock
 {
@@ -14,7 +21,7 @@ final class BridgeCardCtaBlock extends AbstractBlock
 
     public static function label(): string
     {
-        return 'Blå sektion med billeder — Bridge Card';
+        return 'Blå sektion med billede — Bridge Card';
     }
 
     public static function getSchema(): array
@@ -29,65 +36,68 @@ final class BridgeCardCtaBlock extends AbstractBlock
             'title' => [
                 'type'    => 'text',
                 'label'   => 'Overskrift',
-                'default' => 'Spil bridge i Charlottelund',
+                'default' => '“Spil bridge i Charlottelund”',
             ],
             'text' => [
                 'type'    => 'textarea',
                 'label'   => 'Tekst',
-                'default' => 'It is a long established fact that a reader will be distracted by the readable content of',
+                'default' => '”It is a long established fact that a reader will be distracted by the readable content of”',
                 'max'     => 400,
             ],
             ...BridgeCardKit::buttonFields('Se turneringer'),
-            'image_left' => [
+            'bg_image' => [
                 'type'    => 'image',
-                'label'   => 'Billede øverst til venstre',
-                'default' => '',
-            ],
-            'image_right' => [
-                'type'    => 'image',
-                'label'   => 'Billede til højre',
-                'default' => '',
+                'label'   => 'Baggrundsbillede (vises i formerne)',
+                'default' => BridgeCardKit::PHOTO,
             ],
         ];
     }
 
     public static function getStyleSchema(): array
     {
+        $c = BridgeCardKit::COLORS;
+
         return [
-            ...BridgeCardKit::backgroundFields('#1f4497', '#1f4497'),
+            'shape' => BridgeCardKit::suitField('Billedets form'),
+            'grayscale' => [
+                'type'    => 'number',
+                'label'   => 'Sort/hvid',
+                'default' => 100,
+                'min'     => 0,
+                'max'     => 100,
+                'unit'    => '%',
+                'group'   => 'Form',
+            ],
+            ...BridgeCardKit::backgroundFields($c['blue_bg'], $c['blue_bg']),
+            'suit' => BridgeCardKit::suitField('Kulør ved overlinjen', 'Kløver', 'Tekst'),
             'eyebrow_color' => [
                 'type'    => 'color',
-                'label'   => 'Overlinje og ikon',
-                'default' => '#88e1d1',
+                'label'   => 'Overlinje og kulør',
+                'default' => $c['teal_text'],
                 'group'   => 'Tekst',
             ],
             'title_color' => [
                 'type'    => 'color',
                 'label'   => 'Overskrift',
-                'default' => '#74d3c1',
+                'default' => $c['teal_text'],
                 'group'   => 'Tekst',
             ],
             'title_size' => [
                 'type'    => 'number',
                 'label'   => 'Overskriftens størrelse',
-                'default' => 36,
+                'default' => 48,
                 'min'     => 22,
-                'max'     => 80,
+                'max'     => 96,
                 'unit'    => 'px',
                 'group'   => 'Tekst',
             ],
             'text_color' => [
                 'type'    => 'color',
                 'label'   => 'Tekst',
-                'default' => '#ffffff',
+                'default' => $c['white'],
                 'group'   => 'Tekst',
             ],
-            'button_color' => [
-                'type'    => 'color',
-                'label'   => 'Knap',
-                'default' => '#e8483f',
-                'group'   => 'Knap',
-            ],
+            'button_color' => BridgeCardKit::buttonColorField(),
             ...static::boxStyleFields('cta', 'Størrelse', ['height']),
         ];
     }
@@ -102,13 +112,10 @@ final class BridgeCardCtaBlock extends AbstractBlock
             'title'       => (string) ($settings['title'] ?? ''),
             'text'        => (string) ($settings['text'] ?? ''),
             'buttonLabel' => trim((string) ($settings['button_label'] ?? '')),
-            'buttonHref'  => BridgeCardKit::href(
-                (int) ($settings['button_page'] ?? 0),
-                (string) ($settings['button_url'] ?? ''),
-                $context
-            ),
-            'imageLeft'   => $context->asset((string) ($settings['image_left'] ?? '')),
-            'imageRight'  => $context->asset((string) ($settings['image_right'] ?? '')),
+            'buttonHref'  => BridgeCardKit::buttonHref($settings, $context),
+            'bgImage'     => $context->asset((string) ($settings['bg_image'] ?? '')),
+            'shape'       => BridgeCardKit::pick($styles['shape'] ?? '', BridgeCardKit::SUITS),
+            'suit'        => BridgeCardKit::pick($styles['suit'] ?? '', BridgeCardKit::SUITS),
             'cssVars'     => static::cssVariables($styles),
             'context'     => $context,
         ]);

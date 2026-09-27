@@ -74,21 +74,23 @@ final class BridgeCardFooterBlock extends AbstractBlock
 
     public static function getStyleSchema(): array
     {
+        $c = BridgeCardKit::COLORS;
+
         return [
             'bg_color' => [
                 'type'    => 'color',
                 'label'   => 'Baggrund',
-                'default' => '#1c1c1c',
+                'default' => $c['dark'],
             ],
             'heading_color' => [
                 'type'    => 'color',
                 'label'   => 'Overskrifter',
-                'default' => '#1f4497',
+                'default' => $c['blue'],
             ],
             'text_color' => [
                 'type'    => 'color',
                 'label'   => 'Tekst',
-                'default' => '#88e1d1',
+                'default' => $c['teal_light'],
             ],
         ];
     }
@@ -98,23 +100,13 @@ final class BridgeCardFooterBlock extends AbstractBlock
         array $styles,
         RenderContext $context
     ): string {
-        $rows = static function (mixed $value): array {
-            $result = [];
-            foreach (array_values((array) $value) as $index => $row) {
-                if (is_array($row)) {
-                    $result[] = ['index' => $index] + $row;
-                }
-            }
-            return $result;
-        };
-
         return static::renderTemplate([
             'timesTitle' => (string) ($settings['times_title'] ?? ''),
-            'times'      => $rows($settings['times'] ?? []),
+            'times'      => BridgeCardKit::rows($settings['times'] ?? []),
             'linksTitle' => (string) ($settings['links_title'] ?? ''),
             'links'      => BridgeCardKit::links($settings['links'] ?? [], $context),
             'infoTitle'  => (string) ($settings['info_title'] ?? ''),
-            'info'       => $rows($settings['info'] ?? []),
+            'info'       => BridgeCardKit::rows($settings['info'] ?? []),
             'cssVars'    => static::cssVariables($styles),
             'context'    => $context,
         ]);

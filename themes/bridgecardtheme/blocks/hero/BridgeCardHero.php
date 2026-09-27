@@ -2,8 +2,10 @@
 declare(strict_types=1);
 
 /**
- * Hero til Bridge Card: sort/hvidt foto, stor turkis overskrift, kort tekst,
- * en hvid knap og en linje nederst med telefon og adresse.
+ * Hero til Bridge Card: foto, en stor kulør bag den turkise overskrift,
+ * kort tekst, en hvid knap og en linje nederst med telefon og adresse.
+ *
+ * Kuløren bag titlen vælges under Udseende og skifter live i editoren.
  */
 final class BridgeCardHeroBlock extends AbstractBlock
 {
@@ -45,57 +47,60 @@ final class BridgeCardHeroBlock extends AbstractBlock
             'bg_image' => [
                 'type'    => 'image',
                 'label'   => 'Baggrundsbillede',
-                'default' => '../themes/bridgecardtheme/assets/bgcardtheme.png',
+                'default' => BridgeCardKit::PHOTO,
             ],
         ];
     }
 
     public static function getStyleSchema(): array
     {
+        $c = BridgeCardKit::COLORS;
+
         return [
+            'suit' => BridgeCardKit::suitField('Form bag overskriften'),
+            'suit_color' => [
+                'type'    => 'color',
+                'label'   => 'Formens farve',
+                'default' => $c['dark'],
+                'group'   => 'Form',
+            ],
             'title_color' => [
                 'type'    => 'color',
                 'label'   => 'Overskrift',
-                'default' => '#74d3c1',
+                'default' => $c['teal_text'],
                 'group'   => 'Tekst',
             ],
             'title_size' => [
                 'type'    => 'number',
                 'label'   => 'Overskriftens størrelse',
-                'default' => 72,
+                'default' => 88,
                 'min'     => 32,
-                'max'     => 140,
+                'max'     => 160,
                 'unit'    => 'px',
                 'group'   => 'Tekst',
             ],
             'text_color' => [
                 'type'    => 'color',
                 'label'   => 'Tekst',
-                'default' => '#ffffff',
+                'default' => $c['white'],
                 'group'   => 'Tekst',
             ],
-            'button_color' => [
+            'hero_button' => [
                 'type'    => 'color',
                 'label'   => 'Knap: baggrund',
-                'default' => '#ffffff',
+                'default' => $c['white'],
                 'group'   => 'Knap',
             ],
-            'button_text' => [
+            'hero_button_text' => [
                 'type'    => 'color',
                 'label'   => 'Knap: tekst',
                 'default' => '#111111',
                 'group'   => 'Knap',
             ],
-            'bg_color' => [
-                'type'    => 'color',
-                'label'   => 'Baggrund uden billede',
-                'default' => '#3a3a3a',
-                'group'   => 'Billede',
-            ],
             'overlay' => [
                 'type'    => 'number',
                 'label'   => 'Mørkt lag over billedet',
-                'default' => 35,
+                'default' => 25,
                 'min'     => 0,
                 'max'     => 90,
                 'unit'    => '%',
@@ -104,7 +109,7 @@ final class BridgeCardHeroBlock extends AbstractBlock
             'grayscale' => [
                 'type'    => 'number',
                 'label'   => 'Sort/hvid',
-                'default' => 100,
+                'default' => 0,
                 'min'     => 0,
                 'max'     => 100,
                 'unit'    => '%',
@@ -125,15 +130,12 @@ final class BridgeCardHeroBlock extends AbstractBlock
             'title'       => (string) ($settings['title'] ?? ''),
             'text'        => (string) ($settings['text'] ?? ''),
             'buttonLabel' => trim((string) ($settings['button_label'] ?? '')),
-            'buttonHref'  => BridgeCardKit::href(
-                (int) ($settings['button_page'] ?? 0),
-                (string) ($settings['button_url'] ?? ''),
-                $context
-            ),
+            'buttonHref'  => BridgeCardKit::buttonHref($settings, $context),
             'phone'       => $phone,
             'phoneHref'   => 'tel:' . preg_replace('/[^0-9+]/', '', $phone),
             'address'     => (string) ($settings['address'] ?? ''),
             'bgImage'     => $context->asset((string) ($settings['bg_image'] ?? '')),
+            'suit'        => BridgeCardKit::pick($styles['suit'] ?? '', BridgeCardKit::SUITS),
             'cssVars'     => static::cssVariables($styles),
             'context'     => $context,
         ]);

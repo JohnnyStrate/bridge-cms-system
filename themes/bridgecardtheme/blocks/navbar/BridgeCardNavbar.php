@@ -28,7 +28,7 @@ final class BridgeCardNavbarBlock extends AbstractBlock
                 'fields'   => BridgeCardKit::linkRowFields(),
                 'default'  => [
                     $row('Forside'),
-                    $row('Klubben'),
+                    $row('Klubber'),
                     $row('Turneringer & tilmelding'),
                     $row('BC3'),
                     $row('Resultater'),
@@ -44,12 +44,12 @@ final class BridgeCardNavbarBlock extends AbstractBlock
             'text_color' => [
                 'type'    => 'color',
                 'label'   => 'Tekst',
-                'default' => '#ffffff',
+                'default' => BridgeCardKit::COLORS['white'],
             ],
             'bg_color' => [
                 'type'    => 'color',
                 'label'   => 'Baggrund',
-                'default' => '#000000',
+                'default' => BridgeCardKit::COLORS['dark'],
             ],
             'bg_opacity' => [
                 'type'    => 'number',
@@ -75,17 +75,13 @@ final class BridgeCardNavbarBlock extends AbstractBlock
         array $styles,
         RenderContext $context
     ): string {
-        $links   = BridgeCardKit::links($settings['links'] ?? [], $context);
         $current = $context->currentPageId();
-
-        foreach ((array) ($settings['links'] ?? []) as $i => $row) {
-            foreach ($links as $k => $link) {
-                if ($link['index'] === $i) {
-                    $links[$k]['active'] = is_array($row) && (int) ($row['page'] ?? 0) > 0
-                        && (int) $row['page'] === $current;
-                }
-            }
-        }
+        $links   = array_map(
+            static fn (array $link): array => $link + [
+                'active' => $link['page'] > 0 && $link['page'] === $current,
+            ],
+            BridgeCardKit::links($settings['links'] ?? [], $context)
+        );
 
         return static::renderTemplate([
             'links'   => $links,

@@ -2,11 +2,11 @@
 declare(strict_types=1);
 
 /**
- * Spilletider: turkis gradient, kløver-ikon, overskrift, tekst, en række
- * hvide info-bokse med rød kant og et billede til højre.
+ * Spilletider: turkis gradient, en lille kulør over overskriften, tekst,
+ * info-bokse med rød kant og et billede af spillekort til højre.
  *
- * Gradienten går fra #88E1D1 i toppen til #70C3B4 i bunden. Sættes begge
- * farver ens, bliver det en ensfarvet baggrund.
+ * Gradienten går fra #88E1D1 i toppen til #70C3B4 i bunden (Figma).
+ * Sættes begge farver ens, bliver baggrunden ensfarvet.
  */
 final class BridgeCardTimesBlock extends AbstractBlock
 {
@@ -24,9 +24,10 @@ final class BridgeCardTimesBlock extends AbstractBlock
     {
         return [
             'title' => [
-                'type'    => 'text',
-                'label'   => 'Overskrift',
-                'default' => 'Spilletider i Charlottelund',
+                'type'    => 'textarea',
+                'label'   => 'Overskrift (Enter = ny linje)',
+                'default' => "Spilletider\ni Charlottelund",
+                'max'     => 120,
             ],
             'text' => [
                 'type'    => 'textarea',
@@ -43,7 +44,7 @@ final class BridgeCardTimesBlock extends AbstractBlock
                     'value' => ['type' => 'text', 'label' => 'Tekst', 'default' => '', 'max' => 120],
                 ],
                 'default' => [
-                    ['label' => 'Vores spillehold', 'value' => 'Spilstart: 18:00'],
+                    ['label' => 'Vores spillehold', 'value' => 'Spilstart:  18:00'],
                     ['label' => 'Undervisning', 'value' => 'Undervisning kl 13:40'],
                     ['label' => 'Priser', 'value' => '60 kr pr spiller pr gng unge under 16 år spiller gratis'],
                 ],
@@ -51,30 +52,33 @@ final class BridgeCardTimesBlock extends AbstractBlock
             'image' => [
                 'type'    => 'image',
                 'label'   => 'Billede til højre',
-                'default' => 'themes/bridgecardtheme/assets/cardspicture.png',
+                'default' => BridgeCardKit::CARDS_IMAGE,
             ],
             'image_alt' => [
                 'type'    => 'text',
                 'label'   => 'Billede: beskrivelse (alt-tekst)',
-                'default' => '',
+                'default' => 'Spillekort',
             ],
         ];
     }
 
     public static function getStyleSchema(): array
     {
+        $c = BridgeCardKit::COLORS;
+
         return [
-            ...BridgeCardKit::backgroundFields('#88e1d1', '#70c3b4'),
+            ...BridgeCardKit::backgroundFields($c['teal_light'], $c['teal']),
+            'suit' => BridgeCardKit::suitField('Lille form over overskriften'),
             'title_color' => [
                 'type'    => 'color',
-                'label'   => 'Overskrift og ikon',
-                'default' => '#ffffff',
+                'label'   => 'Overskrift og form',
+                'default' => $c['white'],
                 'group'   => 'Tekst',
             ],
             'title_size' => [
                 'type'    => 'number',
                 'label'   => 'Overskriftens størrelse',
-                'default' => 40,
+                'default' => 48,
                 'min'     => 24,
                 'max'     => 96,
                 'unit'    => 'px',
@@ -83,25 +87,25 @@ final class BridgeCardTimesBlock extends AbstractBlock
             'text_color' => [
                 'type'    => 'color',
                 'label'   => 'Tekst',
-                'default' => '#1f4497',
+                'default' => $c['blue'],
                 'group'   => 'Tekst',
             ],
             'box_color' => [
                 'type'    => 'color',
                 'label'   => 'Bokse: baggrund',
-                'default' => '#ffffff',
+                'default' => $c['white'],
                 'group'   => 'Bokse',
             ],
             'box_text' => [
                 'type'    => 'color',
                 'label'   => 'Bokse: tekst',
-                'default' => '#1f4497',
+                'default' => $c['blue'],
                 'group'   => 'Bokse',
             ],
             'accent_color' => [
                 'type'    => 'color',
                 'label'   => 'Bokse: kant',
-                'default' => '#e8483f',
+                'default' => $c['button'],
                 'group'   => 'Bokse',
             ],
         ];
@@ -112,24 +116,13 @@ final class BridgeCardTimesBlock extends AbstractBlock
         array $styles,
         RenderContext $context
     ): string {
-        $items = [];
-
-        foreach (array_values((array) ($settings['items'] ?? [])) as $index => $row) {
-            if (is_array($row)) {
-                $items[] = [
-                    'index' => $index,
-                    'label' => (string) ($row['label'] ?? ''),
-                    'value' => (string) ($row['value'] ?? ''),
-                ];
-            }
-        }
-
         return static::renderTemplate([
             'title'    => (string) ($settings['title'] ?? ''),
             'text'     => (string) ($settings['text'] ?? ''),
-            'items'    => $items,
+            'items'    => BridgeCardKit::rows($settings['items'] ?? []),
             'image'    => $context->asset((string) ($settings['image'] ?? '')),
             'imageAlt' => (string) ($settings['image_alt'] ?? ''),
+            'suit'     => BridgeCardKit::pick($styles['suit'] ?? '', BridgeCardKit::SUITS),
             'cssVars'  => static::cssVariables($styles),
             'context'  => $context,
         ]);
