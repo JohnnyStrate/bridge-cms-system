@@ -28,6 +28,8 @@ final class BridgeCardTheme extends AbstractTheme
     {
         return [
             'bridgecardtheme-hero' => BridgeCardHeroBlock::class,
+            'bridgecardtheme-hero' => Bridge3CardsBlock::class,
+
         ];
     }
 

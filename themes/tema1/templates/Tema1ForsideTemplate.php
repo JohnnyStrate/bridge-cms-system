@@ -15,7 +15,7 @@ final class Tema1ForsideTemplate extends AbstractTemplate
 {
     public static function slug(): string
     {
-        return 'tema1-forside';
+        return 'Bridgecard-theme';
     }
 
     public static function name(): string
@@ -38,7 +38,7 @@ final class Tema1ForsideTemplate extends AbstractTemplate
         return [
             // Felter, der ikke nævnes, får blokkens egen standardværdi.
             static::block('textarea', [
-                'title' => 'Velkommen til klubben',
+                'title' => 'Skriv din Bridgeklub her',
                 'body'  => 'Skriv en kort introduktion til jeres klub her.',
             ]),
         ];
