@@ -51,7 +51,7 @@ final class BridgeCardTimesBlock extends AbstractBlock
             'image' => [
                 'type'    => 'image',
                 'label'   => 'Billede til højre',
-                'default' => '',
+                'default' => 'themes/bridgecardtheme/assets/cardspicture.png',
             ],
             'image_alt' => [
                 'type'    => 'text',

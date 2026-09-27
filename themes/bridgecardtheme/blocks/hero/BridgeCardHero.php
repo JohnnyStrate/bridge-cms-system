@@ -45,7 +45,7 @@ final class BridgeCardHeroBlock extends AbstractBlock
             'bg_image' => [
                 'type'    => 'image',
                 'label'   => 'Baggrundsbillede',
-                'default' => '',
+                'default' => '../themes/bridgecardtheme/assets/bgcardtheme.png',
             ],
         ];
     }
