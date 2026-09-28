@@ -236,6 +236,11 @@
                 break;
             }
 
+            case 'copy':
+                // Samme som Ctrl+C, Ctrl+V: en kopi lige under blokken.
+                pasteBlock(block, snapshotBlock(block));
+                break;
+
             case 'up': {
                 const previous = block.previousElementSibling;
 
@@ -328,6 +333,167 @@
     });
 
     syncGlobalChoices();
+
+    /* --- Kopiér blok ------------------------------------------------- */
+
+    // En kopi er en klon af blokken — forhaandsvisning og panel med de
+    // vaerdier, der staar i felterne lige nu, ogsaa de ugemte. Den faar
+    // tomt id, saa serveren gemmer den som en NY blok, praecis som en
+    // blok fra "+"-menuen. Der skal intet nyt til paa serveren.
+    //
+    // To veje til det samme:
+    //   - Kopi-knappen i blokkens hjoerne: kopien laegges lige under.
+    //   - Klik paa blokken, Ctrl+C, og Ctrl+V: kopien laegges under den
+    //     blok, der er valgt, naar man indsaetter. Ctrl+V flere gange
+    //     giver flere kopier.
+    //
+    // Globale blokke (navbar, footer) kan ikke kopieres. De findes kun
+    // én gang pr. site.
+
+    let selectedBlock = null;
+    let copiedBlock   = null;
+
+    // Et tilfaeldigt maerke, der laegges i udklipsholderen, naar en blok
+    // kopieres. Ved Ctrl+V indsaettes blokken kun, hvis maerket stadig
+    // ligger der — har man kopieret tekst siden, indsaettes teksten.
+    const copyMarker = 'bridge-cms-blok:' + Math.random().toString(36).slice(2);
+
+    function isPageBlock(block) {
+        return Boolean(block && block.isConnected && !block.dataset.globalSlot);
+    }
+
+    function selectBlock(block) {
+        if (selectedBlock) {
+            selectedBlock.classList.remove('is-selected');
+        }
+
+        selectedBlock = block;
+
+        if (block) {
+            block.classList.add('is-selected');
+        }
+    }
+
+    // Et klik hvor som helst i en blok vaelger den. Kopi-knappen har
+    // allerede valgt den nye kopi og skal ikke vaelge originalen igen.
+    canvas.addEventListener('click', function (event) {
+        const block = event.target.closest('.ed-block');
+
+        if (block && !event.target.closest('[data-action="copy"]')) {
+            selectBlock(block);
+        }
+    });
+
+    // Et frosset billede af blokken, som den ser ud lige nu. Vaerdierne
+    // skrives ind som standardvaerdier, saa de foelger med, hver gang
+    // billedet klones igen ved indsaettelse.
+    function snapshotBlock(block) {
+        const copy = block.cloneNode(true);
+        const from = block.querySelectorAll('input, textarea, select');
+        const to   = copy.querySelectorAll('input, textarea, select');
+
+        from.forEach(function (input, index) {
+            const target = to[index];
+
+            if (input.type === 'file') {
+                return;
+            }
+
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                target.defaultChecked = input.checked;
+            } else if (input.tagName === 'SELECT') {
+                Array.from(target.options).forEach(function (option, i) {
+                    option.defaultSelected = input.options[i].selected;
+                });
+            } else {
+                target.defaultValue = input.value;
+            }
+        });
+
+        copy.dataset.blockId = '';
+        copy.classList.remove('is-selected', 'is-styling');
+        copy.querySelector('.ed-panel').setAttribute('hidden', '');
+        copy.querySelectorAll('.ed-block__actions [aria-expanded]').forEach(function (button) {
+            button.setAttribute('aria-expanded', 'false');
+        });
+
+        return copy;
+    }
+
+    // Id'er skal vaere unikke paa siden, ellers peger etiketterne i
+    // kopiens panel paa originalens felter.
+    function renameIds(root) {
+        const suffix = '-k' + Math.random().toString(36).slice(2, 7);
+
+        root.querySelectorAll('[id]').forEach(function (element) {
+            const oldId = element.id;
+            const newId = oldId + suffix;
+
+            element.id = newId;
+
+            root.querySelectorAll('label[for="' + CSS.escape(oldId) + '"]').forEach(function (label) {
+                label.htmlFor = newId;
+            });
+        });
+    }
+
+    // Laegger en kopi under blokken. Er der ingen sideblok at laegge den
+    // under, havner den nederst i sidens indhold, som en ny blok.
+    function pasteBlock(below, snapshot) {
+        const copy = snapshot.cloneNode(true);
+        renameIds(copy);
+
+        if (isPageBlock(below)) {
+            below.after(copy);
+        } else {
+            const tail = canvas.querySelector('.ed-block[data-global-position="after"]');
+            canvas.insertBefore(copy, tail);
+        }
+
+        selectBlock(copy);
+        markDirty();
+        statusText.textContent = 'Blok kopieret — ikke gemt';
+
+        copy.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Tekst i panelets felter og markeret tekst kopieres som altid.
+    function wantsTextCopy() {
+        const active    = document.activeElement;
+        const selection = window.getSelection();
+
+        return Boolean(
+            (active && active.closest('input, textarea, select'))
+            || (selection && !selection.isCollapsed && selection.toString().trim() !== '')
+        );
+    }
+
+    document.addEventListener('copy', function (event) {
+        if (wantsTextCopy() || !isPageBlock(selectedBlock)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.clipboardData.setData('text/plain', copyMarker);
+
+        copiedBlock = snapshotBlock(selectedBlock);
+        statusText.textContent = 'Blok kopieret — tryk Ctrl+V for at indsætte';
+    });
+
+    // Capture-fasen, saa den kommer foer inline-redigeringens egen
+    // paste-lytter, der ellers ville indsaette maerket som tekst.
+    document.addEventListener('paste', function (event) {
+        const text = event.clipboardData ? event.clipboardData.getData('text/plain') : '';
+
+        if (!copiedBlock || text !== copyMarker) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        pasteBlock(selectedBlock, copiedBlock);
+    }, true);
 
     /* --- Gem --------------------------------------------------------- */
 

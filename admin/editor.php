@@ -226,6 +226,8 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
                         aria-expanded="false" title="Udseende">&#127912;</button>
                 <button type="button" class="ed-btn ed-btn--edit" data-action="edit"
                         aria-expanded="false" title="Alle felter">&#9998;</button>
+                <button type="button" class="ed-btn ed-btn--copy" data-action="copy"
+                        title="Kopiér blokken (Ctrl+C, Ctrl+V)" aria-label="Kopiér blokken">&#10697;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="up">&and;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="down">&or;</button>
                 <button type="button" class="ed-btn ed-btn--delete" data-action="delete">&times;</button>
@@ -338,6 +340,8 @@ $globalArticle = static function (string $slot, array $def, ?array $row)
                         aria-expanded="false" title="Udseende">&#127912;</button>
                 <button type="button" class="ed-btn ed-btn--edit" data-action="edit"
                         aria-expanded="false" title="Alle felter">&#9998;</button>
+                <button type="button" class="ed-btn ed-btn--copy" data-action="copy"
+                        title="Kopiér blokken (Ctrl+C, Ctrl+V)" aria-label="Kopiér blokken">&#10697;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="up">&and;</button>
                 <button type="button" class="ed-btn ed-btn--move" data-action="down">&or;</button>
                 <button type="button" class="ed-btn ed-btn--delete" data-action="delete">&times;</button>

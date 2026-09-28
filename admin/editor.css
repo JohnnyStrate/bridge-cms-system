@@ -154,6 +154,16 @@
     background: var(--admin-danger);
 }
 
+.ed-btn--copy {
+    background: var(--admin-muted);
+}
+
+/* Den valgte blok — den, Ctrl+C kopierer, og som Ctrl+V lægger kopien under. */
+.ed-block.is-selected {
+    border-color: var(--admin-blue);
+    box-shadow: 0 0 0 2px var(--admin-blue);
+}
+
 .ed-btn:hover {
     filter: brightness(1.12);
 }
