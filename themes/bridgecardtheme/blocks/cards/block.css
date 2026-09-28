@@ -1,0 +1,212 @@
+/* =====================================================================
+   Kort med ikoner — Bridge Card
+   Farverne kommer fra Udseende (CSS-variabler på .block).
+   ===================================================================== */
+
+.block--bridgecardtheme-cards {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: linear-gradient(to bottom, var(--bg-top), var(--bg-bottom));
+}
+
+/* --- Pynt ------------------------------------------------------------- */
+
+/* Formerne ligger bag indholdet og kan ikke klikkes på. */
+.bccards__decor {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.bccards__shape {
+    position: absolute;
+    aspect-ratio: 1;
+    background: var(--decor-color);
+    rotate: var(--r, 0deg);
+}
+
+/* Venstrestillet (hvid sektion): pynten øverst og til højre. */
+.bccards__shape--1 { left: 4%;   top: 1.5rem;  width: 8rem;  --r: -30deg; }
+.bccards__shape--2 { left: 19%;  top: -4rem;   width: 8rem;  --r: 15deg; }
+.bccards__shape--3 { left: 27%;  top: 5.5rem;  width: 4rem;  --r: 25deg; }
+.bccards__shape--4 { right: 17%; top: 1.5rem;  width: 9rem;  --r: -35deg; }
+.bccards__shape--5 { right: 3%;  top: 7rem;    width: 12rem; --r: 15deg; }
+.bccards__shape--6 { right: 2%;  top: -1rem;   width: 4rem;  --r: 20deg; }
+
+/* Højrestillet (turkis sektion): pynten til venstre. */
+.bccards--right .bccards__shape--1 { left: -3%;  top: 1rem;   width: 13rem; --r: -35deg; }
+.bccards--right .bccards__shape--2 { display: none; }
+.bccards--right .bccards__shape--3 { left: 29%;  top: -1.5rem; width: 5.5rem; --r: 25deg; }
+.bccards--right .bccards__shape--4 { left: 15%;  top: 10rem;  width: 14rem; --r: 15deg; right: auto; }
+.bccards--right .bccards__shape--5,
+.bccards--right .bccards__shape--6 { display: none; }
+
+/* --- Indhold ---------------------------------------------------------- */
+
+.bccards__inner {
+    max-width: 82rem;
+    margin: 0 auto;
+    padding: clamp(5rem, 12vw, 11rem) clamp(1rem, 6vw, 5.5rem) clamp(3rem, 7vw, 5rem);
+}
+
+.bccards__head {
+    max-width: 62rem;
+}
+
+.bccards--right .bccards__head {
+    margin-left: auto;
+    text-align: right;
+}
+
+.bccards__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0 0.5rem;
+    color: var(--eyebrow-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.bccards--right .bccards__eyebrow {
+    flex-direction: row-reverse;
+    margin: 0 0.5rem 0 0;
+}
+
+.bccards__eyebrow .bc-icon {
+    font-size: 1.3rem;
+}
+
+.bccards__title {
+    margin: 0.25rem 0 0;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4.5vw, var(--title-size));
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--title-color);
+}
+
+.bccards__text {
+    max-width: 32rem;
+    margin: 1.25rem 0 0 0.5rem;
+    color: var(--text-color);
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+
+.bccards--right .bccards__text {
+    margin: 0.5rem 0 0 auto;
+}
+
+/* --- Kort ------------------------------------------------------------- */
+
+.bccards__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Tre kort bliver ikke strakt ud over hele bredden, som i designet. */
+.block--bridgecardtheme-cards:not(.bccards--right) .bccards__grid {
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 18rem));
+}
+
+.bccards--right .bccards__grid {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+}
+
+.bccards__card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.1rem 1.25rem 1.5rem;
+    background: var(--card-color);
+    border: 2px solid rgb(0 0 0 / 0.08);
+    border-radius: var(--card-radius, 8px);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.bccards__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 22px rgb(0 0 0 / 0.14);
+}
+
+.bccards__icon {
+    font-size: 2.75rem;
+    color: var(--icon-color);
+}
+
+.bccards__card-title {
+    margin: 1.5rem 0 0;
+    color: var(--icon-color);
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.bccards--right .bccards__card-title {
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.bccards__card-text {
+    flex: 1;
+    margin: 0.35rem 0 2rem;
+    color: var(--card-text);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.bccards__button {
+    display: block;
+    padding: 0.35rem 0.75rem;
+    background: var(--button-color);
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+}
+
+.bccards__button:hover {
+    filter: brightness(1.1);
+}
+
+/* --- Små skærme ------------------------------------------------------- */
+
+@media (max-width: 48rem) {
+    /* Pynten samles i luften over overskriften, så den aldrig står bag tekst. */
+    .bccards__inner {
+        padding-top: 7.5rem;
+    }
+
+    .bccards__shape {
+        display: none;
+    }
+
+    .bccards__shape--1,
+    .bccards__shape--5 {
+        display: block;
+        top: 1rem;
+        width: 5rem;
+    }
+
+    .bccards__shape--1 { left: 1.25rem; }
+    .bccards__shape--5 { right: 1.25rem; }
+
+    .bccards--right .bccards__shape--1 { display: block; left: 1.25rem; top: 1rem; width: 5rem; }
+    .bccards--right .bccards__shape--3 { display: block; left: 45%; top: 0.5rem; width: 2.5rem; }
+    .bccards--right .bccards__shape--4 { display: block; left: auto; right: 1.25rem; top: 1rem; width: 5rem; }
+
+    .block--bridgecardtheme-cards:not(.bccards--right) .bccards__grid,
+    .bccards--right .bccards__grid {
+        grid-template-columns: 1fr;
+    }
+}

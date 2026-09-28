@@ -203,6 +203,20 @@ final class PageRepository
         }
     }
 
+    /**
+     * Skifter kun sidens status. Bruges af knappen i sidelisten, så en side
+     * kan udgives uden at åbne editoren. Titel, slug og placering røres ikke.
+     */
+    public function setStatus(int $id, string $status): void
+    {
+        if (!in_array($status, ['draft', 'published'], true)) {
+            throw new InvalidArgumentException('Ugyldig status.');
+        }
+
+        $stmt = $this->pdo->prepare('UPDATE pages SET status = :status WHERE id = :id');
+        $stmt->execute(['status' => $status, 'id' => $id]);
+    }
+
     public function markAsPublished(int $id): void
     {
         $stmt = $this->pdo->prepare(

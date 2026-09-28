@@ -1,0 +1,147 @@
+/* =====================================================================
+   Bridge Card — fælles for hele temaet
+   ---------------------------------------------------------------------
+   Hentes af hver blok via BridgeCardKit::stylesheet(), så blokkene ikke
+   hver især skal gentage fonten, formerne og animationerne. Eksporten
+   kopierer filen med, fordi den står som et <link> i HTML'en.
+
+   1. Skrifttype  (Crimson Text til H1 og H2)
+   2. Former og ikoner  (.bc-mask + data-value)
+   3. Animationer  (data-bc-reveal)
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap');
+
+/* --- 1. Skrifttype ---------------------------------------------------- */
+
+[class*="block--bridgecardtheme-"] :is(h1, h2) {
+    font-family: 'Crimson Text', Georgia, serif;
+}
+
+/* --- 2. Former og ikoner ---------------------------------------------- */
+
+/*
+ * ÉT ikonsystem for hele temaet. Et element med klassen .bc-mask farves
+ * med currentColor (eller sin egen baggrund) og klippes til den form, som
+ * data-value peger på. Navnene er de samme, som står i editorens lister
+ * (BridgeCardKit::SUITS og ::ICONS).
+ *
+ * I editoren sætter editor.js data-value live, når man vælger en ny form
+ * — så skifter formen med det samme uden at gemme (se data-live).
+ *
+ * En ny form er én regel mere herunder og ét navn mere i BridgeCardKit.
+ */
+
+.bc-mask {
+    -webkit-mask: var(--bc-mask, none) center / contain no-repeat;
+    mask: var(--bc-mask, none) center / contain no-repeat;
+}
+
+.bc-icon {
+    display: inline-block;
+    flex: none;
+    width: 1em;
+    height: 1em;
+    background: currentColor;
+}
+
+.bc-mask[data-value="Ingen"] {
+    display: none;
+}
+
+.bc-mask[data-value="Kløver"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Ccircle%20cx='50'%20cy='27'%20r='21'/%3E%3Ccircle%20cx='27'%20cy='56'%20r='21'/%3E%3Ccircle%20cx='73'%20cy='56'%20r='21'/%3E%3Cpath%20d='M38%2040h24v22H38z'/%3E%3Cpath%20d='M50%2052C51%2075%2057%2088%2070%2098H30C43%2088%2049%2075%2050%2052Z'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Ruder"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cpath%20d='M50%202%2088%2050%2050%2098%2012%2050Z'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Hjerter"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cpath%20d='M50%2094S6%2065%206%2034C6%2017%2018%207%2031%207c9%200%2016%205%2019%2012%203-7%2010-12%2019-12%2013%200%2025%2010%2025%2027%200%2031-44%2060-44%2060Z'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Spar"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cpath%20d='M50%203S8%2037%208%2061c0%2014%2011%2023%2022%2023%208%200%2014-4%2017-10-1%2011-5%2018-14%2024h34c-9-6-13-13-14-24%203%206%209%2010%2017%2010%2011%200%2022-9%2022-23C92%2037%2050%203%2050%203Z'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Kalender"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M5%203.5h14A2.5%202.5%200%200%201%2021.5%206v1.2h-19V6A2.5%202.5%200%200%201%205%203.5ZM2.5%208.8h19V19a2.5%202.5%200%200%201-2.5%202.5H5A2.5%202.5%200%200%201%202.5%2019Z'/%3E%3Crect%20x='6'%20y='1'%20width='2.6'%20height='4.6'%20rx='1.3'/%3E%3Crect%20x='15.4'%20y='1'%20width='2.6'%20height='4.6'%20rx='1.3'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Personer"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M2.60%203.90L3.02%204.92L4.12%205.01L3.28%205.72L3.54%206.79L2.60%206.22L1.66%206.79L1.92%205.72L1.08%205.01L2.18%204.92Z'/%3E%3Cpath%20d='M2.60%2010.40L3.02%2011.42L4.12%2011.51L3.28%2012.22L3.54%2013.29L2.60%2012.72L1.66%2013.29L1.92%2012.22L1.08%2011.51L2.18%2011.42Z'/%3E%3Cpath%20d='M2.60%2016.90L3.02%2017.92L4.12%2018.01L3.28%2018.72L3.54%2019.79L2.60%2019.22L1.66%2019.79L1.92%2018.72L1.08%2018.01L2.18%2017.92Z'/%3E%3Ccircle%20cx='11.5'%20cy='8.5'%20r='3.4'/%3E%3Cpath%20d='M5.5%2020.5c0-3.9%202.7-6.6%206-6.6s6%202.7%206%206.6Z'/%3E%3Ccircle%20cx='18.3'%20cy='9.4'%20r='2.6'/%3E%3Cpath%20d='M16.6%2014c3.4-.4%206.9%201.7%206.9%206.5h-4.6c0-2.6-.8-4.8-2.3-6.5Z'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Liste"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M2.60%203.90L3.02%204.92L4.12%205.01L3.28%205.72L3.54%206.79L2.60%206.22L1.66%206.79L1.92%205.72L1.08%205.01L2.18%204.92Z'/%3E%3Cpath%20d='M2.60%2010.40L3.02%2011.42L4.12%2011.51L3.28%2012.22L3.54%2013.29L2.60%2012.72L1.66%2013.29L1.92%2012.22L1.08%2011.51L2.18%2011.42Z'/%3E%3Cpath%20d='M2.60%2016.90L3.02%2017.92L4.12%2018.01L3.28%2018.72L3.54%2019.79L2.60%2019.22L1.66%2019.79L1.92%2018.72L1.08%2018.01L2.18%2017.92Z'/%3E%3Crect%20x='7.5'%20y='4.3'%20width='16'%20height='2.4'%20rx='1.2'/%3E%3Crect%20x='7.5'%20y='10.8'%20width='16'%20height='2.4'%20rx='1.2'/%3E%3Crect%20x='7.5'%20y='17.3'%20width='16'%20height='2.4'%20rx='1.2'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Telefon"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M2%208.5C2%205.5%206.5%203.5%2012%203.5s10%202%2010%205v1.3a1%201%200%200%201-1%201h-3.2a1%201%200%200%201-1-1V8.2c-1.4-.5-3.1-.8-4.8-.8s-3.4.3-4.8.8v1.6a1%201%200%200%201-1%201H3a1%201%200%200%201-1-1Z'/%3E%3Cpath%20d='M8.6%209.8h6.8l4.1%205.4v5.3a1%201%200%200%201-1%201h-13a1%201%200%200%201-1-1v-5.3Z'/%3E%3C/svg%3E");
+}
+
+.bc-mask[data-value="Hus"] {
+    --bc-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M12%202.5%201.5%2011.2h2.7V21.5h15.6V11.2h2.7Z'/%3E%3C/svg%3E");
+}
+
+/* --- 3. Animationer --------------------------------------------------- */
+
+/*
+ * Samme mønster som tema 2 og 3: blokkens script sætter .bc-armed (alt
+ * skjult), og .is-visible, når sektionen kommer ind i billedet. Uden
+ * JavaScript, i editoren og med reduceret bevægelse er alt bare synligt.
+ *
+ * Retningen står på elementet og følger dets placering, så siden
+ * "samler sig" fra kanterne:
+ *
+ *   data-bc-reveal="top"     kommer ned oppefra      (navbar, overlinjer)
+ *   data-bc-reveal="bottom"  kommer op nedefra       (knapper, kort)
+ *   data-bc-reveal="left"    kommer ind fra venstre  (venstre kolonne)
+ *   data-bc-reveal="right"   kommer ind fra højre    (højre kolonne)
+ *   data-bc-reveal="center"  toner frem og vokser    (store titler, former)
+ *
+ * --i på elementet giver rækkefølgen (0, 1, 2 …), så elementer i samme
+ * sektion kommer én ad gangen. Kun transform og opacity animeres.
+ */
+
+@keyframes bc-reveal {
+    from {
+        opacity: 0;
+        transform: translate3d(var(--bc-x, 0), var(--bc-y, 0), 0) scale(var(--bc-s, 1));
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+[data-bc-reveal="top"]    { --bc-y: -2rem; }
+[data-bc-reveal="bottom"] { --bc-y: 2.5rem; }
+[data-bc-reveal="left"]   { --bc-x: -3rem; }
+[data-bc-reveal="right"]  { --bc-x: 3rem; }
+[data-bc-reveal="center"] { --bc-s: 0.94; }
+
+.bc-armed [data-bc-reveal] {
+    opacity: 0;
+}
+
+.bc-armed.is-visible [data-bc-reveal] {
+    animation: bc-reveal 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.1s + var(--i, 0) * 0.12s);
+}
+
+/* Kortere afstande på små skærme, så intet stikker ud over kanten. */
+@media (max-width: 48rem) {
+    [data-bc-reveal="left"]   { --bc-x: -1.25rem; }
+    [data-bc-reveal="right"]  { --bc-x: 1.25rem; }
+    [data-bc-reveal="bottom"] { --bc-y: 1.5rem; }
+    [data-bc-reveal="top"]    { --bc-y: -1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bc-armed [data-bc-reveal] {
+        opacity: 1;
+        animation: none !important;
+    }
+}

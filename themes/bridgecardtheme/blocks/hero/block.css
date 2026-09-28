@@ -1,0 +1,123 @@
+/* =====================================================================
+   Hero — Bridge Card
+   Farverne kommer fra Udseende (CSS-variabler på .block). Font, former
+   og animation står i themes/bridgecardtheme/assets/bridgecard.css.
+   ===================================================================== */
+
+.block--bridgecardtheme-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: var(--hero-height, 680px);
+    padding: 7rem clamp(1rem, 4vw, 3rem) 6rem;
+    overflow: hidden;
+    isolation: isolate;
+    text-align: center;
+    color: var(--text-color);
+    background: #3a3a3a;
+}
+
+.bchero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(var(--grayscale));
+}
+
+.bchero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / var(--overlay));
+}
+
+.bchero__content {
+    position: relative;
+    max-width: 60rem;
+}
+
+/* Kuløren bag titlen: centreret, så titlen står midt over den. */
+.bchero__suit {
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    top: 50%;
+    width: clamp(11rem, 24vw, 19rem);
+    aspect-ratio: 1;
+    translate: -50% -52%;
+    background: var(--suit-color);
+    pointer-events: none;
+}
+
+.bchero__title {
+    margin: 0;
+    font-weight: 400;
+    font-size: clamp(2.75rem, 10vw, var(--title-size));
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--title-color);
+}
+
+.bchero__text {
+    max-width: 32rem;
+    margin: 1.25rem auto 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.bchero__button {
+    display: inline-block;
+    min-width: 15rem;
+    margin-top: 0.75rem;
+    padding: 0.35rem 1.5rem;
+    background: var(--hero-button);
+    color: var(--hero-button-text);
+    font-weight: 600;
+    font-size: 1.15rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.bchero__button:hover {
+    transform: translateY(-2px);
+}
+
+.bchero__info {
+    position: absolute;
+    left: clamp(1rem, 3vw, 2.5rem);
+    right: clamp(1rem, 3vw, 2.5rem);
+    bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 4rem;
+}
+
+.bchero__info-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.bchero__info-item .bc-icon {
+    font-size: 1.75rem;
+}
+
+@media (max-width: 40rem) {
+    .block--bridgecardtheme-hero {
+        min-height: min(var(--hero-height, 560px), 560px);
+        padding-bottom: 8rem;
+    }
+
+    .bchero__info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

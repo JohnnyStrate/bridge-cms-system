@@ -790,6 +790,45 @@
         });
     });
 
+    /* --- Live valg (former og ikoner) --------------------------------- */
+
+    // Et valg fra en liste, som hverken er tekst eller en CSS-vaerdi —
+    // fx en form eller et ikon — vises live ved at saette data-value paa
+    // det element i forhaandsvisningen, der har data-live="<felt>".
+    // Blokkens egen CSS bestemmer udseendet ud fra vaerdien, praecis som
+    // den goer, naar siden tegnes paa serveren.
+    //
+    //   data-live="suit"                                   -> [data-field="suit"]
+    //   data-live="icon" + data-live-repeater="cards" + data-live-row="2"
+    //                                                      -> 3. .ed-row i [data-repeater="cards"]
+    canvas.addEventListener('change', function (event) {
+        const input = event.target.closest(
+            '.ed-panel select[data-field], .ed-panel select[data-rfield]'
+        );
+        const preview = input && input.closest('.ed-block').querySelector('.ed-block__preview');
+
+        if (!preview) {
+            return;
+        }
+
+        let selector = '[data-live="' + (input.dataset.rfield || input.dataset.field) + '"]';
+
+        if (input.dataset.rfield) {
+            const repeater = input.closest('[data-repeater]');
+            const index    = Array.from(repeater.querySelectorAll('.ed-row'))
+                .indexOf(input.closest('.ed-row'));
+
+            selector += '[data-live-repeater="' + repeater.dataset.repeater + '"]'
+                + '[data-live-row="' + index + '"]';
+        } else {
+            selector += ':not([data-live-repeater])';
+        }
+
+        preview.querySelectorAll(selector).forEach(function (element) {
+            element.dataset.value = input.value;
+        });
+    });
+
     // Stoerrelsesfelterne skriver deres vaerdi i et SKJULT felt, som
     // ikke selv udloeser input-haendelser. Auto-knappen og skyderen
     // opdaterer det, og derfor skal vi laese det bagefter.
