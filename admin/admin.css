@@ -169,6 +169,22 @@
     background: var(--admin-blue);
 }
 
+/* Statusknappen i sidelisten: ser ud som badgen, men kan klikkes. */
+.page-row__status {
+    margin: 0;
+}
+
+.page-row__status .badge {
+    border: 0;
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.page-row__status .badge:hover {
+    filter: brightness(1.1);
+}
+
 .icon-btn {
     display: grid;
     place-items: center;

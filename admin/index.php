@@ -85,9 +85,21 @@ $basePath = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/\\');
 
                 <span class="page-row__title"><?= e($page['title']) ?></span>
 
-                <span class="badge badge--<?= e($page['status']) ?>">
-                    <?= $page['status'] === 'published' ? 'udgivet' : 'kladde' ?>
-                </span>
+                <?php /*
+                    Status kan skiftes her uden at åbne editoren. Formularen
+                    sender den status, siden skal HAVE, så et dobbeltklik
+                    ikke skifter tilbage igen. Editorens status-felt virker
+                    som før.
+                */ ?>
+                <?php $isPublished = $page['status'] === 'published'; ?>
+                <form method="post" action="set-status.php" class="page-row__status">
+                    <input type="hidden" name="page_id" value="<?= (int) $page['id'] ?>">
+                    <input type="hidden" name="status" value="<?= $isPublished ? 'draft' : 'published' ?>">
+                    <button type="submit" class="badge badge--<?= e($page['status']) ?>"
+                            title="<?= $isPublished ? 'Gør til kladde' : 'Udgiv siden' ?>">
+                        <?= $isPublished ? 'udgivet' : 'kladde' ?>
+                    </button>
+                </form>
 
                 <a class="icon-btn icon-btn--view"
                    href="<?= e($basePath) ?>/page.php?id=<?= (int) $page['id'] ?>"
