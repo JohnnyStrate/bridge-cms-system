@@ -25,6 +25,9 @@ final class SiteMap
     /** @var array<int, bool> Side-id => er udgivet. */
     private array $published = [];
 
+    /** @var array<int, int|null> Side-id => hovedsidens id (null = i roden). */
+    private array $parents = [];
+
     private int $frontPageId = 0;
 
     /**
@@ -45,6 +48,7 @@ final class SiteMap
             $map->titles[$id]    = (string) $page['title'];
             $map->published[$id] = $page['status'] === 'published';
             $map->segments[$id]  = self::buildSegments($page, $byId);
+            $map->parents[$id]   = $page['parent_id'] !== null ? (int) $page['parent_id'] : null;
         }
 
         $map->frontPageId = self::findFrontPage($pages);
@@ -100,6 +104,26 @@ final class SiteMap
         }
 
         return array_reverse($segments);
+    }
+
+    /**
+     * Sidens hovedsider, nærmeste først. En underside til en underside
+     * til "Om klubben" giver [underside, Om klubben].
+     *
+     * @return array<int, int>
+     */
+    public function ancestors(int $pageId): array
+    {
+        $result = [];
+        $parent = $this->parents[$pageId] ?? null;
+
+        // Loftet stopper en (fejlagtig) løkke i data.
+        while ($parent !== null && count($result) < 20) {
+            $result[] = $parent;
+            $parent   = $this->parents[$parent] ?? null;
+        }
+
+        return $result;
     }
 
     public function isFrontPage(int $pageId): bool

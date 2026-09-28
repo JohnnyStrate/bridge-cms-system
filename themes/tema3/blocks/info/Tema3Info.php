@@ -61,7 +61,7 @@ final class Tema3InfoBlock extends AbstractBlock
             'image' => [
                 'type'    => 'image',
                 'label'   => 'Billede',
-                'default' => 'themes/tema2/assets/heroimage.png',
+                'default' => 'themes/tema2/assets/heroimage.jpg',
             ],
             'image_alt' => [
                 'type'        => 'text',
@@ -173,7 +173,7 @@ final class Tema3InfoBlock extends AbstractBlock
                 'label'   => 'Tekstens størrelse',
                 'default' => 25,
                 'min'     => 12,
-                'max'     => 24,
+                'max'     => 32,
                 'unit'    => 'px',
                 'group'   => 'Boks',
             ],

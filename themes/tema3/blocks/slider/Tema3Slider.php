@@ -60,17 +60,17 @@ final class Tema3SliderBlock extends AbstractBlock
                 ],
                 'default' => [
                     [
-                        'image'   => 'themes/tema2/assets/welcomeimage.png',
+                        'image'   => 'themes/tema2/assets/welcomeimage.jpg',
                         'alt'     => 'Spillere ved et bord',
                         'caption' => 'Skriv et par linjer om billedet — fx hvad der sker på klubaftenerne, og hvem der kan være med.',
                     ],
                     [
-                        'image'   => 'themes/tema2/assets/heroimage.png',
+                        'image'   => 'themes/tema2/assets/heroimage.jpg',
                         'alt'     => 'Et spillekort — klør es — på et træbord',
                         'caption' => 'Fortæl om åbent hus: hvornår I har åbent, og om der er undervisning før spillestart.',
                     ],
                     [
-                        'image'   => 'themes/tema2/assets/welcomeimage.png',
+                        'image'   => 'themes/tema2/assets/welcomeimage.jpg',
                         'alt'     => 'Spillere ved et bord',
                         'caption' => 'Her kan I skrive om turneringer, sociale arrangementer eller noget helt tredje.',
                     ],

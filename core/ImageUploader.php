@@ -27,11 +27,28 @@ declare(strict_types=1);
  *
  * 4. STØRRELSEN HAR ET LOFT.
  *    Uden det kan et par uploads fylde disken.
+ *
+ * BILLEDERNE GØRES LETTERE
+ * Et foto fra en telefon er ofte 4000–6000 pixel bredt og flere MB. Det
+ * er langt mere, end en skærm kan vise, og gør siden langsom. Derfor
+ * (se optimise()):
+ *   - billedet skaleres ned, så den længste side højst er MAX_SIDE pixel,
+ *   - fotos gemmes som JPG — også en PNG uden gennemsigtighed,
+ *   - en PNG MED gennemsigtighed (fx et logo) forbliver PNG,
+ *   - GIF røres ikke (den kan være animeret),
+ *   - billedet drejes rigtigt, hvis telefonen har gemt det "på siden".
+ * Mangler serveren GD-udvidelsen, gemmes originalen uændret.
  */
 final class ImageUploader
 {
     /** 8 MB. Rigeligt til et fotografi, lavt nok til at begrænse skade. */
     private const MAX_BYTES = 8 * 1024 * 1024;
+
+    /** Længste side i pixel efter upload. Rigeligt til en fuld skærm. */
+    private const MAX_SIDE = 2000;
+
+    /** JPG-kvalitet (0–100). 82 kan ikke skelnes fra originalen på en skærm. */
+    private const JPEG_QUALITY = 82;
 
     /**
      * Billedtyper vi accepterer, og den endelse hver af dem får.
@@ -96,11 +113,233 @@ final class ImageUploader
             throw new RuntimeException('Billedet kunne ikke gemmes.');
         }
 
+        // Gør billedet lettere. Endelsen kan skifte (PNG-foto → JPG).
+        $target   = $this->optimise($target, $extension);
+        $filename = basename($target);
+
         // Ikke kørbar. Betyder intet på Windows, men filerne skal kunne
         // flyttes til en Linux-server uden at blive et problem.
         chmod($target, 0644);
 
         return 'uploads/' . $subDirectory . '/' . $filename;
+    }
+
+    /**
+     * Skalerer billedet ned og gemmer det i et let format.
+     *
+     * Returnerer stien til den fil, der skal bruges. Går noget galt
+     * undervejs, bruges originalen — et upload må aldrig fejle, fordi
+     * optimeringen ikke kunne lade sig gøre.
+     */
+    private function optimise(string $path, string $extension): string
+    {
+        if ($extension === 'gif' || !function_exists('imagecreatetruecolor')) {
+            return $path;
+        }
+
+        $info = @getimagesize($path);
+
+        if ($info === false) {
+            return $path;
+        }
+
+        [$width, $height] = $info;
+
+        // Et billede fylder bredde × højde × ca. 5 byte i hukommelsen,
+        // mens det behandles. Er der ikke plads, bruges originalen.
+        if (!$this->hasMemoryFor($width * $height * 5 + 16 * 1024 * 1024)) {
+            return $path;
+        }
+
+        $source = match ($extension) {
+            'jpg'  => @imagecreatefromjpeg($path),
+            'png'  => @imagecreatefrompng($path),
+            'webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+            default => false,
+        };
+
+        if ($source === false) {
+            return $path;
+        }
+
+        // Telefoner gemmer ofte billedet liggende og skriver blot i
+        // filen, at det skal vises drejet. Den oplysning forsvinder, når
+        // billedet gemmes igen — så drejningen udføres her.
+        $orientation = $extension === 'jpg' ? $this->jpegOrientation($path) : 1;
+
+        if ($orientation !== 1) {
+            $source = $this->applyOrientation($source, $orientation);
+            $width  = imagesx($source);
+            $height = imagesy($source);
+        }
+
+        $keepAlpha = $extension !== 'jpg' && $this->hasTransparency($source, $width, $height);
+        $scale     = min(1, self::MAX_SIDE / max($width, $height));
+        $newWidth  = max(1, (int) round($width * $scale));
+        $newHeight = max(1, (int) round($height * $scale));
+
+        $image = imagecreatetruecolor($newWidth, $newHeight);
+
+        if ($keepAlpha) {
+            imagealphablending($image, false);
+            imagesavealpha($image, true);
+            imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
+        } else {
+            // JPG kan ikke være gennemsigtig — hvid bund i stedet for sort.
+            imagefill($image, 0, 0, imagecolorallocate($image, 255, 255, 255));
+        }
+
+        imagecopyresampled($image, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        imagedestroy($source);
+
+        $newExtension = $keepAlpha ? $extension : 'jpg';
+        $target       = preg_replace('/\.[a-z]+$/', '.' . $newExtension, $path) ?? $path;
+        $temporary    = $target . '.tmp';
+
+        if ($newExtension === 'jpg') {
+            // "Progressiv" JPG: vises groft med det samme og skarpes op.
+            imageinterlace($image, true);
+        }
+
+        $saved = match ($newExtension) {
+            'png'   => imagepng($image, $temporary, 9),
+            'webp'  => function_exists('imagewebp') && imagewebp($image, $temporary, self::JPEG_QUALITY),
+            default => imagejpeg($image, $temporary, self::JPEG_QUALITY),
+        };
+
+        imagedestroy($image);
+
+        // Blev resultatet ikke mindre (og er det ikke skaleret eller
+        // drejet), beholdes originalen.
+        if (!$saved || !is_file($temporary)
+            || ($scale === 1 && $orientation === 1 && $newExtension === $extension
+                && filesize($temporary) >= filesize($path))) {
+            @unlink($temporary);
+            return $path;
+        }
+
+        rename($temporary, $target);
+
+        if ($target !== $path) {
+            @unlink($path);
+        }
+
+        return $target;
+    }
+
+    /** Er der mindst én pixel, der ikke er helt dækkende? (stikprøve) */
+    private function hasTransparency(GdImage $image, int $width, int $height): bool
+    {
+        $step = max(1, (int) floor(min($width, $height) / 60));
+
+        for ($y = 0; $y < $height; $y += $step) {
+            for ($x = 0; $x < $width; $x += $step) {
+                if (((imagecolorat($image, $x, $y) >> 24) & 0x7F) > 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function hasMemoryFor(int $bytes): bool
+    {
+        $limit = trim((string) ini_get('memory_limit'));
+
+        if ($limit === '-1') {
+            return true;
+        }
+
+        $value = (int) $limit;
+        $value *= match (strtolower(substr($limit, -1))) {
+            'g' => 1024 * 1024 * 1024,
+            'm' => 1024 * 1024,
+            'k' => 1024,
+            default => 1,
+        };
+
+        if ($value - memory_get_usage() >= $bytes) {
+            return true;
+        }
+
+        // Prøv at få lidt mere til netop dette billede.
+        return @ini_set('memory_limit', (string) (memory_get_usage() + $bytes + 32 * 1024 * 1024)) !== false;
+    }
+
+    /**
+     * Læser EXIF-feltet "Orientation" (1–8) direkte fra JPG-filen.
+     * Kræver ikke exif-udvidelsen, som ofte er slået fra i XAMPP.
+     */
+    private function jpegOrientation(string $path): int
+    {
+        $data = (string) @file_get_contents($path, false, null, 0, 128 * 1024);
+
+        if (!str_starts_with($data, "\xFF\xD8")) {
+            return 1;
+        }
+
+        $offset = 2;
+
+        while ($offset + 4 <= strlen($data) && $data[$offset] === "\xFF") {
+            $marker = ord($data[$offset + 1]);
+            $length = unpack('n', substr($data, $offset + 2, 2))[1];
+
+            // APP1 med "Exif\0\0"
+            if ($marker === 0xE1 && substr($data, $offset + 4, 6) === "Exif\0\0") {
+                $tiff   = $offset + 10;
+                $little = substr($data, $tiff, 2) === 'II';
+                $u16    = static fn (int $at): int => unpack($little ? 'v' : 'n', substr($data, $at, 2))[1];
+                $u32    = static fn (int $at): int => unpack($little ? 'V' : 'N', substr($data, $at, 4))[1];
+
+                $ifd     = $tiff + $u32($tiff + 4);
+                $entries = $u16($ifd);
+
+                for ($i = 0; $i < $entries; $i++) {
+                    $entry = $ifd + 2 + $i * 12;
+
+                    if ($entry + 12 > strlen($data)) {
+                        break;
+                    }
+
+                    if ($u16($entry) === 0x0112) {
+                        $value = $u16($entry + 8);
+                        return $value >= 1 && $value <= 8 ? $value : 1;
+                    }
+                }
+
+                return 1;
+            }
+
+            // Selve billeddata begynder — ingen EXIF fundet.
+            if ($marker === 0xDA) {
+                break;
+            }
+
+            $offset += 2 + $length;
+        }
+
+        return 1;
+    }
+
+    private function applyOrientation(GdImage $image, int $orientation): GdImage
+    {
+        $rotated = match ($orientation) {
+            3, 4 => imagerotate($image, 180, 0),
+            5, 6 => imagerotate($image, -90, 0),
+            7, 8 => imagerotate($image, 90, 0),
+            default => $image,
+        };
+
+        if ($rotated === false) {
+            return $image;
+        }
+
+        if (in_array($orientation, [2, 4, 5, 7], true)) {
+            imageflip($rotated, IMG_FLIP_HORIZONTAL);
+        }
+
+        return $rotated;
     }
 
     /**

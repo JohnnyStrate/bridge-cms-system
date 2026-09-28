@@ -59,6 +59,43 @@ public function withInlineEditing(): self {
     {
         return $this->currentPageId;
     }
+
+    /**
+     * Hvilket menupunkt skal markeres som aktivt?
+     *
+     * Får listen af menupunkternes side-id'er (0 = intet sidelink) og
+     * returnerer nummeret på det punkt, der skal lyse:
+     *   1. punktet, der peger på netop denne side,
+     *   2. ellers punktet for den nærmeste hovedside — så "Om klubben"
+     *      lyser, når man står på dens underside "Bestyrelsen".
+     * null, hvis intet punkt passer.
+     *
+     * @param array<int, int> $pageIds
+     */
+    public function activeLinkIndex(array $pageIds): ?int
+    {
+        $current = $this->currentPageId;
+
+        if ($current <= 0) {
+            return null;
+        }
+
+        $candidates = [$current];
+
+        if ($this->siteMap !== null) {
+            $candidates = array_merge($candidates, $this->siteMap->ancestors($current));
+        }
+
+        foreach ($candidates as $candidate) {
+            foreach ($pageIds as $index => $pageId) {
+                if ($pageId > 0 && $pageId === $candidate) {
+                    return $index;
+                }
+            }
+        }
+
+        return null;
+    }
 public function isInlineEditing(): bool //retunerer en sandt eller falsk 
 {
     return $this->inlineEditing;

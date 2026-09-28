@@ -99,9 +99,14 @@ final class PageBuilder
                     is_array($blockData['settings'] ?? null) ? $blockData['settings'] : []
                 );
 
-                $styles = FieldValidator::validateAll(
+                // Stil gemmes kun, hvor skabelonen afviger fra blokkens
+                // standard — så følger siden med, hvis temaet forbedres.
+                $styles = FieldValidator::withoutDefaults(
                     $class::getStyleSchema(),
-                    is_array($blockData['styles'] ?? null) ? $blockData['styles'] : []
+                    FieldValidator::validateAll(
+                        $class::getStyleSchema(),
+                        is_array($blockData['styles'] ?? null) ? $blockData['styles'] : []
+                    )
                 );
 
                 // Rækkefølgen er den, blokkene står i i skabelonen.

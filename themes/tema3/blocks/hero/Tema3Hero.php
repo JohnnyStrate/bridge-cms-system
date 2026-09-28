@@ -78,7 +78,7 @@ final class Tema3HeroBlock extends AbstractBlock
             'image' => [
                 'type'    => 'image',
                 'label'   => 'Billede',
-                'default' => 'themes/tema2/assets/heroimage.png',
+                'default' => 'themes/tema2/assets/heroimage.jpg',
             ],
             'image_alt' => [
                 'type'        => 'text',

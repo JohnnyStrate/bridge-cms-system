@@ -218,9 +218,14 @@ final class PageSaver
             is_array($block['settings'] ?? null) ? $block['settings'] : []
         );
 
-        $styles = FieldValidator::validateAll(
+        // Stil gemmes kun, hvor den afviger fra standarden — se
+        // FieldValidator::withoutDefaults().
+        $styles = FieldValidator::withoutDefaults(
             $class::getStyleSchema(),
-            is_array($block['styles'] ?? null) ? $block['styles'] : []
+            FieldValidator::validateAll(
+                $class::getStyleSchema(),
+                is_array($block['styles'] ?? null) ? $block['styles'] : []
+            )
         );
 
         $id = isset($block['id']) ? (int) $block['id'] : 0;

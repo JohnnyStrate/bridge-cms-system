@@ -60,7 +60,7 @@ final class Tema2HeroBlock extends AbstractBlock
             'bg_image' => [
                 'type'    => 'image',
                 'label'   => 'Baggrundsbillede',
-                'default' => 'themes/tema2/assets/heroimage.png',
+                'default' => 'themes/tema2/assets/heroimage.jpg',
             ],
         ];
     }

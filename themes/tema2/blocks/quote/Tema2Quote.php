@@ -60,7 +60,7 @@ final class Tema2QuoteBlock extends AbstractBlock
             'image' => [
                 'type'    => 'image',
                 'label'   => 'Billede',
-                'default' => 'themes/tema2/assets/welcomeimage.png',
+                'default' => 'themes/tema2/assets/welcomeimage.jpg',
             ],
             'image_alt' => [
                 'type'    => 'text',

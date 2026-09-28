@@ -686,9 +686,22 @@
 
     // Kaldes efter upload, så det nye billede ses med det samme.
     function syncInlineImage(pathInput) {
-        const element = pathInput.closest('.ed-block').querySelector(
-            '.ed-block__preview [data-inline-image="' + pathInput.dataset.field + '"]'
-        );
+        const preview = pathInput.closest('.ed-block').querySelector('.ed-block__preview');
+        let selector  = '[data-inline-image="' + pathInput.dataset.field + '"]';
+
+        // Et billede i en repeater-raekke (fx et billede i karrusellen)
+        // findes via raekkens nummer — ligesom teksterne i previewField().
+        if (pathInput.dataset.rfield) {
+            const repeater = pathInput.closest('[data-repeater]');
+            const index    = Array.from(repeater.querySelectorAll('.ed-row'))
+                .indexOf(pathInput.closest('.ed-row'));
+
+            selector = '[data-inline-repeater="' + repeater.dataset.repeater + '"]'
+                + '[data-inline-row="' + index + '"]'
+                + '[data-inline-image="' + pathInput.dataset.rfield + '"]';
+        }
+
+        const element = preview && preview.querySelector(selector);
 
         if (!element) {
             return;

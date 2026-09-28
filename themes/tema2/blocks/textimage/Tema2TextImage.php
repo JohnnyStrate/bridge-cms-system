@@ -82,7 +82,7 @@ final class Tema2TextImageBlock extends AbstractBlock
             'image' => [
                 'type'    => 'image',
                 'label'   => 'Billede',
-                'default' => 'themes/tema2/assets/welcomeimage.png',
+                'default' => 'themes/tema2/assets/welcomeimage.jpg',
             ],
             'image_alt' => [
                 'type'    => 'text',

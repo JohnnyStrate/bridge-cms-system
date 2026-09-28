@@ -42,14 +42,7 @@
     font-family: var(--font-family), var(--font-body);
 }
 
-/*
- * Sidens baggrund: en bloed rosa toning oeverst, der glider over i hvid.
- * Den saettes her, fordi navbaren staar paa alle tema 3-sider. Ikke i
- * editoren — dér er hver blok sin egen hvide boks.
- */
-body:not(.editor):has(.block--tema3-navbar) {
-    background: linear-gradient(180deg, #efb7b7 0, #f7d9d9 22rem, #ffffff 58rem) no-repeat, #ffffff;
-}
+/* Sidens rosa baggrund står i themes/tema3/theme.css. */
 
 /* Afkrydsningsfeltet styrer mobilmenuen. Det skal kunne naas med
    tastaturet — derfor ikke display:none. */

@@ -124,7 +124,6 @@ final class Tema2NavbarBlock extends AbstractBlock
         array $styles,
         RenderContext $context
     ): string {
-        $current = $context->currentPageId();
         $links   = [];
         $linked  = false;
 
@@ -146,7 +145,8 @@ final class Tema2NavbarBlock extends AbstractBlock
             $links[] = [
                 'label'  => $text,
                 'href'   => self::hrefFor($pageId, (string) ($link['url'] ?? ''), $context),
-                'active' => $pageId > 0 && $pageId === $current,
+                'pageId' => $pageId,
+                'active' => false,
             ];
         }
 
@@ -155,6 +155,14 @@ final class Tema2NavbarBlock extends AbstractBlock
         // se designets vigtigste detalje, før man har bygget sine sider.
         if (!$linked && $links !== []) {
             $links[0]['active'] = true;
+        }
+
+        // Den side, man står på — eller dens hovedside, hvis siden selv
+        // ikke er i menuen (se RenderContext::activeLinkIndex()).
+        $active = $context->activeLinkIndex(array_column($links, 'pageId'));
+
+        if ($active !== null) {
+            $links[$active]['active'] = true;
         }
 
         // Klubbens logo fra Indstillinger. Er der intet, vises temaets

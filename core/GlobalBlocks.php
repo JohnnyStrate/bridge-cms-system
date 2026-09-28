@@ -227,9 +227,13 @@ final class GlobalBlocks
                     $class::getSchema(),
                     is_array($item['settings'] ?? null) ? $item['settings'] : []
                 ),
-                FieldValidator::validateAll(
+                // Stil gemmes kun, hvor den afviger fra standarden.
+                FieldValidator::withoutDefaults(
                     $class::getStyleSchema(),
-                    is_array($item['styles'] ?? null) ? $item['styles'] : []
+                    FieldValidator::validateAll(
+                        $class::getStyleSchema(),
+                        is_array($item['styles'] ?? null) ? $item['styles'] : []
+                    )
                 )
             );
 

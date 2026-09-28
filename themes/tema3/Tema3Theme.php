@@ -10,7 +10,7 @@ declare(strict_types=1);
  *     #3D3A3A → #C83030   gradient på store overskrifter
  *     #D55C5C             brødtekst i rødt
  *     #BCB6B6 / #E36D6D   knapper (hvile / hover)
- *     #EFB7B7 → #FFFFFF   sidens baggrund (se navbarens block.css)
+ *     #EFB7B7 → #FFFFFF   sidens baggrund (se theme.css)
  *
  * Temaets egne billeder ligger i themes/tema3/assets/. Hero'en låner
  * indtil videre tema 2's dummybillede.

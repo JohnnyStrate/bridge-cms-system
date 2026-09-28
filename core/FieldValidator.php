@@ -57,6 +57,56 @@ final class FieldValidator
     }
 
     /**
+     * Fjerner de værdier, der er lig med skemaets standardværdi.
+     *
+     * Bruges på STIL-indstillinger, før de gemmes. Står en farve eller en
+     * størrelse på standard, gemmes den ikke — så følger blokken med, når
+     * temaets standard senere bliver ændret. Gemte vi alt, ville en
+     * forbedring af et tema aldrig nå de sider, der allerede findes.
+     *
+     * Ved rendering fylder validateAll() de manglende værdier ud med
+     * standarden igen, så intet andet skal ændres.
+     *
+     * $values skal være valideret først (validateAll).
+     *
+     * @param array<string, array<string, mixed>> $schema
+     * @param array<string, mixed>                $values
+     * @return array<string, mixed>
+     */
+    public static function withoutDefaults(array $schema, array $values): array
+    {
+        $result = [];
+
+        foreach ($values as $name => $value) {
+            if (!isset($schema[$name])) {
+                continue;
+            }
+
+            $default = self::validateField($schema[$name], null);
+
+            if (!self::sameValue($value, $default)) {
+                $result[$name] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /** '#CC5656' er det samme som '#cc5656', og 12 det samme som '12'. */
+    private static function sameValue(mixed $a, mixed $b): bool
+    {
+        if (is_numeric($a) && is_numeric($b)) {
+            return (float) $a === (float) $b;
+        }
+
+        if (is_string($a) && is_string($b)) {
+            return strcasecmp($a, $b) === 0;
+        }
+
+        return $a === $b;
+    }
+
+    /**
      * @param array<string, mixed> $field Feltdefinitionen fra skemaet.
      */
     public static function validateField(array $field, mixed $value): mixed

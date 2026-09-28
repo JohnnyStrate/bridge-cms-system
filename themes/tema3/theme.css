@@ -1,0 +1,124 @@
+/* =====================================================================
+   Tema 3 — fælles CSS
+
+   Denne fil hentes automatisk på alle sider, der bruger en blok fra
+   tema 3 (se PageRenderer::stylesheets()). Her står det, der går igen i
+   flere blokke, så det kun skal rettes ét sted:
+
+     - sidens baggrund,
+     - titellinjen  >  TITEL  MINITITEL  <  (Tema3Heading.php).
+
+   Blokkenes egen block.css hentes EFTER denne fil og kan derfor
+   overskrive det, der står her.
+   ===================================================================== */
+
+/*
+ * Sidens baggrund: en blød rosa toning øverst, der glider over i hvid.
+ * Ikke i editoren — dér er hver blok sin egen hvide boks.
+ */
+body:not(.editor):has(.block--tema3-navbar) {
+    background: linear-gradient(180deg, #efb7b7 0, #f7d9d9 22rem, #ffffff 58rem) no-repeat, #ffffff;
+}
+
+/* --- Titellinjen -----------------------------------------------------
+
+   Farverne kommer fra sektionen, titellinjen står i:
+       --arrow-color, --title-start, --title-end, --eyebrow-color,
+       --title-size
+   Standardværdierne herunder bruges kun, hvis sektionen ikke har dem.
+   --------------------------------------------------------------------- */
+
+.t3-heading {
+    position: relative;                     /* pilene måles herfra */
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 1.4vw, 1.25rem);
+    width: fit-content;
+    max-width: 100%;
+    padding: 0 clamp(1rem, 4vw, 4rem) 0 clamp(0.75rem, 1.6vw, 1.5rem);
+    font-size: clamp(2rem, 4.8vw, var(--title-size, 64px));
+}
+
+.t3-heading__arrow {
+    flex: none;
+    display: block;
+    width: 0.58em;
+    height: 0.78em;
+    color: var(--arrow-color, #733c34);
+}
+
+.t3-heading__arrow svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.t3-heading__arrow--right svg {
+    transform: scaleX(-1);
+}
+
+.t3-heading__words {
+    display: flex;
+    align-items: center;                    /* minititlen på midten af titlen */
+    flex-wrap: wrap;
+    column-gap: 0.25em;
+    min-width: 0;
+}
+
+.t3-heading__title {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--title-start, #bf6356), var(--title-end, #9f9a99));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.t3-heading__eyebrow {
+    font-size: clamp(0.55rem, 0.8vw, 0.72rem);
+    font-weight: 800;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--eyebrow-color, #c0c0c0);
+    white-space: nowrap;
+}
+
+/* Indgangen (se scriptet i Tema3Heading.php) */
+
+.t3-heading--armed .t3-heading__arrow {
+    opacity: 0;
+    translate: var(--t3h-shift, 0) 0;
+}
+
+.t3-heading--armed .t3-heading__words {
+    clip-path: inset(0 50% 0 50%);
+}
+
+.t3-heading--armed.is-visible .t3-heading__arrow {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+        opacity 0.35s ease,
+        translate 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.4s;
+}
+
+.t3-heading--armed.is-visible .t3-heading__words {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.4s;
+}
+
+@media (max-width: 52rem) {
+    .t3-heading__words {
+        row-gap: 0.35rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t3-heading * {
+        transition: none !important;
+    }
+}

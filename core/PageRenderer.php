@@ -119,11 +119,6 @@ final class PageRenderer
             . '    <meta charset="UTF-8">' . PHP_EOL
             . '    <meta name="viewport" content="width=device-width, initial-scale=1.0">' . PHP_EOL
             . '    <title>' . e($title) . '</title>' . PHP_EOL
-            . '    <link rel="preconnect" href="https://fonts.googleapis.com">' . PHP_EOL
-            . '    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . PHP_EOL
-            . '    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,600;1,700'
-            . '&family=Oleo+Script:wght@400;700&family=Roboto:wght@400;700&display=swap"'
-            . ' rel="stylesheet">' . PHP_EOL
             . $head
             . '</head>' . PHP_EOL
             . '<body>' . PHP_EOL
@@ -162,11 +157,22 @@ final class PageRenderer
 
     public static function stylesheets(array $blocks): array
     {
-        // Fælles grundlag først, så blokkenes egen CSS kan overskrive det.
-        $sheets = ['assets/css/base.css'];
+        // Skrifttyperne (fra projektet selv, ikke Google) og det fælles
+        // grundlag først, så blokkenes egen CSS kan overskrive det.
+        $sheets = ['assets/css/fonts.css', 'assets/css/base.css'];
 
         foreach ($blocks as $block) {
-            $path = self::stylesheetFor((string) ($block['block_type'] ?? ''));
+            $type = (string) ($block['block_type'] ?? '');
+
+            // Temaets fælles CSS (themes/<tema>/theme.css) før blokkens
+            // egen, så blokken kan overskrive den.
+            $theme = self::themeStylesheetFor($type);
+
+            if ($theme !== null && !in_array($theme, $sheets, true)) {
+                $sheets[] = $theme;
+            }
+
+            $path = self::stylesheetFor($type);
 
             if ($path !== null && !in_array($path, $sheets, true)) {
                 $sheets[] = $path;
@@ -197,6 +203,25 @@ final class PageRenderer
         );
 
         return self::stylesheets($pseudoBlocks);
+    }
+
+    /**
+     * Et temas fælles CSS: themes/<tema>/theme.css.
+     *
+     * Hentes på alle sider, der har mindst én blok fra temaet. Her står det,
+     * der går igen i flere af temaets blokke — fx sidens baggrund eller en
+     * titellinje, som flere sektioner deler. Filen er valgfri: et tema uden
+     * theme.css klarer sig med blokkenes egen CSS.
+     */
+    private static function themeStylesheetFor(string $type): ?string
+    {
+        $theme = BlockRegistry::themeOf($type);
+
+        if ($theme === '' || !is_file(APP_ROOT . '/themes/' . $theme . '/theme.css')) {
+            return null;
+        }
+
+        return 'themes/' . $theme . '/theme.css';
     }
 
     /**

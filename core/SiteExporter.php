@@ -89,6 +89,10 @@ final class SiteExporter
             $this->noteAsset(SiteInfo::get('logo'));
         }
 
+        // Filer, som et stylesheet selv henter — fx skrifttyperne i
+        // fonts.css eller et baggrundsbillede i et temas CSS.
+        $this->collectCssDependencies();
+
         $this->copyAssets();
 
         return [
@@ -224,6 +228,65 @@ final class SiteExporter
                 $this->noteAsset($path);
             }
         }
+    }
+
+    /**
+     * Går de noterede stylesheets igennem og noterer de filer, de henter
+     * med url(...). Stien i CSS'en er relativ til CSS-filen selv, så den
+     * regnes om til en sti fra projektroden. Adresser udefra (https:, data:)
+     * og alt, der ville pege ud af projektet, springes over.
+     */
+    private function collectCssDependencies(): void
+    {
+        foreach ($this->assets as $sheet) {
+            if (!str_ends_with($sheet, '.css') || !is_file(APP_ROOT . '/' . $sheet)) {
+                continue;
+            }
+
+            $css = (string) file_get_contents(APP_ROOT . '/' . $sheet);
+
+            if (!preg_match_all('~url\(\s*[\'"]?([^\'")?#]+)~i', $css, $matches)) {
+                continue;
+            }
+
+            foreach ($matches[1] as $reference) {
+                $reference = trim($reference);
+
+                if ($reference === '' || preg_match('~^([a-z]+:|/)~i', $reference)) {
+                    continue;
+                }
+
+                $path = self::normalisePath(dirname($sheet) . '/' . $reference);
+
+                if ($path !== null && is_file(APP_ROOT . '/' . $path)) {
+                    $this->noteAsset($path);
+                }
+            }
+        }
+    }
+
+    /** "assets/css/../fonts/x.woff2" → "assets/fonts/x.woff2". Null, hvis stien går ud af projektet. */
+    private static function normalisePath(string $path): ?string
+    {
+        $parts = [];
+
+        foreach (explode('/', str_replace('\\', '/', $path)) as $part) {
+            if ($part === '' || $part === '.') {
+                continue;
+            }
+
+            if ($part === '..') {
+                if ($parts === []) {
+                    return null;
+                }
+                array_pop($parts);
+                continue;
+            }
+
+            $parts[] = $part;
+        }
+
+        return implode('/', $parts);
     }
 
     private function noteAsset(string $path): void
