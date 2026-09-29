@@ -1,0 +1,222 @@
+/* =====================================================================
+   Hero — Standard Bridge 2
+
+   [ Forside ]  Turneringer  Hold  Kontakt        (navbaren ovenpå)
+
+   Din Bridgeklub
+   ______________________
+   +45 00 00 00 00                     .-----.
+   Vejnavn 1, 1234 By                 / kort  \   <- billedet står til
+                                      \       /      højre og går ikke
+   [ Tilmeld ↗ ]  [ Kontakt ]          '-----'       ind under teksten
+
+   Alt til venstre starter på samme linje (--s2-side i theme.css) —
+   præcis dér, hvor rammen om navbarens aktive punkt starter.
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-hero {
+    --overlay-color: #474748;
+    --overlay-opacity: 39%;
+    --bg-color: #211e1e;
+    --image-position: 100%;
+    --title-color: #d8d8d8;
+    --line-color: #d3d2d2;
+    --title-size: 96px;
+    --button-color: #f6ecec;
+    --button-text: #484848;
+    --button2-text: #ffffff;
+    --font-family: 'Jost';
+
+    position: relative;
+    display: grid;
+    align-content: start;                   /* indholdet står højt, som i Figma */
+    min-height: max(40rem, 100svh);
+    padding: clamp(9rem, 24vh, 14rem) var(--s2-side) clamp(4rem, 8vw, 7rem);
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--bg-color);
+    color: var(--title-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* --- Billede og overlay --------------------------------------------- */
+
+/*
+ * Billedet fylder hele sektionen, men er skubbet til højre (standard
+ * 100 %), så kortene står ude i højre side og ikke går ind under teksten.
+ * Overlayet er et ::after-lag over billedet.
+ */
+.s2hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-position: var(--image-position) center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.s2hero__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--overlay-color);
+    opacity: var(--overlay-opacity);
+    pointer-events: none;
+}
+
+/* --- Indholdet ------------------------------------------------------- */
+
+.s2hero__content {
+    display: grid;
+    justify-items: start;
+    gap: 0;
+    max-width: min(60rem, 100%);
+}
+
+/* Overskrift + streg: blokken er præcis så bred som overskriften, så
+   stregen under den bliver det samme. */
+.s2hero__heading {
+    display: grid;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.s2hero__title {
+    margin: 0;
+    color: var(--title-color);
+    font-size: clamp(2.6rem, 5.4vw, var(--title-size));
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: 0.035em;
+}
+
+.s2hero__line {
+    display: block;
+    height: 3px;
+    margin-top: clamp(0.6rem, 1.2vw, 1rem);
+    border-radius: 2px;
+    background: var(--line-color);
+}
+
+.s2hero__contact {
+    display: grid;
+    gap: 0.15rem;
+    margin: clamp(0.75rem, 1.4vw, 1.1rem) 0 0;
+    font-size: clamp(1rem, 1.25vw, 1.3rem);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.55;
+    letter-spacing: 0.05em;
+}
+
+/* --- Knapperne ------------------------------------------------------ */
+
+.s2hero__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem clamp(1.25rem, 2vw, 2.25rem);
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.s2hero__button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: clamp(9rem, 9.5vw, 10.75rem);
+    padding: 0.3rem 2.25rem 0.35rem;
+    border: 1px solid var(--button-color);
+    color: var(--button2-text);
+    font-size: clamp(1.15rem, 1.45vw, 1.55rem);
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.3;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.s2hero__button--filled {
+    background: var(--button-color);
+    color: var(--button-text);
+}
+
+/* Stregen under knapteksten (s2-underline i theme.css) — lidt tættere på. */
+.s2hero__button-label {
+    --s2-line-bottom: 0.05em;
+}
+
+/* Den lille, tynde pil skråt op ved tekstens øverste højre hjørne. */
+.s2hero__arrow {
+    width: 0.42em;
+    height: 0.42em;
+    margin: -0.7em 0 0 0.3em;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.s2hero__button:hover .s2hero__arrow,
+.s2hero__button:focus-visible .s2hero__arrow {
+    transform: translate(3px, -3px);
+}
+
+/* Hover-stregen kommer også, når man peger på knappen — ikke kun på
+   selve teksten. */
+.s2hero__button:hover .s2-underline::after,
+.s2hero__button:focus-visible .s2-underline::after {
+    transform: scaleX(1);
+}
+
+.s2hero__button:focus-visible {
+    outline: 2px solid var(--button-color);
+    outline-offset: 3px;
+}
+
+/* --- Indgangen: lineær wipe fra venstre (se scriptet) --------------- */
+
+.s2hero--armed .s2hero__wipe {
+    clip-path: inset(-0.3em 100% -0.4em -0.3em);
+}
+
+.s2hero--armed .s2hero__line {
+    transform: scaleX(0);
+    transform-origin: left center;
+}
+
+.s2hero--armed .s2hero__bg {
+    opacity: 0;
+    transform: scale(1.04);
+}
+
+.s2hero--armed.is-visible .s2hero__wipe {
+    clip-path: inset(-0.3em -1em -0.4em -0.3em);
+    transition: clip-path 0.9s cubic-bezier(0.45, 0, 0.25, 1) calc(0.35s + var(--i) * 0.18s);
+}
+
+.s2hero--armed.is-visible .s2hero__line {
+    transform: none;
+    transition: transform 0.9s cubic-bezier(0.45, 0, 0.25, 1) 0.6s;
+}
+
+.s2hero--armed.is-visible .s2hero__bg {
+    opacity: 1;
+    transform: none;
+    transition: opacity 1.2s ease, transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 52rem) {
+    .block--standard2-hero {
+        align-content: end;
+        min-height: max(36rem, 100svh);
+    }
+
+    /* På en smal skærm står kortene bag teksten — lidt mørkere overlay,
+       så teksten stadig kan læses. */
+    .s2hero__bg::after {
+        opacity: calc(var(--overlay-opacity) + 25%);
+    }
+}

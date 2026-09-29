@@ -1,0 +1,142 @@
+/* =====================================================================
+   Navbar — Standard Bridge 2
+
+   [ Forside ]  Turneringer   Hold   Kontakt
+   ^ flugter med hero'ens overskrift (--s2-side i theme.css)
+
+   Det aktive punkt står i en tynd hvid ramme. Alle punkter har samme
+   luft omkring teksten (de andre har bare en usynlig ramme) — så
+   rammens venstre kant ligger præcis, hvor hero'ens indhold starter.
+
+   OVER EN HERO er navbaren gennemsigtig og ligger oven på billedet.
+   Når man scroller ned, bliver .s2nav__bar fast øverst (.is-stuck) med
+   en mørk baggrund og glider blødt ned.
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-navbar {
+    --link-color: #8f8f8f;
+    --active-color: #d8d8d8;
+    --frame-color: #ffffff;
+    --bar-color: #211e1e;
+    --link-size: 22px;
+    --font-family: 'Jost';
+
+    position: relative;
+    z-index: 30;
+    background: var(--bar-color);           /* står den ikke over en hero */
+    font-family: var(--font-family), var(--font-body);
+}
+
+/*
+ * Over en hero: gennemsigtig og oven på billedet. Blokkens script står
+ * imellem på den færdige side — derfor begge varianter.
+ */
+.block--standard2-navbar:has(+ .block--standard2-hero),
+.block--standard2-navbar:has(+ script + .block--standard2-hero) {
+    position: absolute;
+    inset: 0 0 auto;
+    background: transparent;
+}
+
+.s2nav__bar {
+    padding: clamp(1.5rem, 3.6vw, 4.25rem) var(--s2-side) clamp(1rem, 2vw, 1.5rem);
+    animation: s2nav-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes s2nav-in {
+    from { opacity: 0; transform: translateY(-100%); }
+    to   { opacity: 1; transform: none; }
+}
+
+.s2nav__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem clamp(0.5rem, 1.4vw, 1.4rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.s2nav__links a {
+    --s2-line-inset: 0.6em;                 /* stregen starter ved teksten */
+    --s2-line-bottom: 0.2em;
+
+    display: block;
+    padding: 0.1em 0.6em 0.15em;
+    border: 1px solid transparent;
+    color: var(--link-color);
+    /* Skrumper på smalle skærme, men aldrig over den valgte størrelse. */
+    font-size: clamp(15px, 4.2vw, var(--link-size));
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Første punkt: rammen — ikke teksten — flugter med indholdet under. */
+.s2nav__links li:first-child a {
+    margin-left: 0;
+}
+
+.s2nav__links a:hover,
+.s2nav__links a:focus-visible {
+    color: var(--active-color);
+}
+
+.s2nav__links a.is-active {
+    border-color: var(--frame-color);
+    color: var(--active-color);
+    font-weight: 500;
+}
+
+/* Det aktive punkt har rammen — ingen hover-streg oveni. */
+.s2nav__links a.is-active::after {
+    display: none;
+}
+
+.s2nav__links a:focus-visible {
+    outline: 2px solid var(--active-color);
+    outline-offset: 3px;
+}
+
+/* --- Fast bjælke, når man har scrollet ------------------------------ */
+
+.block--standard2-navbar.is-stuck .s2nav__bar {
+    position: fixed;
+    inset: 0 0 auto;
+    padding-block: 1rem;
+    background: color-mix(in srgb, var(--bar-color) 92%, transparent);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+    animation: s2nav-drop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes s2nav-drop {
+    from { transform: translateY(-100%); }
+    to   { transform: none; }
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 40rem) {
+    .s2nav__links {
+        gap: 0.35rem 0.25rem;
+    }
+}
+
+/* I editoren står navbaren stille — den genindlæses ved hver ændring. */
+.editor .s2nav__bar {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .s2nav__bar,
+    .block--standard2-navbar.is-stuck .s2nav__bar {
+        animation: none;
+    }
+}

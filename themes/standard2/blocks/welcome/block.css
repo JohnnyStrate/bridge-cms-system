@@ -1,0 +1,130 @@
+/* =====================================================================
+   Velkommen og nyt — Standard Bridge 2
+
+       ______________________________________
+       |             Velkommen              |   Standard2Kit::heading()
+       --------------------------------------
+            kort tekst, centreret, lille
+
+       S e n e s t e  n y t !
+       +------------------------------------+
+       |  MANDAG AFTEN   |   ÅBENT HUS      |   hvid boks, let skygge
+       |  tekst ...      |   tekst ...      |   lodret streg imellem —
+       |                 |                  |   kortere end indholdet
+       +------------------------------------+
+
+   Alt går præcis ud til --s2-width (theme.css), så overskriftsboksen,
+   "Seneste nyt!" og den hvide boks flugter i begge sider.
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-welcome {
+    --heading-bg: #5b5959;
+    --heading-color: #ffffff;
+    --heading-size: 64px;
+    --intro-color: #635e5e;
+    --news-color: #353535;
+    --divider-color: #ebe8e8;
+    --box-color: #ffffff;
+    --font-family: 'Jost';
+
+    padding-bottom: clamp(1rem, 2vw, 1.5rem);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* --- Kort tekst under overskriften --------------------------------- */
+
+.s2w__intro {
+    width: min(34rem, var(--s2-width));
+    margin: clamp(1rem, 1.8vw, 1.4rem) auto 0;
+    color: var(--intro-color);
+    font-size: clamp(0.8rem, 0.9vw, 0.9rem);
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.05em;
+    text-align: center;
+    white-space: pre-line;
+}
+
+/* --- Seneste nyt ---------------------------------------------------- */
+
+.s2w__news {
+    width: var(--s2-width);
+    margin: clamp(4.5rem, 9vw, 7.5rem) auto 0;
+}
+
+.s2w__label {
+    margin: 0 0 0.9rem;
+    color: var(--news-color);
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+}
+
+.s2w__box {
+    display: flex;
+    background: var(--box-color);
+    box-shadow: 0 6px 22px rgb(0 0 0 / 0.08);
+    padding: clamp(2.5rem, 5vw, 4.25rem) 0;
+}
+
+.s2w__item {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 clamp(1.5rem, 4.5vw, 4rem);
+    color: var(--news-color);
+}
+
+/*
+ * Den lodrette streg: den står mellem opslagene og strækker sig med
+ * boksen, men stopper et stykke før overskriftens top og tekstens bund.
+ */
+.s2w__divider {
+    flex: none;
+    width: 1px;
+    margin-block: clamp(1.25rem, 2.2vw, 2rem);
+    background: var(--divider-color);
+}
+
+.s2w__item-title {
+    margin: 0 0 0.6rem;
+    font-size: clamp(1.1rem, 1.45vw, 1.35rem);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+}
+
+.s2w__item-text {
+    margin: 0;
+    font-size: clamp(0.95rem, 1.05vw, 1.05rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.65;
+    letter-spacing: 0.06em;
+    white-space: pre-line;
+}
+
+/* Den hvide boks toner lidt senere frem end overskriften over den. */
+.s2w__box.s2-reveal--armed.is-visible {
+    transition-delay: 0.15s;
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 44rem) {
+    .s2w__box {
+        flex-direction: column;
+        gap: 1.75rem;
+    }
+
+    /* Stregen ligger ned mellem opslagene. */
+    .s2w__divider {
+        width: auto;
+        height: 1px;
+        margin: 0 clamp(1.5rem, 8vw, 3rem);
+    }
+}

@@ -1,0 +1,130 @@
+/* =====================================================================
+   Billedbanner med link — Standard Bridge 2
+
+   +--------------------------------------------------------------+
+   |▓▓▓▓▓▓▒▒▒▒░░░                                                 |
+   |▓ Flere nyheder ↗ ░░        (billede)                         |
+   |▓▓▓▓▓▓▒▒▒▒░░░                                                 |
+   +--------------------------------------------------------------+
+     ^ sort toning fra venstre + let sort overlay over det hele
+
+   Samme bredde som sektionerne over (--s2-width i theme.css).
+   Hover: stregen glider ind under teksten, pilen skubbes skråt op, og
+   billedet zoomer roligt en anelse ind.
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-banner {
+    --overlay-opacity: 26%;
+    --shade-opacity: 70%;
+    --image-position: 50%;
+    --height: 150px;
+    --text-color: #ffffff;
+    --text-size: 40px;
+    --font-family: 'Jost';
+
+    padding: clamp(1rem, 1.6vw, 1.4rem) 0 clamp(4rem, 8vw, 7rem);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.s2b__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: var(--s2-width);
+    min-height: clamp(6.5rem, 10vw, var(--height));
+    margin: 0 auto;
+    overflow: hidden;
+    isolation: isolate;
+    background: #2b2828;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+/* Billedet ligger i sit eget lag, så det kan zoome uden at teksten gør. */
+.s2b__image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-position: center var(--image-position);
+    background-size: cover;
+    transform: scale(1.01);
+    transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Mørket: sort overlay over hele billedet + sort toning fra venstre. */
+.s2b__link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        linear-gradient(90deg,
+            rgb(0 0 0 / var(--shade-opacity)) 0%,
+            rgb(0 0 0 / calc(var(--shade-opacity) * 0.6)) 30%,
+            transparent 60%),
+        rgb(0 0 0 / var(--overlay-opacity));
+    pointer-events: none;
+}
+
+.s2b__label {
+    display: inline-flex;
+    align-items: flex-start;
+    padding: 0 clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(1.5rem, 2.6vw, var(--text-size));
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+}
+
+.s2b__label .s2-underline {
+    --s2-line-bottom: 0;
+}
+
+.s2b__arrow {
+    width: 0.38em;
+    height: 0.38em;
+    margin: 0.02em 0 0 0.2em;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Hover ---------------------------------------------------------- */
+
+.s2b__link:hover .s2-underline::after,
+.s2b__link:focus-visible .s2-underline::after {
+    transform: scaleX(1);
+}
+
+.s2b__link:hover .s2b__arrow,
+.s2b__link:focus-visible .s2b__arrow {
+    transform: translate(3px, -3px);
+}
+
+.s2b__link:hover .s2b__image,
+.s2b__link:focus-visible .s2b__image {
+    transform: scale(1.06);
+}
+
+.s2b__link:focus-visible {
+    outline: 2px solid #5b5959;
+    outline-offset: 4px;
+}
+
+/* --- Indgangen: billedet zoomer roligt på plads --------------------- */
+
+.s2b__link.s2-reveal--armed .s2b__image {
+    transform: scale(1.12);
+}
+
+.s2b__link.s2-reveal--armed.is-visible .s2b__image {
+    transform: scale(1.01);
+    transition: transform 2.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Efter indgangen skal hover-zoomet stadig virke. */
+.s2b__link.s2-reveal--armed.is-visible:hover .s2b__image {
+    transform: scale(1.06);
+    transition-duration: 1.6s;
+}
