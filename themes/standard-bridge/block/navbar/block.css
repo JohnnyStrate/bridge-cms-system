@@ -1,0 +1,33 @@
+.sbnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: var(--box-color);
+}
+
+.sbnav__title {
+    margin: 0;
+    font-weight: 700;
+}
+
+.sbnav__links {
+    display: flex;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sbnav__links a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.sbnav__cta {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: #1e3a8a;
+    color: white;
+    text-decoration: none;
+}
