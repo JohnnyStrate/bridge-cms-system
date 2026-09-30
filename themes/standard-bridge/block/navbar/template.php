@@ -1,6 +1,5 @@
-<?= 
-var RenderContext
-$editing->$context->isInlineEditing()
+<?php
+$editing = $context->isInlineEditing();
 ?>
 <nav class="block sbnav"<?= eAttr(['style' => $cssVars]) ?>>
     <p class="sbnav__title"<?= $context->inline('title') ?>><?= e($title) ?></p>
