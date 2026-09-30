@@ -5,7 +5,7 @@ final class StandardBridgeTheme extends AbstractTheme
 {
     public static function name(): string
     {
-        return 'Tema';
+        return 'Standard-bridge-theme';
     }
 
     public static function description(): string
@@ -20,7 +20,7 @@ final class StandardBridgeTheme extends AbstractTheme
 
     public static function isReady(): bool
     {
-        return false;
+        return true;
     }
 
     public static function blocks(): array
