@@ -27,6 +27,8 @@ final class StandardBridgeTheme extends AbstractTheme
     {
         return [
             'standardbridge-navbar' => StandardBridgeNavbarBlock::class,
+            'standardbridge-footer' => StandardBridgeFooter::class,
+            'standardbridge-hero' => StandardBridgeHero::class,
         ];
     }
 
@@ -34,6 +36,7 @@ final class StandardBridgeTheme extends AbstractTheme
     {
         return [
             'header' => 'standardbridge-navbar',
+            'footer' =>'standardbridge-footer'
         ];
     }
 }

@@ -1,9 +1,10 @@
 .sbnav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 1rem 2rem;
     background: var(--box-color);
+    z-index:1;
 }
 
 .sbnav__title {
@@ -20,7 +21,7 @@
 }
 
 .sbnav__links a {
-    color: inherit;
+    color: white;
     text-decoration: none;
 }
 

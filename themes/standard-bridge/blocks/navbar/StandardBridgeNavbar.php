@@ -17,11 +17,7 @@ final class StandardBridgeNavbarBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-            'title' => [
-                'type'    => 'text',
-                'label'   => 'Overskrift',
-                'default' => 'Indsæt overskrift',
-            ],
+        
             'links' => [
                 'type'     => 'repeater',
                 'label'    => 'Menupunkter',
@@ -62,7 +58,8 @@ final class StandardBridgeNavbarBlock extends AbstractBlock
     public static function getStyleSchema(): array
     {
         return [
-            'box_color' => ['type' => 'color', 'label' => 'Boksens farve', 'default' => '#f0f1f5'],
+            'box_color' => ['type' => 'color', 'label' => 'Boksens farve', 'default' => 'transparent'],
+            'font-'
         ];
     }
 
@@ -70,7 +67,6 @@ final class StandardBridgeNavbarBlock extends AbstractBlock
     public static function render(array $settings, array $styles, RenderContext $context): string
     {
         return static::renderTemplate([
-            'title'    => $settings['title'],
             'links'    => $settings['links'],
             'ctaLabel' => $settings['cta_label'],
             'ctaHref'  => $settings['cta_page'] > 0 ? $context->pageUrl($settings['cta_page']) : $settings['cta_url'],
