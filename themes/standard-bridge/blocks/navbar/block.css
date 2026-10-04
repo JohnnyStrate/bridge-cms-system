@@ -4,7 +4,15 @@
     justify-content: center;
     padding: 1rem 2rem;
     background: var(--box-color);
-    z-index:1;
+}
+
+/* Står navbaren lige før heroen, lægger den sig gennemsigtigt oven på den.
+   Alle andre steder (og i editoren) har den sin egen farve og plads. */
+.sbnav:has(+ .sbhero) {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 2;
+    background: transparent;
 }
 
 .sbnav__title {

@@ -17,7 +17,6 @@ final class StandardBridgeNavbarBlock extends AbstractBlock
     public static function getSchema(): array
     {
         return [
-        
             'links' => [
                 'type'     => 'repeater',
                 'label'    => 'Menupunkter',
@@ -58,8 +57,9 @@ final class StandardBridgeNavbarBlock extends AbstractBlock
     public static function getStyleSchema(): array
     {
         return [
-            'box_color' => ['type' => 'color', 'label' => 'Boksens farve', 'default' => 'transparent'],
-            'font-'
+            // Bruges, når navbaren IKKE ligger oven på heroen (og i editoren).
+            // Oven på heroen er den gennemsigtig — se block.css.
+            'box_color' => ['type' => 'color', 'label' => 'Boksens farve', 'default' => '#2b2b2b'],
         ];
     }
 
