@@ -16,6 +16,8 @@
   isolation: isolate;
   background: #2b2b2b;
   color: var(--text-color);
+  background-size: cover;
+  background-position: center;
 }
 
 /* --- Billedet --------------------------------------------------------- */

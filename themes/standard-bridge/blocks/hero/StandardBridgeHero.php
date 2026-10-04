@@ -54,7 +54,7 @@ final class StandardBridgeHero extends AbstractBlock
             'bg_image' => [
                 'type'    => 'image',
                 'label'   => 'Baggrundsbillede',
-                'default' => 'themes/standard-bridge/assets/bg-card.png',
+                'default' => 'themes/standard-bridge/assets/bgcard.png',
             ],
         ];
     }
