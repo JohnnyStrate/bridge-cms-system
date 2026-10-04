@@ -57,9 +57,9 @@ final class StandardBridgeNavbarBlock extends AbstractBlock
     public static function getStyleSchema(): array
     {
         return [
-            // Bruges, når navbaren IKKE ligger oven på heroen (og i editoren).
-            // Oven på heroen er den gennemsigtig — se block.css.
-            'box_color' => ['type' => 'color', 'label' => 'Boksens farve', 'default' => '#2b2b2b'],
+            // Farven bruges, når navbaren IKKE ligger oven på en hero.
+            // Over heroen er den gennemsigtig — se block.css.
+            'box_color' => ['type' => 'color', 'label' => 'Boksens farve', 'default' => '#222222'],
         ];
     }
 

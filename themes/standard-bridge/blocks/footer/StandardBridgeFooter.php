@@ -2,14 +2,10 @@
 declare(strict_types=1);
 
 /**
- * Footer til tema 1.
+ * Footer til standardbridge-temaet.
  *
- * Makker til tema 1's navbar: samme cremefarve og accent, og en skrå
- * OVERkant, der spejler navbarens skrå underkant. Links er piller med samme
- * hover-animation som i navbaren.
- *
- * Den er tema 1's globale footer: Tema1Theme::globals() peger på
- * 'tema1-footer' i slot'en 'footer'.
+ * Temaets globale footer: StandardBridgeTheme::globals() peger på
+ * 'standardbridge-footer' i slot'en 'footer'.
  *
  * E-mail og telefon får deres href bygget her, ikke i templaten, så et felt
  * med 'javascript:...' aldrig kan ende som et klikbart link.

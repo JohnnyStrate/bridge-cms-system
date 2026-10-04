@@ -1,6 +1,6 @@
 <?php
 /**
- * Template for tema 1's footer.
+ * Template for standardbridge-footer.
  *
  * @var string                            $clubName
  * @var string                            $mark       Første bogstav i navnet.
@@ -15,36 +15,36 @@
  * @var string                            $cssVars
  * @var RenderContext                     $context
  *
- * Adresserne er regnet ud i Tema1FooterBlock::render(). Navn og kontakt
+ * Adresserne er regnet ud i StandardBridgeFooter::render(). Navn og kontakt
  * kommer fra Indstillinger (SiteInfo) og redigeres ikke her.
  */
 $hasContact = $address !== '' || $phone !== '' || $email !== '';
 ?>
-<footer class="block block--tema1-footer"<?= eAttr(['style' => $cssVars]) ?>>
-    <div class="t1foot__inner">
+<footer class="block block--standardbridge-footer"<?= eAttr(['style' => $cssVars]) ?>>
+    <div class="sbfoot__inner">
 
-        <div class="t1foot__brand">
+        <div class="sbfoot__brand">
             <?php if ($mark !== ''): ?>
-                <span class="t1foot__mark" aria-hidden="true"><?= e($mark) ?></span>
+                <span class="sbfoot__mark" aria-hidden="true"><?= e($mark) ?></span>
             <?php endif; ?>
             <div>
                 <?php if ($clubName !== ''): ?>
-                    <p class="t1foot__name"><?= e($clubName) ?></p>
+                    <p class="sbfoot__name"><?= e($clubName) ?></p>
                 <?php endif; ?>
                 <?php if ($tagline !== ''): ?>
-                    <p class="t1foot__tagline"<?= $context->inline('tagline', 'Kort tekst') ?>><?= e($tagline) ?></p>
+                    <p class="sbfoot__tagline"<?= $context->inline('tagline', 'Kort tekst') ?>><?= e($tagline) ?></p>
                 <?php endif; ?>
             </div>
         </div>
 
         <?php if ($hasContact): ?>
-            <div class="t1foot__col">
-                <p class="t1foot__heading">Kontakt</p>
+            <div class="sbfoot__col">
+                <p class="sbfoot__heading">Kontakt</p>
                 <?php if ($address !== ''): ?>
-                    <p class="t1foot__line"><?= nl2br(e($address)) ?></p>
+                    <p class="sbfoot__line"><?= nl2br(e($address)) ?></p>
                 <?php endif; ?>
                 <?php if ($phone !== ''): ?>
-                    <p class="t1foot__line">
+                    <p class="sbfoot__line">
                         <?php if ($phoneHref !== ''): ?>
                             <a href="<?= e($phoneHref) ?>"><?= e($phone) ?></a>
                         <?php else: ?>
@@ -53,7 +53,7 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
                     </p>
                 <?php endif; ?>
                 <?php if ($email !== ''): ?>
-                    <p class="t1foot__line">
+                    <p class="sbfoot__line">
                         <?php if ($emailHref !== ''): ?>
                             <a href="<?= e($emailHref) ?>"><?= e($email) ?></a>
                         <?php else: ?>
@@ -65,9 +65,9 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
         <?php endif; ?>
 
         <?php if ($links !== []): ?>
-            <nav class="t1foot__col" aria-label="Footermenu">
-                <p class="t1foot__heading">Genveje</p>
-                <ul class="t1foot__links">
+            <nav class="sbfoot__col" aria-label="Footermenu">
+                <p class="sbfoot__heading">Genveje</p>
+                <ul class="sbfoot__links">
                     <?php foreach ($links as $link): ?>
                         <li><a href="<?= e($link['href']) ?>"><?= e($link['label']) ?></a></li>
                     <?php endforeach; ?>
@@ -78,6 +78,6 @@ $hasContact = $address !== '' || $phone !== '' || $email !== '';
     </div>
 
     <?php if ($copyright !== ''): ?>
-        <p class="t1foot__bottom"<?= $context->inline('copyright', 'Bundtekst') ?>><?= e($context->isInlineEditing() ? $copyrightRaw : $copyright) ?></p>
+        <p class="sbfoot__bottom"<?= $context->inline('copyright', 'Bundtekst') ?>><?= e($context->isInlineEditing() ? $copyrightRaw : $copyright) ?></p>
     <?php endif; ?>
 </footer>

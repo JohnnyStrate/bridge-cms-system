@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-// Klassen SKAL hedde det samme som filen, ellers bliver skabelonen ikke fundet.
 final class StandardBridgeThemeForsideTemplate extends AbstractTemplate
 {
     public static function slug(): string
@@ -14,14 +13,16 @@ final class StandardBridgeThemeForsideTemplate extends AbstractTemplate
         return 'Forside';
     }
 
-    // Blokkene på siden, oppefra og ned. Navbar og footer kommer automatisk
-    // med, fordi de står i temaets globals() — de skal IKKE stå her.
-    // En blok uden indstillinger får sine egne standardværdier.
+    // Blokkene på siden. Navbar og footer kommer automatisk med, fordi de
+    // står i temaets globals() — de skal derfor IKKE stå her.
     public static function blocks(): array
     {
         return [
             static::block('standardbridge-hero'),
-            static::block('standardbridge-welcome'),
+            static::block('textarea', [
+                'title' => 'Velkommen',
+                'body'  => 'Her kommer sidens indhold.',
+            ]),
         ];
     }
 }

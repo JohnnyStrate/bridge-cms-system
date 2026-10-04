@@ -26,10 +26,9 @@ final class StandardBridgeTheme extends AbstractTheme
     public static function blocks(): array
     {
         return [
-            'standardbridge-navbar'  => StandardBridgeNavbarBlock::class,
-            'standardbridge-footer'  => StandardBridgeFooter::class,
-            'standardbridge-hero'    => StandardBridgeHero::class,
-            'standardbridge-welcome' => StandardBridgeWelcome::class,
+            'standardbridge-navbar' => StandardBridgeNavbarBlock::class,
+            'standardbridge-footer' => StandardBridgeFooter::class,
+            'standardbridge-hero' => StandardBridgeHero::class,
         ];
     }
 
@@ -37,7 +36,7 @@ final class StandardBridgeTheme extends AbstractTheme
     {
         return [
             'header' => 'standardbridge-navbar',
-            'footer' => 'standardbridge-footer',
+            'footer' =>'standardbridge-footer'
         ];
     }
 }

@@ -7,11 +7,11 @@
 }
 
 /* Står navbaren lige før heroen, lægger den sig gennemsigtigt oven på den.
-   Alle andre steder (og i editoren) har den sin egen farve og plads. */
+   Alle andre steder (og i editoren) beholder den sin egen farve og plads. */
 .sbnav:has(+ .sbhero) {
     position: absolute;
     inset: 0 0 auto;
-    z-index: 2;
+    z-index: 1;
     background: transparent;
 }
 
