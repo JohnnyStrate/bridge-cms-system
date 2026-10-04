@@ -1,0 +1,262 @@
+/* =====================================================================
+   Mesterpoint og klubstillinger — standardbridge
+
+   CSS-variablerne kommer fra getStyleSchema():
+   --bg-color, --title-color, --title-size, --text-color,
+   --card-color, --card-text-color, --button-color, --overlay.
+   ===================================================================== */
+
+.sbklub {
+    padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 6vw, 6rem);
+    background: var(--bg-color);
+}
+
+/* --- Overskrift og tekst ---------------------------------------------- */
+
+.sbklub__head {
+    text-align: center;
+}
+
+.sbklub__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: clamp(1.75rem, 4vw, var(--title-size));
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.sbklub__title > span {
+    display: block;
+}
+
+.sbklub__text {
+    max-width: 34rem;
+    margin: 0.5rem auto 0;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+}
+
+/* --- Kort ------------------------------------------------------------- */
+
+.sbklub__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 3.5vw, 2.75rem);
+    max-width: 62rem;
+    margin: clamp(2rem, 4vw, 3.5rem) auto 0;
+}
+
+.sbklub__card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card-color);
+    box-shadow: 0 1px 6px rgb(0 0 0 / 0.14);
+    color: var(--card-text-color);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.sbklub__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgb(0 0 0 / 0.14);
+}
+
+/* Billedbåndet øverst med titlen på. */
+.sbklub__band {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: clamp(4.5rem, 7vw, 6.25rem);
+    padding: 0 clamp(1rem, 2vw, 1.75rem);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+/* Uden billede vises en mørk flade, så båndet aldrig er tomt. */
+.sbklub__image {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #2a1a15 center / cover no-repeat;
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.sbklub__image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / var(--overlay));
+}
+
+.sbklub__card:hover .sbklub__image {
+    transform: scale(1.06);
+}
+
+.sbklub__card-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+.sbklub__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem clamp(1rem, 2vw, 1.75rem) 0.9rem;
+}
+
+.sbklub__icon {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.sbklub__card-text {
+    flex: 1;
+    max-width: 24rem;
+    margin: 0.6rem 0 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Knappen: ved hover folder pilen sig ud, så knappen bliver bredere. */
+.sbklub__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 9rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 2px;
+    background: var(--button-color);
+    color: rgb(255 255 255 / 0.9);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sbklub__btn:hover,
+.sbklub__btn:focus-visible {
+    background: color-mix(in srgb, var(--button-color), #000000 12%);
+    color: #ffffff;
+}
+
+.sbklub__arrow {
+    flex: none;
+    width: 0;
+    height: 0.6rem;
+    margin-left: 0;
+    opacity: 0;
+    transition: width 0.35s cubic-bezier(0.2, 0.8, 0.3, 1),
+                margin-left 0.35s cubic-bezier(0.2, 0.8, 0.3, 1),
+                opacity 0.25s ease;
+}
+
+.sbklub__btn:hover .sbklub__arrow,
+.sbklub__btn:focus-visible .sbklub__arrow {
+    width: 1.6rem;
+    margin-left: 1.5rem;
+    opacity: 1;
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/*
+ * Scriptet i template.php sætter .sbklub--armed på sektionen og
+ * .is-visible på overskriften og på hvert kort, når de ruller ind.
+ *   1. Overskriften glider op, og teksten toner frem.
+ *   2. Kortet kommer op nedefra. Billedet zoomer ud, og titlen glider
+ *      ind fra venstre. --i (0 eller 1) forsinker det højre kort lidt.
+ */
+
+@keyframes sbklub-line {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0); }
+}
+
+@keyframes sbklub-rise {
+    from { opacity: 0; transform: translateY(2rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sbklub-zoom {
+    from { transform: scale(1.2); }
+    to   { transform: scale(1); }
+}
+
+@keyframes sbklub-slide {
+    from { opacity: 0; transform: translateX(-1.5rem); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.sbklub--armed .sbklub__title > span {
+    transform: translateY(110%);
+}
+
+.sbklub--armed .sbklub__text,
+.sbklub--armed .sbklub__card,
+.sbklub--armed .sbklub__card-title {
+    opacity: 0;
+}
+
+.sbklub--armed .is-visible .sbklub__title > span {
+    animation: sbklub-line 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.sbklub--armed .is-visible .sbklub__text {
+    animation: sbklub-rise 0.7s ease both 0.35s;
+}
+
+.sbklub--armed .sbklub__card.is-visible {
+    animation: sbklub-rise 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 0.15s);
+    opacity: 1;
+}
+
+.sbklub--armed .is-visible .sbklub__image {
+    animation: sbklub-zoom 1.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 0.15s);
+}
+
+.sbklub--armed .is-visible .sbklub__card-title {
+    animation: sbklub-slide 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.35s + var(--i, 0) * 0.15s);
+}
+
+/* --- Små skærme ------------------------------------------------------- */
+
+@media (max-width: 44rem) {
+    .sbklub__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sbklub__card {
+        --i: 0 !important;
+    }
+}
+
+/* Uden mus er der ingen hover: pilen står fremme. */
+@media (hover: none) {
+    .sbklub__arrow {
+        width: 1.6rem;
+        margin-left: 1.25rem;
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sbklub,
+    .sbklub * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

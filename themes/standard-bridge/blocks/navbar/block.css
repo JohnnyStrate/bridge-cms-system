@@ -1,42 +1,172 @@
+/* =====================================================================
+   Navbar — standardbridge
+
+   CSS-variablerne kommer fra getStyleSchema():
+   --box-color, --text-color, --link-size.
+   ===================================================================== */
+
 .sbnav {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 2rem;
+    min-height: 4.5rem;
+    padding: 0.75rem clamp(5rem, 9vw, 9rem);
     background: var(--box-color);
+    color: var(--text-color);
 }
 
 /* Står navbaren lige før heroen, lægger den sig gennemsigtigt oven på den.
-   Alle andre steder (og i editoren) beholder den sin egen farve og plads. */
+   Alle andre steder (og i editoren) har den sin egen farve og plads. */
 .sbnav:has(+ .sbhero) {
     position: absolute;
     inset: 0 0 auto;
-    z-index: 1;
+    z-index: 5;
     background: transparent;
 }
 
-.sbnav__title {
-    margin: 0;
-    font-weight: 700;
-}
+/* --- Menupunkter ------------------------------------------------------ */
 
 .sbnav__links {
     display: flex;
-    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem clamp(1.25rem, 3.6vw, 4rem);
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .sbnav__links a {
-    color: white;
+    position: relative;
+    display: block;
+    padding: 0.25rem 0;
+    color: var(--text-color);
+    font-size: var(--link-size);
     text-decoration: none;
 }
 
-.sbnav__cta {
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    background: #1e3a8a;
-    color: white;
-    text-decoration: none;
+/* Stregen under et menupunkt vokser ud fra midten ved hover. */
+.sbnav__links a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.sbnav__links a:hover::after,
+.sbnav__links a:focus-visible::after {
+    transform: scaleX(1);
+}
+
+/* Den side, man står på. */
+.sbnav__links a.is-active {
+    font-weight: 700;
+}
+
+/* --- Logo ------------------------------------------------------------- */
+
+.sbnav__logo {
+    position: absolute;
+    top: 50%;
+    right: clamp(1rem, 3vw, 2.5rem);
+    display: block;
+    translate: 0 -50%;
+}
+
+.sbnav__logo img {
+    display: block;
+    width: auto;
+    height: clamp(2.25rem, 3.4vw, 3.25rem);
+    border-radius: 2px;
+}
+
+/* --- Mobilmenu -------------------------------------------------------- */
+
+/* Afkrydsningsboksen styrer menuen. Den skal ikke ses, men kan nås med
+   tastaturet — derfor ikke display: none. */
+.sbnav__toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sbnav__burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.sbnav__burger span {
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: var(--text-color);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+@media (max-width: 52rem) {
+    .sbnav {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        padding-inline: 1rem;
+    }
+
+    .sbnav__burger {
+        display: flex;
+    }
+
+    .sbnav__links {
+        display: none;
+        flex-direction: column;
+        flex-basis: 100%;
+        gap: 0.25rem;
+        margin-top: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: rgb(0 0 0 / 0.8);
+    }
+
+    .sbnav__toggle:checked ~ .sbnav__links {
+        display: flex;
+    }
+
+    /* Burgeren bliver til et kryds, når menuen er åben. */
+    .sbnav__toggle:checked ~ .sbnav__burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .sbnav__toggle:checked ~ .sbnav__burger span:nth-child(2) { opacity: 0; }
+    .sbnav__toggle:checked ~ .sbnav__burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .sbnav__logo {
+        top: 0.75rem;
+        translate: none;
+    }
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/* Menupunkterne og logoet falder ned oppefra, ét ad gangen (--i er
+   punktets nummer). Klassen .sbnav--animate sættes ikke i editoren. */
+@keyframes sbnav-drop {
+    from { opacity: 0; transform: translateY(-1rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.sbnav--animate .sbnav__links li,
+.sbnav--animate .sbnav__logo img {
+    animation: sbnav-drop 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.15s + var(--i, 6) * 0.07s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sbnav,
+    .sbnav * {
+        animation: none !important;
+        transition: none !important;
+    }
 }

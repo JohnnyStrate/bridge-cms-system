@@ -1,0 +1,250 @@
+/* =====================================================================
+   Turneringer og resultater — standardbridge
+
+   CSS-variablerne kommer fra getStyleSchema():
+   --bg-color, --title-color, --title-size,
+   --card-title-color, --card-text-color, --overlay.
+   ===================================================================== */
+
+.sbtur {
+    padding: clamp(3rem, 6vw, 5.5rem) clamp(1.25rem, 6vw, 6rem) clamp(2rem, 4vw, 3.5rem);
+    background: var(--bg-color);
+}
+
+.sbtur__inner {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+/* Overskriften står til venstre, på linje med kortene. */
+.sbtur__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: clamp(1.75rem, 3.6vw, var(--title-size));
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sbtur__title > span {
+    display: block;
+}
+
+/* --- Kort ------------------------------------------------------------- */
+
+.sbtur__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2vw, 1.75rem) clamp(0.75rem, 1.7vw, 1.5rem);
+    margin-top: clamp(1.75rem, 4vw, 3.25rem);
+}
+
+.sbtur__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 10 / 7;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgb(0 0 0 / 0.25);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Uden billede vises en mørk flade, så kortet aldrig er tomt. */
+.sbtur__image {
+    position: absolute;
+    inset: 0;
+    background: #2a2421 center / cover no-repeat;
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.sbtur__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgb(0 0 0 / var(--overlay));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.sbtur__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    width: min(78%, 15rem);
+    padding: 0.55rem 1rem 0.55rem 1.5rem;
+    background: #ffffff;
+    color: #222222;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transform: translateY(1rem);
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* Pilen "tegnes" fra venstre mod højre. */
+.sbtur__arrow {
+    flex: none;
+    width: 2.25rem;
+    height: 0.6rem;
+    transform: scaleX(0.3);
+    transform-origin: left center;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 0.1s;
+}
+
+.sbtur__media:hover .sbtur__image,
+.sbtur__media:focus-visible .sbtur__image {
+    transform: scale(1.06);
+}
+
+.sbtur__media:hover .sbtur__overlay,
+.sbtur__media:focus-visible .sbtur__overlay {
+    opacity: 1;
+}
+
+.sbtur__media:hover .sbtur__button,
+.sbtur__media:focus-visible .sbtur__button {
+    transform: translateY(0);
+}
+
+.sbtur__media:hover .sbtur__arrow,
+.sbtur__media:focus-visible .sbtur__arrow {
+    transform: scaleX(1);
+}
+
+.sbtur__card-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+    margin: 0.9rem 0 0;
+    color: var(--card-title-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.sbtur__card-title svg {
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-top: 0.15rem;
+}
+
+.sbtur__card-text {
+    max-width: 24rem;
+    margin: 0.2rem 0 0;
+    color: var(--card-text-color);
+    font-size: 0.85rem;
+    line-height: 1.55;
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/*
+ * Scriptet i template.php sætter .sbtur--armed på sektionen og .is-visible
+ * på overskriften og på hvert kort, når de ruller ind.
+ *   1. Overskriften glider op.
+ *   2. Kortet rulles op som et tæppe nedefra, mens billedet zoomer ud.
+ *      --i (0 eller 1) forsinker det højre kort lidt.
+ *   3. Titel og tekst kommer op nedefra.
+ * De negative tal i clip-path giver plads til kortets skygge.
+ */
+
+@keyframes sbtur-line {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0); }
+}
+
+@keyframes sbtur-rise {
+    from { opacity: 0; transform: translateY(1.25rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sbtur-curtain {
+    from { clip-path: inset(100% -2rem -2rem -2rem); }
+    to   { clip-path: inset(-2rem); }
+}
+
+@keyframes sbtur-zoom {
+    from { transform: scale(1.18); }
+    to   { transform: scale(1); }
+}
+
+.sbtur--armed .sbtur__title > span {
+    transform: translateY(110%);
+}
+
+.sbtur--armed .sbtur__card-title,
+.sbtur--armed .sbtur__card-text {
+    opacity: 0;
+}
+
+.sbtur--armed .sbtur__media {
+    clip-path: inset(100% -2rem -2rem -2rem);
+}
+
+.sbtur--armed .sbtur__title.is-visible > span {
+    animation: sbtur-line 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.sbtur--armed .is-visible .sbtur__media {
+    animation: sbtur-curtain 1.1s cubic-bezier(0.65, 0, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.16s);
+}
+
+/* "backwards", så billedet stadig kan zoome ved hover bagefter. */
+.sbtur--armed .is-visible .sbtur__image {
+    animation: sbtur-zoom 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 0.16s);
+}
+
+.sbtur--armed .is-visible .sbtur__card-title {
+    animation: sbtur-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.55s + var(--i, 0) * 0.16s);
+}
+
+.sbtur--armed .is-visible .sbtur__card-text {
+    animation: sbtur-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.65s + var(--i, 0) * 0.16s);
+}
+
+/* --- Små skærme og skærme uden mus ------------------------------------ */
+
+@media (max-width: 40rem) {
+    .sbtur__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sbtur__card {
+        --i: 0 !important;
+    }
+}
+
+/* Uden mus er der ingen hover: knappen står fremme i bunden af billedet. */
+@media (hover: none) {
+    .sbtur__overlay {
+        place-items: end center;
+        padding-bottom: 1rem;
+        background: none;
+        opacity: 1;
+    }
+
+    .sbtur__button,
+    .sbtur__arrow {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sbtur,
+    .sbtur * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
