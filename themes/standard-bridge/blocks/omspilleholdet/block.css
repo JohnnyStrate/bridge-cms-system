@@ -1,0 +1,154 @@
+/* =====================================================================
+   Om spilleholdet — standardbridge
+
+   CSS-variablerne kommer fra getStyleSchema():
+   --bg-color, --title-color, --title-size, --box-color,
+   --label-color, --value-color, --box-radius.
+   ===================================================================== */
+
+.sbom {
+    padding: clamp(2rem, 4vw, 3.5rem) clamp(1.25rem, 6vw, 6rem) clamp(3rem, 6vw, 5.5rem);
+    background: var(--bg-color);
+}
+
+.sbom__inner {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+.sbom__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: clamp(1.75rem, 3.6vw, var(--title-size));
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.sbom__title > span {
+    display: block;
+}
+
+/* --- Boksen ----------------------------------------------------------- */
+
+.sbom__box {
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+    padding: clamp(1.75rem, 4vw, 3.25rem) clamp(1.5rem, 9vw, 8rem) clamp(1.25rem, 2vw, 1.75rem);
+    border-radius: var(--box-radius, 0);
+    background: var(--box-color);
+}
+
+.sbom__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 3.5vw, 2.75rem) clamp(1.5rem, 6vw, 5rem);
+    margin: 0;
+}
+
+.sbom__label {
+    color: var(--label-color);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.sbom__value {
+    margin: 0.25rem 0 0;
+    color: var(--value-color);
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+}
+
+/* Det lille link nederst. Stregen under det vokser ved hover. */
+.sbom__link {
+    display: block;
+    width: fit-content;
+    margin: clamp(1.5rem, 3vw, 2.5rem) auto 0;
+    padding-bottom: 0.3rem;
+    color: var(--label-color);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) center bottom / 60% 1px no-repeat;
+    transition: background-size 0.4s cubic-bezier(0.2, 0.8, 0.3, 1), color 0.3s ease;
+}
+
+.sbom__link:hover,
+.sbom__link:focus-visible {
+    color: var(--value-color);
+    background-size: 100% 1px;
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/*
+ * Scriptet i template.php sætter .sbom--armed og derefter .is-visible,
+ * når sektionen ruller ind på skærmen.
+ *   1. Overskriften glider op.
+ *   2. Boksen folder sig ud fra midten.
+ *   3. Fakta kommer op nedefra, én ad gangen (--i er nummeret).
+ */
+
+@keyframes sbom-line {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0); }
+}
+
+@keyframes sbom-open {
+    from { clip-path: inset(0 50%); }
+    to   { clip-path: inset(0); }
+}
+
+@keyframes sbom-rise {
+    from { opacity: 0; transform: translateY(1rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.sbom--armed .sbom__title > span {
+    transform: translateY(110%);
+}
+
+.sbom--armed .sbom__box {
+    clip-path: inset(0 50%);
+}
+
+.sbom--armed .sbom__item,
+.sbom--armed .sbom__link {
+    opacity: 0;
+}
+
+.sbom--armed.is-visible .sbom__title > span {
+    animation: sbom-line 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.sbom--armed.is-visible .sbom__box {
+    animation: sbom-open 1s cubic-bezier(0.65, 0, 0.2, 1) both 0.25s;
+}
+
+.sbom--armed.is-visible .sbom__item {
+    animation: sbom-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.7s + var(--i, 0) * 0.1s);
+}
+
+.sbom--armed.is-visible .sbom__link {
+    animation: sbom-rise 0.7s ease both 1.2s;
+}
+
+/* --- Små skærme ------------------------------------------------------- */
+
+@media (max-width: 30rem) {
+    .sbom__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sbom,
+    .sbom * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

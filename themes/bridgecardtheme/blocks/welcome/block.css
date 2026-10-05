@@ -1,0 +1,260 @@
+/* =====================================================================
+   Velkommen — standardbridge
+
+   Farver og størrelser kommer fra getStyleSchema() som CSS-variabler:
+   --bg-color, --title-color, --title-size, --text-color,
+   --card-title-color, --card-text-color, --overlay, --card-radius.
+   ===================================================================== */
+
+.sbwel {
+    padding: clamp(3rem, 6vw, 6rem) clamp(1.25rem, 10vw, 10rem);
+    background: var(--bg-color);
+}
+
+/* --- Overskrift og tekst ---------------------------------------------- */
+
+.sbwel__head {
+    text-align: center;
+}
+
+/* Overskriften er en "luge", ligesom linjerne i heroen. */
+.sbwel__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: clamp(1.75rem, 4vw, var(--title-size));
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.sbwel__title > span {
+    display: block;
+}
+
+.sbwel__text {
+    max-width: 30rem;
+    margin: 0.5rem auto 0;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+}
+
+/* --- Kort ------------------------------------------------------------- */
+
+.sbwel__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: clamp(1.5rem, 2.6vw, 2.5rem);
+    max-width: 78rem;
+    margin: clamp(2.5rem, 5vw, 4.5rem) auto 0;
+}
+
+.sbwel__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: var(--card-radius, 0);
+    box-shadow: 0 6px 14px rgb(0 0 0 / 0.28);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Uden billede vises en mørk flade, så kortet aldrig er tomt. */
+.sbwel__image {
+    position: absolute;
+    inset: 0;
+    background: #2a2421 center / cover no-repeat;
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Det mørke lag og knappen, der kommer frem ved hover. */
+.sbwel__overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgb(0 0 0 / var(--overlay));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.sbwel__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    width: min(72%, 13rem);
+    padding: 0.55rem 1rem 0.55rem 1.5rem;
+    background: #ffffff;
+    color: #222222;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transform: translateY(1rem);
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* Pilen "tegnes" fra venstre mod højre. */
+.sbwel__arrow {
+    flex: none;
+    width: 2.25rem;
+    height: 0.6rem;
+    transform: scaleX(0.3);
+    transform-origin: left center;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) 0.1s;
+}
+
+.sbwel__media:hover .sbwel__image,
+.sbwel__media:focus-visible .sbwel__image {
+    transform: scale(1.06);
+}
+
+.sbwel__media:hover .sbwel__overlay,
+.sbwel__media:focus-visible .sbwel__overlay {
+    opacity: 1;
+}
+
+.sbwel__media:hover .sbwel__button,
+.sbwel__media:focus-visible .sbwel__button {
+    transform: translateY(0);
+}
+
+.sbwel__media:hover .sbwel__arrow,
+.sbwel__media:focus-visible .sbwel__arrow {
+    transform: scaleX(1);
+}
+
+.sbwel__card-title {
+    max-width: 85%;
+    margin: 1.1rem 0 0;
+    color: var(--card-title-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.sbwel__card-text {
+    margin: 0.2rem 0 0;
+    color: var(--card-text-color);
+    font-size: 0.85rem;
+    line-height: 1.55;
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/*
+ * Scriptet i template.php sætter .sbwel--armed på sektionen og .is-visible
+ * på overskriften og på hvert kort, når de ruller ind på skærmen.
+ *   1. Overskriften glider op, og teksten toner frem.
+ *   2. Kortet rulles op som et tæppe nedefra, mens billedet zoomer ud.
+ *      --i er kortets nummer, så kortene i en række kommer ét ad gangen.
+ *   3. Titel og tekst under kortet kommer op nedefra.
+ * De negative tal i clip-path giver plads til kortets skygge.
+ */
+
+@keyframes sbwel-line {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0); }
+}
+
+@keyframes sbwel-rise {
+    from { opacity: 0; transform: translateY(1.25rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sbwel-curtain {
+    from { clip-path: inset(100% -2rem -2rem -2rem); }
+    to   { clip-path: inset(-2rem); }
+}
+
+@keyframes sbwel-zoom {
+    from { transform: scale(1.18); }
+    to   { transform: scale(1); }
+}
+
+/* Skjult, indtil elementet er på skærmen. */
+.sbwel--armed .sbwel__title > span {
+    transform: translateY(110%);
+}
+
+.sbwel--armed .sbwel__text,
+.sbwel--armed .sbwel__card-title,
+.sbwel--armed .sbwel__card-text {
+    opacity: 0;
+}
+
+.sbwel--armed .sbwel__media {
+    clip-path: inset(100% -2rem -2rem -2rem);
+}
+
+/* Overskriften. */
+.sbwel--armed .is-visible .sbwel__title > span {
+    animation: sbwel-line 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.sbwel--armed .is-visible .sbwel__text {
+    animation: sbwel-rise 0.7s ease both 0.35s;
+}
+
+/* Kortene. */
+.sbwel--armed .is-visible .sbwel__media {
+    animation: sbwel-curtain 1.1s cubic-bezier(0.65, 0, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.16s);
+}
+
+.sbwel--armed .is-visible .sbwel__image {
+    animation: sbwel-zoom 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.16s);
+}
+
+.sbwel--armed .is-visible .sbwel__card-title {
+    animation: sbwel-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.55s + var(--i, 0) * 0.16s);
+}
+
+.sbwel--armed .is-visible .sbwel__card-text {
+    animation: sbwel-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.65s + var(--i, 0) * 0.16s);
+}
+
+/* På en smal skærm står kortene under hinanden og kommer ind ét ad gangen,
+   efterhånden som man scroller. Så skal de ikke vente på hinanden. */
+@media (max-width: 40rem) {
+    .sbwel__card {
+        --i: 0 !important;
+    }
+}
+
+/* --- Skærme uden mus -------------------------------------------------- */
+
+/* Der er ingen hover på en telefon: knappen står fremme i bunden af
+   billedet, uden det mørke lag. */
+@media (hover: none) {
+    .sbwel__overlay {
+        place-items: end center;
+        padding-bottom: 1.25rem;
+        background: none;
+        opacity: 1;
+    }
+
+    .sbwel__button,
+    .sbwel__arrow {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sbwel,
+    .sbwel * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

@@ -1,0 +1,176 @@
+/* =====================================================================
+   Ny i bridge — standardbridge
+
+   CSS-variablerne kommer fra getStyleSchema():
+   --bg-color, --title-color, --title-size, --banner-height,
+   --label-color, --text-color, --line-color.
+   ===================================================================== */
+
+.sbny {
+    padding: 1rem 0 clamp(2.5rem, 5vw, 4.5rem);
+    background: var(--bg-color);
+}
+
+/* --- Båndet ----------------------------------------------------------- */
+
+.sbny__banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* Auto: højden følger skærmens bredde, som i designet. */
+    height: var(--banner-height, clamp(4.5rem, 7.5vw, 8rem));
+    padding: 0 clamp(1.25rem, 3.3vw, 3.5rem);
+    overflow: hidden;
+    isolation: isolate;
+    background: #000000;
+}
+
+.sbny__image {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #000000 center 42% / cover no-repeat;
+}
+
+/* Sort i venstre side, så overskriften altid kan læses. */
+.sbny__image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #000000 0%, rgb(0 0 0 / 0.85) 22%, rgb(0 0 0 / 0) 46%);
+}
+
+.sbny__title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--title-color);
+    font-size: clamp(1.5rem, 3vw, var(--title-size));
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sbny__title > span {
+    display: block;
+}
+
+/* --- Oplysningerne ---------------------------------------------------- */
+
+.sbny__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1.75rem clamp(1.5rem, 4vw, 4rem);
+    padding: clamp(1.5rem, 3vw, 2.75rem) clamp(1.25rem, 4vw, 4rem) 0;
+}
+
+.sbny__label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    color: var(--label-color);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+/* Den lille streg efter overskriften. */
+.sbny__label::after {
+    content: '';
+    width: 2.5rem;
+    height: 1px;
+    background: var(--line-color);
+    transform-origin: left center;
+}
+
+.sbny__value {
+    max-width: 16rem;
+    margin: 0.15rem 0 0;
+    color: var(--text-color);
+    font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/*
+ * Scriptet i template.php sætter .sbny--armed på sektionen og .is-visible
+ * på båndet og på oplysningerne, når de ruller ind.
+ *   1. Båndet åbner sig fra venstre mod højre, mens billedet zoomer ud.
+ *   2. Overskriften glider op.
+ *   3. Oplysningerne kommer op nedefra én ad gangen (--i), og stregen
+ *      tegnes fra venstre.
+ */
+
+@keyframes sbny-wipe {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0); }
+}
+
+@keyframes sbny-zoom {
+    from { transform: scale(1.15); }
+    to   { transform: scale(1); }
+}
+
+@keyframes sbny-line {
+    from { transform: translateY(110%); }
+    to   { transform: translateY(0); }
+}
+
+@keyframes sbny-rise {
+    from { opacity: 0; transform: translateY(1.5rem); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sbny-draw {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+.sbny--armed .sbny__banner {
+    clip-path: inset(0 100% 0 0);
+}
+
+.sbny--armed .sbny__title > span {
+    transform: translateY(110%);
+}
+
+.sbny--armed .sbny__item {
+    opacity: 0;
+}
+
+.sbny--armed .sbny__label::after {
+    transform: scaleX(0);
+}
+
+.sbny--armed .sbny__banner.is-visible {
+    animation: sbny-wipe 1.2s cubic-bezier(0.65, 0, 0.2, 1) both;
+}
+
+.sbny--armed .is-visible .sbny__image {
+    animation: sbny-zoom 2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.sbny--armed .is-visible .sbny__title > span {
+    animation: sbny-line 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both 0.45s;
+}
+
+.sbny--armed .is-visible .sbny__item {
+    animation: sbny-rise 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.14s);
+}
+
+.sbny--armed .is-visible .sbny__label::after {
+    animation: sbny-draw 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+    animation-delay: calc(0.45s + var(--i, 0) * 0.14s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sbny,
+    .sbny * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

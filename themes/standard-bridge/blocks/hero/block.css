@@ -1,0 +1,241 @@
+/* =====================================================================
+   Hero — standardbridge
+
+   Farver og størrelser kommer fra getStyleSchema() som CSS-variabler:
+   --text-color, --title-size, --button-color, --overlay, --hero-height.
+   ===================================================================== */
+
+.sbhero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  /* Auto: højden følger bredden, som i designet (ca. 45 % af bredden). */
+  min-height: var(--hero-height, clamp(26rem, 45vw, 46rem));
+  padding: 7rem clamp(1.5rem, 11.5vw, 12rem) clamp(2rem, 3.5vw, 3.5rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: #2b2b2b;
+  color: var(--text-color);
+  background-size: cover;
+  background-position: center;
+}
+
+/* --- Billedet --------------------------------------------------------- */
+
+.sbhero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Mørkt lag, så teksten kan læses på et lyst billede. 0 % = intet lag. */
+.sbhero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / var(--overlay));
+}
+
+/* --- Tekst ------------------------------------------------------------ */
+
+.sbhero__title {
+  margin: 0;
+  font-size: clamp(2.25rem, 3.6vw, var(--title-size));
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* I editoren er overskriften ét felt, hvor Enter giver en ny linje. */
+.sbhero__title[data-inline] {
+  white-space: pre-line;
+}
+
+/* Hver linje er en "luge": teksten glider op bag kanten. */
+.sbhero__line {
+  display: block;
+  overflow: hidden;
+}
+
+.sbhero__line > span {
+  display: block;
+}
+
+.sbhero__tagline {
+  margin: 0.4rem 0 0;
+  font-size: clamp(0.65rem, 0.8vw, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* --- Knapper ---------------------------------------------------------- */
+
+.sbhero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.sbhero__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6rem;
+  padding: 0.4rem 1.4rem;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Knap 1: lys og gennemsigtig med hvid kant. */
+.sbhero__btn--ghost {
+  border-color: var(--text-color);
+  background: rgb(255 255 255 / 0.35);
+  color: var(--text-color);
+}
+
+.sbhero__btn--ghost:hover,
+.sbhero__btn--ghost:focus-visible {
+  background: var(--text-color);
+  color: #222222;
+}
+
+/* Knap 2: mørk. Ved hover bliver teksten hvid, og pilen folder sig ud. */
+.sbhero__btn--solid {
+  background: var(--button-color);
+  color: rgb(255 255 255 / 0.8);
+}
+
+.sbhero__btn--solid:hover,
+.sbhero__btn--solid:focus-visible {
+  background: color-mix(in srgb, var(--button-color), #000000 12%);
+  color: #ffffff;
+}
+
+.sbhero__arrow {
+  flex: none;
+  width: 0;
+  height: 1.1em;
+  margin-left: 0;
+  opacity: 0;
+  transform: translateX(-0.5rem);
+  transition:
+    width 0.35s cubic-bezier(0.2, 0.8, 0.3, 1),
+    margin-left 0.35s cubic-bezier(0.2, 0.8, 0.3, 1),
+    opacity 0.25s ease,
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.sbhero__btn--solid:hover .sbhero__arrow,
+.sbhero__btn--solid:focus-visible .sbhero__arrow {
+  width: 1.1em;
+  margin-left: 1.5rem;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* --- Animation -------------------------------------------------------- */
+
+/*
+ * Scriptet i template.php sætter .sbhero--armed og derefter .is-visible.
+ *   1. Billedet toner frem og zoomer langsomt ud.
+ *   2. Overskriften glider op, én linje ad gangen (--i er linjens nummer).
+ *   3. Den lille tekst og knapperne kommer op nedefra.
+ * Kun transform og opacity animeres.
+ */
+
+@keyframes sbhero-zoom {
+  from {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sbhero-line {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sbhero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sbhero--armed .sbhero__bg,
+.sbhero--armed .sbhero__tagline,
+.sbhero--armed .sbhero__btn {
+  opacity: 0;
+}
+
+.sbhero--armed .sbhero__line > span {
+  transform: translateY(110%);
+}
+
+.sbhero--armed.is-visible .sbhero__bg {
+  animation: sbhero-zoom 2.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.sbhero--armed.is-visible .sbhero__line > span {
+  animation: sbhero-line 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation-delay: calc(0.4s + var(--i, 0) * 0.14s);
+}
+
+.sbhero--armed.is-visible .sbhero__tagline {
+  animation: sbhero-rise 0.7s ease both 0.85s;
+}
+
+.sbhero--armed.is-visible .sbhero__btn {
+  animation: sbhero-rise 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both 1.05s;
+}
+
+.sbhero--armed.is-visible .sbhero__btn + .sbhero__btn {
+  animation-delay: 1.17s;
+}
+
+/* --- Små skærme ------------------------------------------------------- */
+
+@media (max-width: 40rem) {
+  .sbhero {
+    min-height: min(var(--hero-height, 30rem), 30rem);
+    padding-inline: 1.25rem;
+  }
+
+  /* Pilen står fremme på mobil — der er ingen hover. */
+  .sbhero__arrow {
+    width: 1.1em;
+    margin-left: 1rem;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sbhero,
+  .sbhero * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
