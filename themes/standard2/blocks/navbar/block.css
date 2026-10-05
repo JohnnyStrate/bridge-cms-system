@@ -1,7 +1,7 @@
 /* =====================================================================
    Navbar — Standard Bridge 2
 
-   [ Forside ]  Turneringer   Hold   Kontakt
+   [ Forside ]  Turneringer   Hold   Kontakt              [ logo ]
    ^ flugter med hero'ens overskrift (--s2-side i theme.css)
 
    Det aktive punkt står i en tynd hvid ramme. Alle punkter har samme
@@ -22,6 +22,7 @@
     --frame-color: #ffffff;
     --bar-color: #211e1e;
     --link-size: 22px;
+    --logo-size: 64px;
     --font-family: 'Jost';
 
     position: relative;
@@ -42,6 +43,10 @@
 }
 
 .s2nav__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
     padding: clamp(1.5rem, 3.6vw, 4.25rem) var(--s2-side) clamp(1rem, 2vw, 1.5rem);
     animation: s2nav-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -104,6 +109,31 @@
     outline-offset: 3px;
 }
 
+/* --- Logo i højre side ---------------------------------------------- */
+
+.s2nav__logo {
+    flex: none;
+    display: block;
+    transition: opacity 0.3s ease;
+}
+
+.s2nav__logo img {
+    display: block;
+    height: clamp(2.5rem, 4.5vw, var(--logo-size));
+    width: auto;
+    max-width: 12rem;
+    object-fit: contain;
+}
+
+.s2nav__logo:hover {
+    opacity: 0.8;
+}
+
+/* I den faste bjælke er logoet lidt mindre. */
+.block--standard2-navbar.is-stuck .s2nav__logo img {
+    height: clamp(2.25rem, 3.2vw, 3rem);
+}
+
 /* --- Fast bjælke, når man har scrollet ------------------------------ */
 
 .block--standard2-navbar.is-stuck .s2nav__bar {
@@ -126,6 +156,13 @@
 @media (max-width: 40rem) {
     .s2nav__links {
         gap: 0.35rem 0.25rem;
+    }
+
+    /* Logoet står over menuen på en smal skærm. */
+    .s2nav__bar {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 0.9rem;
     }
 }
 

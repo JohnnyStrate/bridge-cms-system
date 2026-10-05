@@ -36,6 +36,8 @@ final class Standard2ForsideTemplate extends AbstractTemplate
             static::block('standard2-hero'),
             static::block('standard2-welcome'),
             static::block('standard2-banner'),
+            static::block('standard2-cards'),
+            static::block('standard2-grid'),
         ];
     }
 }

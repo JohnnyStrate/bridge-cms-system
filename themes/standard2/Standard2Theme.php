@@ -45,6 +45,10 @@ final class Standard2Theme extends AbstractTheme
             'standard2-hero'    => Standard2HeroBlock::class,
             'standard2-welcome' => Standard2WelcomeBlock::class,
             'standard2-banner'  => Standard2BannerBlock::class,
+            'standard2-cards'   => Standard2CardsBlock::class,
+            'standard2-facts'   => Standard2FactsBlock::class,
+            'standard2-grid'    => Standard2GridBlock::class,
+            'standard2-footer'  => Standard2FooterBlock::class,
         ];
     }
 
@@ -52,6 +56,7 @@ final class Standard2Theme extends AbstractTheme
     {
         return [
             'header' => 'standard2-navbar',
+            'footer' => 'standard2-footer',
         ];
     }
 }

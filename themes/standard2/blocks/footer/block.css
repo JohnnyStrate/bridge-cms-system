@@ -1,0 +1,261 @@
+/* =====================================================================
+   Footer — Standard Bridge 2
+
+   [ logo ]                          Forside  Turneringer  Hold  Kontakt
+   ────────────────────────────────────────────────────────────────────
+   KONTAKT              SPILLETIDER                kort tekst ...
+   telefon              Mandag  kl. 13.00          [ Tilmeld ↗ ]
+   adresse              Mandag  kl. 18.45
+   ────────────────────────────────────────────────────────────────────
+   © 2026 Din Bridgeklub                                  Til toppen ↑
+
+   Mørk som hero'en, så siden åbner og lukker i samme farve. Indholdet
+   står i sektionernes bredde (--s2-width), så footerens kanter flugter
+   med overskriftsboksene ovenover. Tynde streger, skarpe hjørner, Jost i
+   lette vægte og temaets hover-streg — som resten af temaet.
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-footer {
+    --bg-color: #211e1e;
+    --text-color: #d8d8d8;
+    --muted-color: #8f8f8f;
+    --button-color: #f6ecec;
+    --button-text: #484848;
+    --font-family: 'Jost';
+
+    /* Ingen ekstra luft over: sektionerne har selv luft i bunden. */
+    padding: clamp(3rem, 6vw, 5rem) 0 clamp(1.5rem, 2.5vw, 2rem);
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family), var(--font-body);
+}
+
+.s2ft__inner {
+    width: var(--s2-width);
+    margin: 0 auto;
+}
+
+.s2ft__inner a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* --- Logo og genveje ------------------------------------------------ */
+
+.s2ft__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    border-bottom: 1px solid rgb(216 216 216 / 0.18);
+}
+
+.s2ft__logo img {
+    display: block;
+    height: clamp(3rem, 5vw, 4.25rem);
+    width: auto;
+    max-width: 14rem;
+    object-fit: contain;
+    transition: opacity 0.3s ease;
+}
+
+.s2ft__logo:hover img {
+    opacity: 0.8;
+}
+
+.s2ft__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem clamp(1.25rem, 2.5vw, 2.25rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.s2ft__links a {
+    --s2-line-bottom: -0.15em;
+
+    color: var(--muted-color);
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    transition: color 0.3s ease;
+}
+
+.s2ft__links a:hover,
+.s2ft__links a:focus-visible {
+    color: var(--text-color);
+}
+
+/* --- Kolonnerne ----------------------------------------------------- */
+
+.s2ft__cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 2.5rem clamp(2rem, 5vw, 4rem);
+    padding-block: clamp(2.25rem, 4vw, 3.25rem);
+    border-bottom: 1px solid rgb(216 216 216 / 0.18);
+}
+
+/* Små overskrifter: samme stil som fakta-boksens ("HOVEDKLUB"). */
+.s2ft__heading {
+    margin: 0 0 1rem;
+    color: var(--muted-color);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+}
+
+.s2ft__line {
+    margin: 0 0 0.45rem;
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 300;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+}
+
+.s2ft__hours {
+    margin: 0;
+}
+
+.s2ft__hours div {
+    display: grid;
+    grid-template-columns: 5.25rem 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.45rem;
+    line-height: 1.6;
+}
+
+.s2ft__hours dt {
+    font-weight: 500;
+    letter-spacing: 0.04em;
+}
+
+.s2ft__hours dd {
+    margin: 0;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+}
+
+/* --- Kort tekst og knap --------------------------------------------- */
+
+.s2ft__col--cta {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 1.25rem;
+}
+
+.s2ft__tagline {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+}
+
+/* Samme lyse knap som "Tilmeld" i hero'en. */
+.s2ft__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 9.5rem;
+    padding: 0.3rem 2rem 0.35rem;
+    background: var(--button-color);
+    color: var(--button-text) !important;
+    font-size: 1.25rem;
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+}
+
+.s2ft__arrow {
+    width: 0.42em;
+    height: 0.42em;
+    margin: -0.7em 0 0 0.3em;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.s2ft__button:hover .s2-underline::after,
+.s2ft__button:focus-visible .s2-underline::after {
+    transform: scaleX(1);
+}
+
+.s2ft__button:hover .s2ft__arrow,
+.s2ft__button:focus-visible .s2ft__arrow {
+    transform: translate(3px, -3px);
+}
+
+/* --- Bundlinjen ----------------------------------------------------- */
+
+.s2ft__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: clamp(1.25rem, 2vw, 1.5rem);
+    color: var(--muted-color);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.s2ft__copy {
+    margin: 0;
+}
+
+.s2ft__top-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.s2ft__top-link svg {
+    width: 0.7rem;
+    height: 0.95rem;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.s2ft__top-link:hover {
+    color: var(--text-color);
+}
+
+.s2ft__top-link:hover .s2-underline::after {
+    transform: scaleX(1);
+}
+
+.s2ft__top-link:hover svg {
+    transform: translateY(-3px);
+}
+
+.s2ft__inner a:focus-visible {
+    outline: 2px solid var(--text-color);
+    outline-offset: 3px;
+}
+
+/* --- Mindre skærme -------------------------------------------------- */
+
+@media (max-width: 52rem) {
+    .s2ft__cols {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .s2ft__col--cta {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 34rem) {
+    .s2ft__cols {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

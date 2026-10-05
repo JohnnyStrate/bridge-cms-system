@@ -1,0 +1,90 @@
+/* =====================================================================
+   Billedgitter — Standard Bridge 2 ("Mesterpoint og klubstillinger")
+
+       ______________________________________
+       |   Mesterpoint og klubstillinger    |   Standard2Kit::heading()
+       --------------------------------------
+                kort tekst, centreret
+       +-----------------+  +-----------------+
+       |  Se mester. ↗   |  |  Se rangliste ↗ |   to og to, tilsammen
+       +-----------------+  +-----------------+   præcis --s2-width
+       +-----------------+  +-----------------+
+       | Se bronzest. ↗  |  | Se handicap. ↗  |
+       +-----------------+  +-----------------+
+
+   Billederne bruger .s2-photolink fra theme.css — samme hover som
+   "Flere nyheder". Her står teksten på midten, og hele billedet er
+   dæmpet lige meget (ingen toning fra venstre som standard).
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-grid {
+    --heading-bg: #5b5959;
+    --heading-color: #ffffff;
+    --plain-color: #454545;
+    --heading-size: 64px;
+    --intro-color: #635e5e;
+    --overlay-opacity: 40%;
+    --shade-opacity: 0%;
+    --tile-ratio: 54;                       /* 100 = kvadrat */
+    --text-size: 40px;
+    --font-family: 'Jost';
+
+    padding-bottom: clamp(4rem, 8vw, 7rem);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* Luft til sektionen over — som "Spil bridge". */
+.block--standard2-grid > .s2-heading:not(.s2-heading--plain) {
+    margin-top: clamp(3rem, 7vw, 6rem);
+}
+
+.s2g__intro {
+    width: min(48rem, var(--s2-width));
+    margin: clamp(1rem, 1.8vw, 1.4rem) auto 0;
+    color: var(--intro-color);
+    font-size: clamp(0.85rem, 0.95vw, 0.95rem);
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.05em;
+    text-align: center;
+    white-space: pre-line;
+}
+
+/* --- Gitteret ------------------------------------------------------- */
+
+.s2g__tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.3rem, 0.5vw, 0.45rem);
+    width: var(--s2-width);
+    margin: clamp(2rem, 3.5vw, 3rem) auto 0;
+}
+
+/* Højden følger bredden, så billederne er "næsten firkantede" på alle
+   skærme. --tile-ratio er højden i forhold til bredden (100 = kvadrat). */
+.s2g__tile {
+    justify-content: center;
+    aspect-ratio: 100 / var(--tile-ratio);
+    min-height: 10rem;
+}
+
+.s2g__tile .s2-photolink__label {
+    padding-inline: 1rem;
+    text-align: center;
+}
+
+/* Billederne toner frem lidt efter hinanden. */
+.s2g__tile.s2-reveal--armed.is-visible {
+    transition-delay: calc(var(--n, 0) * 0.1s);
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 40rem) {
+    .s2g__tiles {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

@@ -4,7 +4,8 @@ declare(strict_types=1);
 /**
  * Navbar til Standard Bridge 2.
  *
- * Menupunkterne står til venstre, i flugt med hero'ens indhold. Det aktive
+ * Menupunkterne står til venstre, i flugt med hero'ens indhold, og
+ * klubbens logo (fra Indstillinger) står i højre side. Det aktive
  * punkt er lysere og står i en tynd, hvid ramme. Ved hover glider en tynd
  * streg ind under teksten fra venstre.
  *
@@ -90,6 +91,15 @@ final class Standard2NavbarBlock extends AbstractBlock
                 'default' => '#211e1e',
                 'group'   => 'Farver',
             ],
+            'logo_size' => [
+                'type'    => 'number',
+                'label'   => 'Logoets højde',
+                'default' => 64,
+                'min'     => 32,
+                'max'     => 140,
+                'unit'    => 'px',
+                'group'   => 'Form',
+            ],
             'link_size' => [
                 'type'    => 'number',
                 'label'   => 'Skriftstørrelse',
@@ -154,7 +164,14 @@ final class Standard2NavbarBlock extends AbstractBlock
             $links[$active]['active'] = true;
         }
 
+        // Klubbens logo fra Indstillinger — ellers temaets pladsholder.
+        $logo = SiteInfo::get('logo');
+        $logo = $logo !== '' ? $logo : 'themes/standard2/assets/logo-placeholder.svg';
+
         return static::renderTemplate([
+            'logo'     => $context->asset($logo),
+            'logoAlt'  => SiteInfo::get('club_name'),
+            'homeHref' => $links[0]['href'] ?? '#',
             'links'   => $links,
             'cssVars' => static::cssVariables($styles),
             'context' => $context,

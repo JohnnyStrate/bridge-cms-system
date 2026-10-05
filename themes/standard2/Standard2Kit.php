@@ -8,7 +8,8 @@ declare(strict_types=1);
  * Stylingen ligger i themes/standard2/theme.css.
  *
  *   heading()  Sektionsoverskriften: en tynd streg og under den en mørk
- *              boks med overskriften i hvidt ("Velkommen").
+ *              boks med overskriften i hvidt ("Velkommen") — eller store
+ *              mørke versaler uden boks ("TURNERINGER OG RESULTATER").
  *   reveal()   Den rolige indgang: elementer med klassen s2-reveal toner
  *              blødt op, én ad gangen, når de kommer ind på skærmen.
  *
@@ -21,19 +22,35 @@ final class Standard2Kit
     {
     }
 
+    /** Valgmulighederne for overskriftens udseende (til stil-skemaerne). */
+    public const HEADING_STYLES = ['Boks', 'Stor tekst'];
+
     /**
-     * Sektionsoverskriften. Farverne kommer fra sektionen, den står i:
-     * --heading-bg (streg og boks) og --heading-color (teksten).
+     * Sektionsoverskriften i en af to udgaver:
+     *
+     *   'Boks'        streg + mørk boks med hvid tekst ("Velkommen").
+     *                 Farver: --heading-bg og --heading-color.
+     *   'Stor tekst'  store, mørke versaler uden boks
+     *                 ("TURNERINGER OG RESULTATER"). Farve: --plain-color.
      *
      * @param string $field Feltet i blokkens skema, så overskriften kan
      *                      redigeres direkte i editoren.
      */
-    public static function heading(string $title, RenderContext $context, string $field = 'title'): string
-    {
+    public static function heading(
+        string $title,
+        RenderContext $context,
+        string $field = 'title',
+        string $style = 'Boks'
+    ): string {
+        $text = '<span' . $context->inline($field, 'Overskrift') . '>' . e($title) . '</span>';
+
+        if ($style === 'Stor tekst') {
+            return '<h2 class="s2-heading s2-heading--plain s2-reveal">' . $text . '</h2>';
+        }
+
         return '<div class="s2-heading s2-reveal">'
             . '<span class="s2-heading__line" aria-hidden="true"></span>'
-            . '<h2 class="s2-heading__box"><span' . $context->inline($field, 'Overskrift') . '>'
-            . e($title) . '</span></h2>'
+            . '<h2 class="s2-heading__box">' . $text . '</h2>'
             . '</div>';
     }
 

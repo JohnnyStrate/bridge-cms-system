@@ -68,7 +68,7 @@ final class Standard2BannerBlock extends AbstractBlock
             'shade_opacity' => [
                 'type'    => 'number',
                 'label'   => 'Mørk toning fra venstre (bag teksten)',
-                'default' => 70,
+                'default' => 40,
                 'min'     => 0,
                 'max'     => 100,
                 'unit'    => '%',

@@ -3,6 +3,9 @@
  * Template for Standard Bridge 2's navbar.
  *
  * @var array<int, array<string, mixed>> $links   label, href, active.
+ * @var string                           $logo    Færdig, valideret URL.
+ * @var string                           $logoAlt
+ * @var string                           $homeHref
  * @var string                           $cssVars
  * @var RenderContext                    $context
  *
@@ -23,6 +26,10 @@ $editing = $context->isInlineEditing();
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+
+        <a class="s2nav__logo" href="<?= e($homeHref) ?>">
+            <img src="<?= e($logo) ?>" alt="<?= e($logoAlt) ?>"<?= $editing ? ' title="Logoet skiftes under Indstillinger"' : '' ?>>
+        </a>
     </div>
 </nav>
 <?php if (!$editing): ?>

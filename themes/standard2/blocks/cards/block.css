@@ -1,0 +1,147 @@
+/* =====================================================================
+   Kort med billeder — Standard Bridge 2
+
+       ______________________________________
+       |            Spil bridge             |   Standard2Kit::heading()
+       --------------------------------------
+                kort tekst, centreret
+
+       +----------+  +-----------------------+
+       | Mandag   |  |▓▓ Se mandag ↗  (foto) |   hvid boks (ca. 30 %)
+       | efterm.  |  |                       |   + billedlink (resten)
+       | tekst …  |  +-----------------------+
+       +----------+
+       (samme afstand mellem alle bokse — vandret og lodret)
+
+   Alt går præcis ud til --s2-width (theme.css). Billedlinket bruger
+   .s2-photolink fra theme.css — samme udseende som "Flere nyheder".
+
+   Variablerne øverst er STANDARDVÆRDIER. Editoren skriver de samme
+   variabler i style-attributten, og de vinder.
+   ===================================================================== */
+
+.block--standard2-cards {
+    --heading-bg: #5b5959;
+    --heading-color: #ffffff;
+    --plain-color: #454545;
+    --heading-size: 64px;
+    --intro-color: #635e5e;
+    --card-title-color: #222121;
+    --card-text-color: #635e5e;
+    --card-width: 30%;
+    --row-height: 200px;
+    --overlay-opacity: 26%;
+    --shade-opacity: 40%;
+    --text-size: 40px;
+    --font-family: 'Jost';
+
+    --s2c-gap: clamp(0.6rem, 1vw, 0.8rem);   /* samme luft overalt */
+
+    padding-bottom: clamp(4rem, 8vw, 7rem);
+    font-family: var(--font-family), var(--font-body);
+}
+
+/* Luft over sektionen, så den står fri af sektionen ovenover (fx
+   "Flere nyheder"). Gælder kun boks-overskriften — "Stor tekst" har sin
+   egen luft i theme.css. */
+.block--standard2-cards > .s2-heading:not(.s2-heading--plain) {
+    margin-top: clamp(3rem, 7vw, 6rem);
+}
+
+.s2c__intro {
+    width: min(36rem, var(--s2-width));
+    margin: clamp(1rem, 1.8vw, 1.4rem) auto 0;
+    color: var(--intro-color);
+    font-size: clamp(0.85rem, 0.95vw, 0.95rem);
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.05em;
+    text-align: center;
+    white-space: pre-line;
+}
+
+/* --- Rækkerne ------------------------------------------------------- */
+
+.s2c__rows {
+    display: grid;
+    gap: var(--s2c-gap);
+    width: var(--s2-width);
+    margin: clamp(1.75rem, 3vw, 2.5rem) auto 0;
+}
+
+.s2c__row {
+    display: grid;
+    grid-template-columns: var(--card-width) minmax(0, 1fr);
+    gap: var(--s2c-gap);
+    min-height: clamp(9rem, 14vw, var(--row-height));
+}
+
+/* Rækkerne toner frem lidt efter hinanden. */
+.s2c__row.s2-reveal--armed.is-visible:nth-child(2) { transition-delay: 0.12s; }
+.s2c__row.s2-reveal--armed.is-visible:nth-child(3) { transition-delay: 0.24s; }
+
+/* --- Den hvide boks ------------------------------------------------- */
+
+.s2c__card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(1.25rem, 2vw, 1.75rem) clamp(1.25rem, 3.5vw, 4rem);
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.07);
+}
+
+/* Overskriften er "presset sammen", så ordene står under hinanden. */
+.s2c__card-title {
+    max-width: 11ch;
+    margin: 0 0 0.45rem;
+    color: var(--card-title-color);
+    font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+}
+
+.s2c__card-text {
+    margin: 0;
+    color: var(--card-text-color);
+    font-size: clamp(0.78rem, 0.85vw, 0.85rem);
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    white-space: pre-line;
+}
+
+/* Uden overskrift: teksten står centreret (som på landingssiden). */
+.s2c__card--text-only {
+    align-items: center;
+    text-align: center;
+}
+
+.s2c__card--text-only .s2c__card-text {
+    max-width: 18rem;
+    font-size: clamp(0.85rem, 0.95vw, 0.95rem);
+}
+
+/* --- Billedet (.s2-photolink i theme.css) --------------------------- */
+
+.s2c__photo {
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.08);
+}
+
+/* --- Mobil ---------------------------------------------------------- */
+
+@media (max-width: 44rem) {
+    .s2c__row {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+    }
+
+    .s2c__photo {
+        min-height: 9rem;
+    }
+
+    .s2c__rows {
+        gap: 1.5rem;
+    }
+}

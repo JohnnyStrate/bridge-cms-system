@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 128" width="240" height="128">
+  <!-- Pladsholder-logo til Standard Bridge 2. Klubbens eget logo vælges under Indstillinger. -->
+  <rect x="2" y="2" width="236" height="124" fill="none" stroke="#d8d8d8" stroke-width="2" stroke-dasharray="9 6"/>
+  <g transform="translate(34 40)" fill="#d8d8d8">
+    <path d="M24 2 C24 2 4 18 4 30 C4 38 11 42 17 38 C19 37 21 35 22 33 L20 46 H28 L26 33 C27 35 29 37 31 38 C37 42 44 38 44 30 C44 18 24 2 24 2 Z"/>
+  </g>
+  <text x="152" y="62" text-anchor="middle" font-family="Jost, Arial, sans-serif" font-size="25" font-weight="500" letter-spacing="2" fill="#d8d8d8">DIT</text>
+  <text x="152" y="92" text-anchor="middle" font-family="Jost, Arial, sans-serif" font-size="25" font-weight="500" letter-spacing="2" fill="#d8d8d8">LOGO</text>
+</svg>
