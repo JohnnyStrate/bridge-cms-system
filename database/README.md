@@ -20,8 +20,9 @@ De ændrer en eksisterende database uden at slette indhold.
 | 1 | `2026-09-23_global_blocks_keys.sql` | Uden den kan navbar og footer ikke gemmes rigtigt. |
 | 2 | `2026-09-23_templates_i_kode.sql` | Uden den kan der ikke oprettes sider fra en skabelon. |
 | 3 | `2026-09-24_temaer.sql` | Navbar og footer pr. tema + tabellen `site_settings`. Uden den stopper admin med en besked om at køre den. |
+| 4 | `2026-10-06_publish_files.sql` | Tabellen `publish_files` til FTP-udgivelse. Uden den kan "Byg og upload" ikke huske, hvad der ligger på serveren. |
 
-Nummer 3 kan køres flere gange uden at gå i stykker.
+Nummer 3 og 4 kan køres flere gange uden at gå i stykker.
 
 ## Når I ændrer strukturen
 
@@ -39,7 +40,8 @@ Tre ting i samme commit, ellers går det galt for de andre:
 | `pages`           | Siderne og deres placering i sidetræet           |
 | `page_blocks`     | Blokkene på hver side                            |
 | `global_blocks`   | Navbar og footer — én af hver pr. tema           |
-| `site_settings`   | Sitets indstillinger, fx `active_theme`          |
+| `site_settings`   | Sitets indstillinger, fx `active_theme` og FTP-oplysningerne (`ftp_*`) |
+| `publish_files`   | Hvilke filer der ligger på webserveren, og deres fingeraftryk |
 | `galleries`       | Billedgallerier, som galleri-blokken peger på    |
 
 Temaer og skabeloner ligger ikke i databasen. De er kode i `themes/`, én

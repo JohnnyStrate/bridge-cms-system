@@ -18,6 +18,7 @@ $menuItems = [
     'gallery'  => ['galleries.php', 'Galleri'],
     'themes'   => ['themes.php', 'Tema'],
     'settings' => ['settings.php', 'Indstillinger'],
+    'server'   => ['publish-settings.php', 'Server (FTP)'],
 ];
 
 $activeMenu = $activeMenu ?? '';

@@ -46,7 +46,12 @@ final class SiteExporter
     /**
      * Kører eksporten.
      *
-     * @return array{pages: int, assets: int, warnings: array<int, string>, dir: string}
+     * Eksporten markerer IKKE siderne som udgivet. Det gør den, der kalder:
+     * ved "Byg website" med det samme, ved "Byg og upload" først når
+     * uploaden er lykkedes. Ellers ville en side stå som udgivet, selv om
+     * FTP fejlede, og den aldrig nåede serveren. Id'erne står i page_ids.
+     *
+     * @return array{pages: int, assets: int, warnings: array<int, string>, dir: string, page_ids: array<int, int>}
      */
     public function export(): array
     {
@@ -75,10 +80,11 @@ final class SiteExporter
         // kunne en side ende i én mappe, mens menuen pegede på en anden.
         $siteMap  = SiteMap::fromPages($all);
         $exported = 0;
+        $pageIds  = [];
 
         foreach ($published as $page) {
             $this->exportPage($page, $siteMap);
-            $this->pages->markAsPublished((int) $page['id']);
+            $pageIds[] = (int) $page['id'];
             $exported++;
         }
 
@@ -100,6 +106,7 @@ final class SiteExporter
             'assets'   => count($this->assets),
             'warnings' => $this->warnings,
             'dir'      => $this->exportDir,
+            'page_ids' => $pageIds,
         ];
     }
 

@@ -134,3 +134,26 @@ CREATE TABLE `galleries` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_galleries_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+--  Huskeliste over filer på webserveren (FTP-udgivelse)
+--
+--  Efter hver upload noteres, hvilke filer der ligger på serveren, og
+--  et fingeraftryk (sha1) af indholdet. Næste udgivelse uploader kun
+--  filer, hvor fingeraftrykket er ændret, og sletter kun filer, som
+--  står her — men ikke længere findes i eksporten. Alt andet på
+--  serveren røres aldrig.
+--
+--  `path` er sammenlignet bogstav for bogstav (utf8mb4_bin), så
+--  "Logo.png" og "logo.png" ikke bliver slået sammen.
+--
+--  FTP-oplysningerne (host, bruger, kodeord, mappe) ligger i
+--  site_settings under nøglerne ftp_host, ftp_port, ftp_user,
+--  ftp_password, ftp_dir og ftp_secure.
+-- ---------------------------------------------------------------------
+CREATE TABLE `publish_files` (
+  `path`        VARCHAR(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `hash`        CHAR(40) NOT NULL,
+  `uploaded_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

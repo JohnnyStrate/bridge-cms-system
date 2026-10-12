@@ -36,3 +36,24 @@ Har du en ældre database, så se `database/README.md`.
 
 Ingen fælles filer skal rettes, og der skal ikke køres SQL. Temaet dukker op
 under "Tema" i admin.
+
+## Udgiv til et webhotel (FTP)
+
+Websitet bygges som statiske filer i `export/` og kan lægges op på et
+hvilket som helst webhotel med FTP-adgang. CMS'et kører stadig kun lokalt.
+
+1. Kør `database/migrations/2026-10-06_publish_files.sql` i phpMyAdmin
+   (nye installationer har tabellen allerede).
+2. Åbn **Server (FTP)** i admin og udfyld adresse, bruger, kodeord og mappe
+   (ofte `public_html`). Lad **Krypteret forbindelse (FTPS)** stå til.
+   Tryk **Test forbindelse**, før du gemmer.
+3. Gå til **Udgiv** og tryk **Byg og upload til serveren**.
+
+Efter første gang uploades kun nye og ændrede filer. Filer, der ikke er med
+mere, slettes på serveren, men kun dem CMS'et selv har lagt derop. Er der
+rettet noget direkte på serveren, så brug **Upload alt forfra**.
+
+Kodeordet gemmes i databasen på jeres egen computer, aldrig i git. Giver
+Test forbindelse beskeden om, at FTP-udvidelsen er slået fra: åbn `php.ini`
+(XAMPP: Config ved Apache), fjern `;` foran `extension=ftp`, og genstart
+Apache.
